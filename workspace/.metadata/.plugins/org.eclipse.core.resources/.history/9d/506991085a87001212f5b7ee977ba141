@@ -1,0 +1,40 @@
+package netvis.ui;
+
+import java.awt.Dimension;
+
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+public class FilterPanel extends JPanel {
+	
+	public FilterPanel() {
+		JPanel contentPane = buildContentPane();
+		setPreferredSize(new Dimension(100, 500));
+	}
+
+	private JPanel buildContentPane() {
+		// Create filter options
+		JButton dummyButton = new JButton("Button");
+		
+		JCheckBox dummyCheckBox1 = new JCheckBox("CheckBox 1");
+		JCheckBox dummyCheckBox2 = new JCheckBox("CheckBox 2");
+		
+		JRadioButton dummyRadioButton1 = new JRadioButton("Radio 1");
+		JRadioButton dummyRadioButton2 = new JRadioButton("Radio 2");
+		ButtonGroup dummyRadioGroup = new ButtonGroup();
+		dummyRadioGroup.add(dummyRadioButton1);
+		dummyRadioGroup.add(dummyRadioButton2);
+		
+		String[] comboBoxStrings = {"ComboBox 1", "ComboBox 2"};
+		JComboBox dummyComboBox = new JComboBox(comboBoxStrings)
+		
+		JPanel contentPane = new JPanel();
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+		
+	}
+
+}

@@ -1,0 +1,7 @@
+package netvis.ui;
+
+import javax.swing.JPanel;
+
+public class FilterPanel extends JPanel {
+
+}

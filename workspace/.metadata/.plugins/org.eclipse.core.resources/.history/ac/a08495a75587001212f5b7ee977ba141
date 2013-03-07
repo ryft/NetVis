@@ -1,0 +1,93 @@
+package netvis;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+public class ApplicationFrame extends JFrame {
+
+	public ApplicationFrame() {
+		super("NetVis");
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		JPanel contentPane = new JPanel(new BorderLayout());
+		
+		// Set and organise the content pane
+		setContentPane(contentPane);
+		setResizable(false);
+		setLocation(100,100);
+		pack();
+	}
+	
+	private JToolBar getToolBar() {
+		// Create the toolbar buttons and assign them the appropriate controllers
+		JToggleButton editButton = new JToggleButton("Edit");
+		new SelectMode(stateManager, editButton, StateManager.Mode.EDIT);
+		
+		JToggleButton createWallButton = new JToggleButton("Create Wall");
+		new SelectMode(stateManager, createWallButton, StateManager.Mode.ADD_WALL);
+		
+		JToggleButton createBoulderButton = new JToggleButton("Create Boulder");
+		new SelectMode(stateManager, createBoulderButton, StateManager.Mode.ADD_BOULDER);
+		
+		JToggleButton createDiamondButton = new JToggleButton("Create Diamond");
+		new SelectMode(stateManager, createDiamondButton, StateManager.Mode.ADD_DIAMOND);
+		
+		JToggleButton createDirtButton = new JToggleButton("Create Dirt");
+		new SelectMode(stateManager, createDirtButton, StateManager.Mode.ADD_DIRT);
+		
+		JToggleButton createPlayerButton = new JToggleButton("Create Player");
+		new SelectMode(stateManager, createPlayerButton, StateManager.Mode.ADD_PLAYER);
+		
+		JToggleButton playButton = new JToggleButton("Play");
+		new SelectMode(stateManager, playButton, StateManager.Mode.PLAY);
+		
+		JButton deleteButton = new JButton("Delete");
+		new DeleteEntities(stateManager, caveView, deleteButton);
+		
+		// Create options for the combo box
+		String[] wallColours = { "", "Red", "Blue", "Green" };
+		JComboBox wallColoursBox = new JComboBox(wallColours);
+		wallColoursBox.setSelectedIndex(0);
+		new ChangeColour(stateManager, caveView, wallColoursBox);
+		
+		// Initialise the diamond number text box
+		JTextField diamondNumberField =  new JTextField("1");
+		diamondNumberField.setMinimumSize(new Dimension(50,20));
+		new SetDiamondNumber(stateManager, diamondNumberField);
+		
+		// Make sure only one button is selected at once
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(editButton);
+		buttonGroup.add(createWallButton);
+		buttonGroup.add(createBoulderButton);
+		buttonGroup.add(createDiamondButton);
+		buttonGroup.add(createDirtButton);
+		buttonGroup.add(createPlayerButton);
+		buttonGroup.add(playButton);
+		buttonGroup.setSelected(editButton.getModel(), true);
+		
+		// Build the toolbar
+		JToolBar toolBar = new JToolBar();
+		toolBar.add(editButton);
+		toolBar.add(createWallButton);
+		toolBar.add(createBoulderButton);
+		toolBar.add(createDiamondButton);
+		toolBar.add(createDirtButton);
+		toolBar.add(createPlayerButton);
+		toolBar.add(playButton);
+		toolBar.addSeparator();
+		toolBar.add(deleteButton);
+		toolBar.add(wallColoursBox);
+		toolBar.add(diamondNumberField);
+		
+		toolBar.setFloatable(false);
+		return toolBar;
+	}
+	
+	public static void main(String[] args) {
+		ApplicationFrame applicationFrame = new ApplicationFrame();
+		applicationFrame.setVisible(true);
+	}
+
+}

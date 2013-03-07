@@ -1,0 +1,20 @@
+package netvis.ui;
+
+import java.awt.Dimension;
+
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+
+public class FilterPanel extends JPanel {
+	
+	public FilterPanel() {
+		JPanel contentPane = buildContentPane();
+		setPreferredSize(new Dimension(100, 500));
+	}
+
+	private JPanel buildContentPane() {
+		JPanel contentPane = new JPanel();
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+	}
+
+}

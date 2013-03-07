@@ -1,0 +1,11 @@
+package netvis.ui;
+
+import javax.swing.JPanel;
+
+public class FilterPanel extends JPanel {
+	
+	public FilterPanel() {
+		setPreferredSize(new Dimension(100, 500));
+	}
+
+}
