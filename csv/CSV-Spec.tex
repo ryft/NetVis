@@ -1,0 +1,147 @@
+\documentclass[12pt,a4paper]{article}
+
+\author{James Nicholls / Clockwork Dragon group}
+\title{Packet Capture Specification}
+\date{\today}
+
+\usepackage{fullpage}
+\usepackage{url}
+
+\setlength{\parindent}{0cm}
+
+\begin{document}
+
+    \maketitle
+
+    This document provides a specification and index of the CSV files
+    which are in use as test data for the network visualisation
+    application NetVis.
+
+    \section{File format specification}
+        All capture files are provided to the application as CSV files
+        with the following headers;
+
+    \begin{itemize}
+    \setlength{\itemsep}{0pt}
+        \item \verb!No.          ! Packet number
+        \item \verb!Time         ! Time elapsed since first packet (seconds)
+        \item \verb!Source IP    ! Source IPv4/6 address
+        \item \verb!Source HW    ! Source hardware (MAC) address
+        \item \verb!Source Port  ! Source Port
+        \item \verb!Dest IP      ! Destination IPv4/6 address
+        \item \verb!Dest HW      ! Destination hardware (MAC) address
+        \item \verb!Dest Port    ! Destination Port
+        \item \verb!Protocol     ! Communication protocol
+        \item \verb!Length       ! Packet length (bytes)
+        \item \verb!Info         ! Detected description of packet purpose
+    \end{itemize}
+
+    \section{Sources}
+
+    Notable external sources of packet trace (pcap) files.
+
+    \begin{itemize}
+        \item \url{https://www.evilfingers.com/} \\
+            A community portal for Information Security, who publish
+            internet security papers and keep a public archive of
+            PCAP samples, among other resources.
+
+        \item \url{http://www.honeynet.org/} \\
+            The Honeynet Project is a leading international 501c3
+            non-profit security research organization, dedicated to
+            investigating the latest attacks and developing open source
+            security tools to improve Internet security.
+    \end{itemize}
+
+    \pagebreak
+
+    \section{Capture files}
+        This section comprises a list of CSV files currently in use in
+        application development and testing, as well as a short
+        description of each.
+
+        \subsection{eduroam.csv}
+            Source: J. Nicholls\\
+            Original filename: \verb!eduroam.pcap!\\
+            Size: 85664 packets - 16.4 MB\\
+
+            All traffic seen by an Ubuntu laptop with minimal running
+            services, connected to the Eduroam network on the wlan0
+            interface. Approximately 85000 packets over 35 minutes.
+
+        \subsection{jre-overflow.csv}
+            Source: \url{https://www.evilfingers.com/}\\
+            Original filename:\\
+            \verb!       Sun_jre1.6.0_X_isInstalled.dnsResolve_Function_Overflow_PoC.pcap!\\
+            Size: 65561 packets - 14.7 MB\\
+
+            Proof-of-concept packet capture of a denial of service
+            attack on JRE 1.6.0 by exploiting the DNS resolution
+            function. A local server is flooded with 65000 packets in
+            11 minutes.
+
+        \subsection{port-scan.csv}
+            Source: J. Happa\\
+            Original filename: \verb!portscan.pcap!\\
+            Size: 1818 packets - 371 kB\\
+
+            A port scan of a Windows Vista PC, originating from an
+            Ubuntu PC, concluding that only port 80 (http) is open.
+
+        \subsection{remote-execution.csv}
+            Source: \url{http://www.honeynet.org/}\\
+            Original filename: \verb!attack-trace.pcap_.gz!\\
+            Size: 348 packets - 53.6 kB\\
+
+            Packet trace of a malware attack which distributes a
+            payload exploiting the Windows Local Security Authority
+            (LSA) Remote Procedure Call (RPC) service of the victim
+            host, compromising the IPC\$ share. Once the share is
+            exploited, a script is invoked, causing a connection to an
+            FTP server named “NzmxFtpd” and the acquisition of an
+            infected executable, \verb!ssms.exe!.
+
+        \subsection{skype.csv}
+            Source: J. Nicholls\\
+            Original filename: \verb|skype.pcap|\\
+            Size: 418 packets - 73 kB\\
+
+            Packets transferred during the authentication and
+            initialisation of a Skype session. Recorded on an Ubuntu PC
+            with minimal services running.
+
+        \subsection{ssh-attack.csv}
+            Source: \url{http://www.honeynet.org/}\\
+            Original filename: \verb|hp\_challenge.pcap|\\
+            Size: 5447 packets - 951.2 kB\\
+
+            Packet trace of an intruder gaining access to a server
+            using a brute-force attack via SSH, before planting malware
+            to download and execute software on the compromised host.
+
+        \subsection{telnet-freebsd-exploit.csv}
+            Source: \url{http://www.honeynet.org/}\\
+            Original filename: \verb|fc.pcap|\\
+            Size: 238 packets - 35.2 kB\\
+
+            Demonstration of a buffer overflow exploit (CVE-2011-4862)
+            that allows arbitrary code execution on a vulnerable
+            FreeBSD server via telnet.
+
+        \subsection{ubuntu-update.csv}
+            Source: J. Happa\\
+            Original filename: \verb|ubuntu-update.pcap|\\
+            Size: 497 packets - 84.6 kB\\
+
+            Packet trace of an Ubuntu PC communicating with a Canonical
+            server to check for software updates. No new updates were
+            found or downloaded.
+
+\end{document}
+
+
+
+
+
+
+
