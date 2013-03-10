@@ -1,0 +1,58 @@
+# Ignored files, mostly OS- or IDE-generated files
+# Thanks to http://bmchild.blogspot.co.uk/
+
+# Directories
+/build/
+/bin/
+target/
+ 
+# OS Files
+.DS_Store
+ 
+*.class
+ 
+# Package Files
+*.jar
+*.war
+*.ear
+*.db
+
+# Windows
+Thumbs.db 
+Desktop.ini
+ 
+# Unix
+.DS_Store
+.svn
+._*
+.Spotlight-V100
+.Trashes
+ 
+# Eclipse
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+src/main/resources/rebel.xml
+.externalToolBuilders/
+*.launch
+ 
+# CDT-specific
+.cproject
+ 
+# PDT-specific
+.buildpath
+
+# LaTeX
+*.log
+*.aux
