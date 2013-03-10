@@ -6,6 +6,8 @@
 
 \usepackage{fullpage}
 \usepackage{url}
+% Define a double-space function
+\newcommand{\dbl}{\\[\baselineskip]}
 
 \setlength{\parindent}{0cm}
 
@@ -61,78 +63,87 @@
         description of each.
 
         \subsection{eduroam.csv}
-            Source: J. Nicholls\\
-            Original filename: \verb!eduroam.pcap!\\
-            Size: 85664 packets - 16.4 MB\\
+            Source: J. Nicholls
 
+            Original filename: \verb!eduroam.pcap!
+
+            Size: 85664 packets - 16.4 MB \dbl
             All traffic seen by an Ubuntu laptop with minimal running
             services, connected to the Eduroam network on the wlan0
             interface. Approximately 85000 packets over 35 minutes.
 
         \subsection{jre-overflow.csv}
-            Source: \url{https://www.evilfingers.com/}\\
-            Original filename:\\
-            \verb!       Sun_jre1.6.0_X_isInstalled.dnsResolve_Function_Overflow_PoC.pcap!\\
-            Size: 65561 packets - 14.7 MB\\
+            Source: \url{https://www.evilfingers.com/}
 
+            Original filename:
+
+            \verb!       Sun_jre1.6.0_X_isInstalled.dnsResolve_Function_Overflow_PoC.pcap!
+
+            Size: 65561 packets - 14.7 MB \dbl
             Proof-of-concept packet capture of a denial of service
             attack on JRE 1.6.0 by exploiting the DNS resolution
             function. A local server is flooded with 65000 packets in
             11 minutes.
 
         \subsection{port-scan.csv}
-            Source: J. Happa\\
-            Original filename: \verb!portscan.pcap!\\
-            Size: 1818 packets - 371 kB\\
+            Source: J. Happa
 
+            Original filename: \verb!portscan.pcap!
+
+            Size: 1818 packets - 371 kB \dbl
             A port scan of a Windows Vista PC, originating from an
             Ubuntu PC, concluding that only port 80 (http) is open.
 
         \subsection{remote-execution.csv}
-            Source: \url{http://www.honeynet.org/}\\
-            Original filename: \verb!attack-trace.pcap_.gz!\\
-            Size: 348 packets - 53.6 kB\\
+            Source: \url{http://www.honeynet.org/}
 
+            Original filename: \verb!attack-trace.pcap_.gz!
+
+            Size: 348 packets - 53.6 kB\dbl
             Packet trace of a malware attack which distributes a
             payload exploiting the Windows Local Security Authority
             (LSA) Remote Procedure Call (RPC) service of the victim
             host, compromising the IPC\$ share. Once the share is
             exploited, a script is invoked, causing a connection to an
-            FTP server named “NzmxFtpd” and the acquisition of an
+            FTP server named NzmxFtpd and the acquisition of an
             infected executable, \verb!ssms.exe!.
 
         \subsection{skype.csv}
-            Source: J. Nicholls\\
-            Original filename: \verb|skype.pcap|\\
-            Size: 418 packets - 73 kB\\
+            Source: J. Nicholls
 
+            Original filename: \verb|skype.pcap|
+
+            Size: 418 packets - 73 kB\dbl
             Packets transferred during the authentication and
-            initialisation of a Skype session. Recorded on an Ubuntu PC
-            with minimal services running.
+            initialisation of a Skype session.\\ Recorded on an Ubuntu
+            PC with minimal services running.
 
         \subsection{ssh-attack.csv}
-            Source: \url{http://www.honeynet.org/}\\
-            Original filename: \verb|hp\_challenge.pcap|\\
-            Size: 5447 packets - 951.2 kB\\
+            Source: \url{http://www.honeynet.org/}
 
+            Original filename: \verb|hp_challenge.pcap|
+
+            Size: 5447 packets - 951.2 kB\dbl
             Packet trace of an intruder gaining access to a server
             using a brute-force attack via SSH, before planting malware
             to download and execute software on the compromised host.
 
         \subsection{telnet-freebsd-exploit.csv}
-            Source: \url{http://www.honeynet.org/}\\
-            Original filename: \verb|fc.pcap|\\
-            Size: 238 packets - 35.2 kB\\
+            Source: \url{http://www.honeynet.org/}
 
+            Original filename: \verb|fc.pcap|
+
+            Size: 238 packets - 35.2 kB\dbl
             Demonstration of a buffer overflow exploit (CVE-2011-4862)
             that allows arbitrary code execution on a vulnerable
             FreeBSD server via telnet.
 
         \subsection{ubuntu-update.csv}
-            Source: J. Happa\\
-            Original filename: \verb|ubuntu-update.pcap|\\
-            Size: 497 packets - 84.6 kB\\
+            Source: J. Happa
 
+            Original filename: \verb|ubuntu-update.pcap|
+
+            Size: 497 packets - 84.6 kB\dbl
             Packet trace of an Ubuntu PC communicating with a Canonical
             server to check for software updates. No new updates were
             found or downloaded.
