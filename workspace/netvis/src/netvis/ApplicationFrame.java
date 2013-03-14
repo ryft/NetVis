@@ -9,6 +9,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import netvis.data.DataFeeder;
+import netvis.data.SimDataFeeder;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.TablePanel;
@@ -21,8 +23,11 @@ public class ApplicationFrame extends JFrame {
 	private final TablePanel tablePanel;
 
 	public ApplicationFrame() {
-
 		super("NetVis");
+		
+		DataFeeder dataFeeder = new SimDataFeeder("skype.csv", 1);
+
+
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final JPanel contentPane = new JPanel(new GridBagLayout());
 		

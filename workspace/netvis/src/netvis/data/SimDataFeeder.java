@@ -1,0 +1,69 @@
+package netvis.data;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import netvis.data.model.Packet;
+
+public class SimDataFeeder implements DataFeeder {
+	protected long initialTime;
+	protected double firstPacketTime, timeScale;
+	protected CSVReader csvReader;
+	protected Iterator<String[]> it;
+	
+	public SimDataFeeder(String fileName, double timeScale){
+		try {
+			File dir = new File("./../../csv/captures/");
+			File file = new File(dir, fileName);
+			
+			Reader reader = new FileReader(file);
+			csvReader = new CSVReader(reader);
+			
+			it = csvReader.readAll().iterator();
+			it.next();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.timeScale = timeScale;
+		initialTime = System.currentTimeMillis();
+	}
+	
+	
+	@Override
+	public List<Packet> getNewPackets() {
+		double newRequestTime = (System.currentTimeMillis() - initialTime)/1000;
+		List<Packet> list = new ArrayList<Packet>();
+		boolean ok = true;
+		
+		while (ok && it.hasNext()){
+			list.add(lineToPacket(it.next()));
+			if(list.get(list.size() - 1).time > (newRequestTime*timeScale))
+				ok = false;
+			System.out.print(list.get(list.size() - 1).time);
+			System.out.print(" ");
+			System.out.println(newRequestTime);
+		}
+		return list;
+	}
+	
+	public static Packet lineToPacket(String[] line){
+		int no 		= Integer.parseInt(line[0]);
+		double time = Float.parseFloat(line[1]);
+		int sport = Integer.parseInt(line[4]);
+		int dport = Integer.parseInt(line[7]);
+		int length = Integer.parseInt(line[9]);
+		return new Packet(no, time, 
+				line[2], line[3], sport, 
+				line[5], line[6], dport, 
+				line[8], length, line[10]);
+	}
+
+}
