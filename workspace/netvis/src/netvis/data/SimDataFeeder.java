@@ -17,6 +17,11 @@ public class SimDataFeeder implements DataFeeder {
 	protected CSVReader csvReader;
 	protected Iterator<String[]> it;
 	
+	/**
+	 * 
+	 * @param fileName CSV file that contains the capture. Must be in folder ./csv/captures
+	 * @param timeScale Slow down / speed up the time of the Data Feeder
+	 */
 	public SimDataFeeder(String fileName, double timeScale){
 		try {
 			File dir = new File("./../../csv/captures/");
@@ -36,7 +41,6 @@ public class SimDataFeeder implements DataFeeder {
 		initialTime = System.currentTimeMillis();
 	}
 	
-	
 	@Override
 	public List<Packet> getNewPackets() {
 		double newRequestTime = (System.currentTimeMillis() - initialTime)/1000;
@@ -54,6 +58,11 @@ public class SimDataFeeder implements DataFeeder {
 		return list;
 	}
 	
+	/**
+	 * Converts a line of csv from an array of strings to a packet
+	 * @param line CSV line as array of strings
+	 * @return Packet
+	 */
 	public static Packet lineToPacket(String[] line){
 		int no 		= Integer.parseInt(line[0]);
 		double time = Float.parseFloat(line[1]);
