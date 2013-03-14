@@ -51,9 +51,6 @@ public class SimDataFeeder implements DataFeeder {
 			list.add(lineToPacket(it.next()));
 			if(list.get(list.size() - 1).time > (newRequestTime*timeScale))
 				ok = false;
-			System.out.print(list.get(list.size() - 1).time);
-			System.out.print(" ");
-			System.out.println(newRequestTime);
 		}
 		return list;
 	}
