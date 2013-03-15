@@ -1,11 +1,12 @@
 package netvis.ui;
 
-import java.awt.GridLayout;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import netvis.data.model.Packet;
 
@@ -15,44 +16,95 @@ import netvis.data.model.Packet;
  * data (e.g. a single packet) or a whole component (e.g. a table, chart or
  * graph) to show directly.
  */
-public class ContextPanel extends JPanel {
+@SuppressWarnings("serial")
+public class ContextPanel extends JScrollPane {
 
-	private static final long serialVersionUID = 1L;
-	
-	JPanel wrapper;
-	JScrollPane scrollWrapper = new JScrollPane(new JLabel("Click on a data element on the left to see more details."));
-
+	/**
+	 * Empty context panel, containing only default user instructions
+	 */
 	public ContextPanel() {
-		add(scrollWrapper);
-		scrollWrapper.setSize(getSize());
+		super(new JTextArea("Click on a button or blue element on the left to see more details."));
 	}
 
+	/**
+	 * Update the context panel to display a comparison between the shortest- and longest-
+	 * length packets received
+	 * @param shortest	the shortest packet received so far
+	 * @param longest	the longest packet received so far
+	 */
 	public void update(Packet shortest, Packet longest) {
-		removeAll();
-		wrapper = new JPanel(new GridLayout(13, 1));
 		
-		wrapper.add(new JLabel("Example shortest packet: "));
-		wrapper.add(new JLabel("Packet #" + shortest.no));
-		wrapper.add(new JLabel("Sent by " + shortest.sip + " [" + shortest.smac + "] on port " + shortest.sport));
-		wrapper.add(new JLabel("To recipient " + shortest.dip + " [" + shortest.dmac + "] on port " + shortest.dport));
-		wrapper.add(new JLabel("At " + shortest.time + "s over protocol " + shortest.protocol + " (" + shortest.length + " bytes)"));
-		wrapper.add(new JLabel("Detected info: " + shortest.info));
-		wrapper.add(new JLabel());
-		wrapper.add(new JLabel("Example longest packet: "));
-		wrapper.add(new JLabel("Packet #" + longest.no));
-		wrapper.add(new JLabel("Sent by " + longest.sip + " [" + longest.smac + "] on port " + longest.sport));
-		wrapper.add(new JLabel("To recipient " + longest.dip + " [" + longest.dmac + "] on port " + longest.dport));
-		wrapper.add(new JLabel("At " + longest.time + "s over protocol " + longest.protocol + " (" + longest.length + " bytes)"));
-		wrapper.add(new JLabel("Detected info: " + longest.info));
+		String description = "Shortest packet: \n" + 
+		"Packet #" + shortest.no + " sent at " + shortest.time + "s over protocol " + shortest.protocol + "\n" +
+		"Sender: " + shortest.sip + " [" + shortest.smac + "] on port " + shortest.sport + "\n" +
+		"Recipient " + shortest.dip + " [" + shortest.dmac + "] on port " + shortest.dport + "\n" +
+		"Packet consisted of " + shortest.length + " bytes" + "\n" +
+		"Detected info: " + shortest.info + "\n\n" +
+		"Longest packet: " + "\n" +
+		"Packet #" + longest.no + " sent at " + longest.time + "s over protocol " + longest.protocol + "\n" +
+		"Sender: " + longest.sip + " [" + longest.smac + "] on port " + longest.sport + "\n" +
+		"Recipient " + longest.dip + " [" + longest.dmac + "] on port " + longest.dport + "\n" +
+		"Packet consisted of " + longest.length + " bytes" + "\n" +
+		"Detected info: " + longest.info;
 		
-		scrollWrapper = new JScrollPane(wrapper);
-		add(scrollWrapper);
+		update(description);
+	}
+	
+	/**
+	 * Update the context panel with a string which is displayed in a JTextArea
+	 * @param text	string to display
+	 */
+	public void update(String text) {
+		JTextArea descriptionBox = new JTextArea(text);
+		setViewportView(descriptionBox);
+	}
+	
+	/**
+	 * Update the context panel to display a traffic map, sorted by value
+	 * @param title	title to show above the the sorted results
+	 * @param unsortedMap	unsorted map of results to display
+	 */
+	public <T> void update(String title, Map<T, Integer> unsortedMap) {
+		
+		MapComparator<T> comparator = new MapComparator<T>(unsortedMap);
+		TreeMap<T, Integer> sortedMap = new TreeMap<T, Integer>(comparator);
+		sortedMap.putAll(unsortedMap);
+		
+		StringBuilder text = new StringBuilder(title);
+		for (T entry : sortedMap.keySet())
+			text.append("\n" + entry + ": \t" + String.valueOf(unsortedMap.get(entry)));
+		update(text.toString());
 	}
 
+	/**
+	 * Update the context panel to simply show a single JComponent
+	 * @param component	the component to display
+	 */
 	public void update(JComponent component) {
-		removeAll();
-		scrollWrapper = new JScrollPane(component);
-		add(scrollWrapper);
+		setViewportView(component);
+	}
+	
+	/**
+	 * Comparator for <T, Integer> maps which compares the integer values while ignoring the
+	 * generic type T entries. Useful for sorting traffic data maps (traffic per port, protocol)
+	 * @param <T>	map entry type
+	 */
+	protected class MapComparator<T> implements Comparator<T> {
+		
+		Map<T, Integer> base;
+		
+	    public MapComparator(Map<T, Integer> base) {
+	        this.base = base;
+	    }
+
+		@Override
+	    public int compare(T a, T b) {
+	        if (base.get(a) >= base.get(b)) {
+	            return -1;
+	        } else {
+	            return 1;
+	        }
+	    }
 	}
 
 }
