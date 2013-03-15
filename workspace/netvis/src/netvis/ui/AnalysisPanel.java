@@ -18,6 +18,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -25,18 +27,18 @@ import netvis.data.DataControllerListener;
 import netvis.data.model.Packet;
 import netvis.util.SpringUtilities;
 
+/**
+ * This is the cumulative analysis panel shown in the bottom of the GUI. It
+ * collects data from the data controller and updates to reflect the data we've
+ * seen so far.
+ */
 public class AnalysisPanel extends JPanel implements DataControllerListener {
 
-	/*
-	 * TODO This is currently reasonably inefficient, for example in each
-	 * update, we scan through the whole array of unique senders/receivers to
-	 * get the max value. There are lots of optimisations to be made here but
-	 * it's gone midnight atm and I feel I should commit now and continue later.
-	 * 
-	 * TODO Javadoc
-	 */
-
 	private static final long serialVersionUID = 1L;
+
+	// Set up a separate thread for processing new data so the GUI stays
+	// responsive on extreme input
+	protected final Updater updateThread = new Updater();
 
 	// Declare fields to be updated dynamically
 	final JTextField fieldTotalPackets;
@@ -72,7 +74,7 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 	protected String mostCommonProtocol = null;
 
 	protected int totalPackets = 0;
-	protected double totalTimePassed = 0; // Measured in seconds
+	protected double totalTimePassed = 0; // Time measured in seconds
 	protected int timeIncrementsPassed = 0;
 
 	protected int minPacketsPerDelta = -1;
@@ -96,85 +98,125 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 
 	@Override
 	public void allDataChanged(List<Packet> allPackets) {
-		// TODO Auto-generated method stub
 
+		// Reset all collected data
+		ipAddressesSeen.clear();
+		ipTrafficTotals.clear();
+		senders.clear();
+		receivers.clear();
+
+		portTrafficTotals.clear();
+		protocolTrafficTotals.clear();
+		mostCommonPortCount = -1;
+		mostCommonPort = null;
+		mostCommonProtocolCount = -1;
+		mostCommonProtocol = null;
+
+		totalPackets = 0;
+		totalTimePassed = 0;
+		timeIncrementsPassed = 0;
+
+		minPacketsPerDelta = -1;
+		avgPacketsPerDelta = -1;
+		maxPacketsPerDelta = -1;
+
+		minPacketLength = -1;
+		avgPacketLength = -1;
+		maxPacketLength = -1;
+	}
+
+	/**
+	 * Thread to perform all data handling operations after we receive a new set
+	 * of packets from the data controller
+	 */
+	protected class Updater extends Thread {
+
+		/**
+		 * @param newPackets
+		 *            Packets received during the previous time interval
+		 */
+		public void crunchNewData(List<Packet> newPackets) {
+
+			int totalNewPackets = newPackets.size();
+			timeIncrementsPassed++;
+
+			// Update min/max/avg counts for aggregator
+			if (minPacketsPerDelta == -1) {
+				minPacketsPerDelta = maxPacketsPerDelta = totalNewPackets;
+				avgPacketsPerDelta = totalNewPackets;
+			} else {
+				minPacketsPerDelta = Math.min(minPacketsPerDelta,
+						totalNewPackets);
+				maxPacketsPerDelta = Math.max(maxPacketsPerDelta,
+						totalNewPackets);
+				avgPacketsPerDelta = (avgPacketsPerDelta
+						* (timeIncrementsPassed - 1) + totalNewPackets)
+						/ timeIncrementsPassed;
+			}
+
+			for (Packet p : newPackets) {
+				totalPackets++; // Do this incrementally so we can do operations
+								// per # packets seen
+
+				// Update per-IP traffic data
+				for (String ip : new String[] { p.sip, p.dip })
+					if (!ipAddressesSeen.contains(ip)) {
+						ipAddressesSeen.add(ip);
+						ipTrafficTotals.put(ip, new IPTraffic());
+					}
+				ipTrafficTotals.get(p.sip).sent++;
+				ipTrafficTotals.get(p.dip).received++;
+
+				// Add IPs to unique senders/receivers lists
+				if (!senders.contains(p.sip))
+					senders.add(p.sip);
+				if (!receivers.contains(p.dip))
+					receivers.add(p.dip);
+
+				// Update port and protocol traffic tallies
+				for (Integer port : new Integer[] { p.sport, p.dport }) {
+					if (!portTrafficTotals.containsKey(port))
+						portTrafficTotals.put(port, 0);
+					portTrafficTotals.put(port, portTrafficTotals.get(port));
+				}
+				if (!protocolTrafficTotals.containsKey(p.protocol))
+					protocolTrafficTotals.put(p.protocol, 0);
+				protocolTrafficTotals.put(p.protocol,
+						protocolTrafficTotals.get(p.protocol));
+
+				// Update packet length min/max/avg counts
+				if (minPacketLength == -1) {
+					minPacketLength = maxPacketLength = p.length;
+					avgPacketLength = p.length;
+				} else {
+					minPacketLength = Math.min(minPacketLength, p.length);
+					maxPacketLength = Math.max(maxPacketLength, p.length);
+					avgPacketLength = (avgPacketLength * (totalPackets - 1) + p.length)
+							/ totalPackets;
+				}
+
+				for (Integer port : portTrafficTotals.keySet()) {
+					if (portTrafficTotals.get(port) > mostCommonPortCount)
+						mostCommonPortCount = port;
+				}
+				for (String protocol : protocolTrafficTotals.keySet()) {
+					if (protocolTrafficTotals.get(protocol) > mostCommonProtocolCount)
+						mostCommonProtocol = protocol;
+				}
+			}
+
+			// Tell the components to update to reflect the new data
+			updateControls();
+		}
 	}
 
 	@Override
 	public void newPacketsArrived(List<Packet> newPackets) {
 
-		// TODO As many optimisations here as possible, as this will be run
-		// every time delta. Consider storing values which are persistent or
-		// which don't change a great deal between updates, and perhaps make the
-		// first update a special case so we can do less comparisons.
-
-		int totalNewPackets = newPackets.size();
-		timeIncrementsPassed++; // Will this function be called even if no
-								// packets arrive? It should do for this to work
-
-		// Update min/max/avg counts for aggregator
-		if (minPacketsPerDelta == -1) {
-			minPacketsPerDelta = maxPacketsPerDelta = totalNewPackets;
-			avgPacketsPerDelta = totalNewPackets;
-		} else {
-			minPacketsPerDelta = Math.min(minPacketsPerDelta, totalNewPackets);
-			maxPacketsPerDelta = Math.max(maxPacketsPerDelta, totalNewPackets);
-			avgPacketsPerDelta = (avgPacketsPerDelta
-					* (timeIncrementsPassed - 1) + totalNewPackets)
-					/ timeIncrementsPassed;
-		}
-
-		for (Packet p : newPackets) {
-			totalPackets++; // Do this incrementally so we can do operations
-							// per # packets seen
-
-			// Update per-IP traffic data
-			for (String ip : new String[] { p.sip, p.dip })
-				if (!ipAddressesSeen.contains(ip)) {
-					ipAddressesSeen.add(ip);
-					ipTrafficTotals.put(ip, new IPTraffic());
-				}
-			ipTrafficTotals.get(p.sip).sent++;
-			ipTrafficTotals.get(p.dip).received++;
-
-			// Add IPs to unique senders/receivers lists
-			if (!senders.contains(p.sip))
-				senders.add(p.sip);
-			if (!receivers.contains(p.dip))
-				receivers.add(p.dip);
-
-			// Update port and protocol traffic tallies
-			for (Integer port : new Integer[] { p.sport, p.dport }) {
-				if (!portTrafficTotals.containsKey(port))
-					portTrafficTotals.put(port, 0);
-				portTrafficTotals.put(port, portTrafficTotals.get(port));
-			}
-			if (!protocolTrafficTotals.containsKey(p.protocol))
-				protocolTrafficTotals.put(p.protocol, 0);
-			protocolTrafficTotals.put(p.protocol,
-					protocolTrafficTotals.get(p.protocol));
-
-			// Update packet length min/max/avg counts
-			if (minPacketLength == -1) {
-				minPacketLength = maxPacketLength = p.length;
-				avgPacketLength = p.length;
-			} else {
-				minPacketLength = Math.min(minPacketLength, p.length);
-				maxPacketLength = Math.max(maxPacketLength, p.length);
-				avgPacketLength = (avgPacketLength * (totalPackets - 1) + p.length)
-						/ totalPackets;
-			}
-
-			// TODO This is disgusting. Don't do this.
-			for (Integer port : portTrafficTotals.keySet()) {
-				if (portTrafficTotals.get(port) > mostCommonPortCount)
-					mostCommonPortCount = port;
-			}
-			for (String protocol : protocolTrafficTotals.keySet()) {
-				if (protocolTrafficTotals.get(protocol) > mostCommonProtocolCount)
-					mostCommonProtocol = protocol;
-			}
-		}
+		// Process the new packets in a separate thread to the JPanel thread so
+		// that the GUI stays responsive on extreme input (although the data
+		// will lag behind)
+		updateThread.crunchNewData(newPackets);
 	}
 
 	protected void updateControls() {
@@ -182,18 +224,20 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		// Simply put values into text fields.
 		fieldTotalPackets.setText(String.valueOf(totalPackets));
 		fieldMinPacketsPerDelta.setText(String.valueOf(minPacketsPerDelta));
-		fieldAvgPacketsPerDelta.setText(String.valueOf(avgPacketsPerDelta));
+		fieldAvgPacketsPerDelta.setText(String.valueOf(Math
+				.round(avgPacketsPerDelta)));
 		fieldMaxPacketsPerDelta.setText(String.valueOf(maxPacketsPerDelta));
 		fieldSrcIPs.setText(String.valueOf(senders.size()));
 		fieldDestIPs.setText(String.valueOf(receivers.size()));
 		fieldMostCommonPort.setText(String.valueOf(totalPackets));
 		fieldMostCommonProtocol.setText(mostCommonProtocol);
 		fieldMinPacketLength.setText(String.valueOf(minPacketLength));
-		fieldAvgPacketLength.setText(String.valueOf(avgPacketLength));
+		fieldAvgPacketLength
+				.setText(String.valueOf(Math.round(avgPacketLength)));
 		fieldMaxPacketLength.setText(String.valueOf(maxPacketLength));
-
 	}
 
+	@SuppressWarnings("serial")
 	public AnalysisPanel() {
 
 		// Show a pretty heading
@@ -205,7 +249,7 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		JTabbedPane tabbedPane = new JTabbedPane();
 
 		JPanel panel1 = new JPanel(new SpringLayout());
-		tabbedPane.addTab("Aggregation", panel1);
+		tabbedPane.addTab("Aggregation data", panel1);
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
 		JPanel panel2 = new JPanel(new SpringLayout());
@@ -249,8 +293,7 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 
 		// IP traffic table -- automatically updates from
 		// ipAddressesSeen array, and ipTrafficTotals map
-		@SuppressWarnings("serial")
-		TableModel dataModel = new AbstractTableModel() {
+		TableModel ipTableData = new AbstractTableModel() {
 			@Override
 			public int getColumnCount() {
 				return 4;
@@ -263,8 +306,14 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 
 			@Override
 			public Object getValueAt(int row, int col) {
-				String IP = ipAddressesSeen.get(col);
+				// Return empty string if we're outside the array bounds
+				if (col >= ipAddressesSeen.size())
+					return new String();
+				assert (ipAddressesSeen.size() == ipTrafficTotals.size());
+
+				String IP = ipAddressesSeen.get(row);
 				IPTraffic traffic = ipTrafficTotals.get(IP);
+
 				switch (col) {
 				case 0:
 					return IP;
@@ -295,9 +344,20 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 				}
 			}
 		};
-		JTable table = new JTable(dataModel);
-		table.setAutoCreateRowSorter(true);
-		JScrollPane scrollPane = new JScrollPane(table);
+		
+		final JTable ipTable = new JTable(ipTableData);
+		ipTable.setAutoCreateRowSorter(true);
+		
+		// Refresh the table, from experience this doesn't happen automatically
+		ipTableData.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent arg0) {
+				ipTable.repaint();
+			}
+		});
+
+		// Put the table in a scroll pane, it can get big quickly
+		JScrollPane scrollPane = new JScrollPane(ipTable);
 		panel2.add(scrollPane);
 
 		SpringUtilities.makeCompactGrid(panel2, 3, 2, INITIAL_X, INITIAL_Y,
@@ -334,6 +394,8 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 		add(tabbedPane);
 		add(Box.createVerticalGlue());
+
+		updateThread.run();
 	}
 
 }

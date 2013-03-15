@@ -78,6 +78,9 @@ public class DataController implements ActionListener {
 
 		for (DataControllerListener l : listeners)
 			l.newPacketsArrived(newPackets);
+		
+		// If we've reached the end of the capture, stop the timer
+		if (!dataFeeder.hasNext()) timer.stop();
 	}
 	
 	/**

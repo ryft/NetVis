@@ -69,7 +69,7 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(analysisPanel, tableConstraints);
 
 		// Link the model together and set the content pane
-		DataFeeder dataFeeder = new SimDataFeeder("ssh-attack.csv", 1);
+		DataFeeder dataFeeder = new SimDataFeeder("eduroam.csv", 1, this);
 		DataController dataController = new DataController(dataFeeder, 500);
 		dataController.addListener(analysisPanel);
 		Visualization v = new TimePortVisualization(dataController, glPanel);
