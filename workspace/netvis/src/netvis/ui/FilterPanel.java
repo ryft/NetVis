@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -57,6 +58,14 @@ public class FilterPanel extends JPanel {
 		while (it.hasNext()){
 			this.add(it.next().getPanel());
 		}
+		
+		// Add an update button that tells all filters to update
+		JButton updateButton = new JButton("Filter");
+		it = this.dataController.filterIterator();
+		while (it.hasNext()) {
+			updateButton.addActionListener(it.next());
+		}
+		this.add(updateButton);
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(Box.createVerticalGlue());
