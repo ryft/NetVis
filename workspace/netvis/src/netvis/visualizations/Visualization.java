@@ -13,4 +13,9 @@ public interface Visualization {
 	 * Makes this visualization the active one
 	 */
 	public void activate();
+	
+	/**
+	 * Visualization name // to be used in the UI
+	 */
+	public String name();
 }

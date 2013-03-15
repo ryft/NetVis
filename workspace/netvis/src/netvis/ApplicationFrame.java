@@ -2,6 +2,8 @@ package netvis;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -13,6 +15,7 @@ import netvis.data.SimDataFeeder;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.AnalysisPanel;
+import netvis.visualizations.CopyOfTimePortVisualization;
 import netvis.visualizations.TimePortVisualization;
 import netvis.visualizations.Visualization;
 
@@ -25,6 +28,10 @@ public class ApplicationFrame extends JFrame {
 
 	public ApplicationFrame() {
 		super("NetVis");
+		
+		//Setup data feeder and data controller
+		DataFeeder dataFeeder = new SimDataFeeder("port-scan.csv", 1);
+		DataController dataController = new DataController(dataFeeder, 500);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final JPanel contentPane = new JPanel(new GridBagLayout());
@@ -43,8 +50,13 @@ public class ApplicationFrame extends JFrame {
 		glConstraints.weighty = 0.0;
 		contentPane.add(glPanel, glConstraints);
 		
+		List<Visualization> visList = new ArrayList<Visualization>();
+		visList.add(new TimePortVisualization(dataController, glPanel));
+		visList.add(new CopyOfTimePortVisualization(dataController, glPanel));
+		visList.get(0).activate();
+		
 		// Set up filter control panel
-		filterPanel = new FilterPanel();
+		filterPanel = new FilterPanel(visList);
 		final GridBagConstraints filterConstraints = new GridBagConstraints();
 		filterConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		filterConstraints.fill = GridBagConstraints.NONE;
@@ -69,12 +81,8 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(analysisPanel, tableConstraints);
 
 		// Link the model together and set the content pane
-		DataFeeder dataFeeder = new SimDataFeeder("ssh-attack.csv", 1);
-		DataController dataController = new DataController(dataFeeder, 500);
 		dataController.addListener(analysisPanel);
-		Visualization v = new TimePortVisualization(dataController, glPanel);
-		v.activate();
-		
+
 		setContentPane(contentPane);
 		pack();
 	}

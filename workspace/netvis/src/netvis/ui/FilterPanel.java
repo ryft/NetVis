@@ -1,6 +1,9 @@
 package netvis.ui;
 
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -14,12 +17,30 @@ import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
+import netvis.visualizations.Visualization;
+
 public class FilterPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+	protected final List<Visualization> visList;
+	public FilterPanel(final List<Visualization> visList) {
+		this.visList = visList;
+		
+		
+		JLabel titleVisLabel = new JLabel("Visualizations");
+		titleVisLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
 
-	public FilterPanel() {
-
+		String[] visNameList = new String[visList.size()];
+		for (int i=0; i < visList.size(); i++) visNameList[i] = visList.get(i).name();
+		final JComboBox<String> visComboBox = new JComboBox<String>(visNameList);
+		visComboBox.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				visList.get(visComboBox.getSelectedIndex()).activate();
+			}
+			
+		});
+		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
+		
 		JLabel titleLabel = new JLabel("Filters");
 		titleLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
 
@@ -40,12 +61,12 @@ public class FilterPanel extends JPanel {
 		dummyRadioGroup.add(dummyRadioButton1);
 		dummyRadioGroup.add(dummyRadioButton2);
 
-		String[] comboBoxStrings = { "ComboBox 1", "ComboBox 2" };
-		JComboBox<String> dummyComboBox = new JComboBox<String>(comboBoxStrings);
-		dummyComboBox.setAlignmentX(LEFT_ALIGNMENT);
-
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
+		add(titleVisLabel);
+		add(new JSeparator(SwingConstants.HORIZONTAL));
+
+		add(visComboBox);
 		add(titleLabel);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 		add(dummyButton);
@@ -56,7 +77,6 @@ public class FilterPanel extends JPanel {
 		add(dummyRadioButton1);
 		add(dummyRadioButton2);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
-		add(dummyComboBox);
 		add(Box.createVerticalGlue());
 	}
 
