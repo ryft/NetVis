@@ -6,8 +6,8 @@ import javax.media.opengl.GLAutoDrawable;
 import netvis.data.DataController;
 import netvis.ui.OpenGLPanel;
 
-public class TimePortVisualization extends AbstractVisualization {
-	public TimePortVisualization(DataController dc, OpenGLPanel joglPanel){
+public class CopyOfTimePortVisualization extends AbstractVisualization {
+	public CopyOfTimePortVisualization(DataController dc, OpenGLPanel joglPanel){
 		super(dc, joglPanel);
 	}
 	
@@ -18,7 +18,7 @@ public class TimePortVisualization extends AbstractVisualization {
 	     * Draw the white background
 	     */
 	    gl.glBegin(GL2.GL_QUADS);
-	    gl.glColor3f(1, 1, 1);
+	    gl.glColor3f(0, 0, 0);
 	    gl.glVertex2f(-1,-1);
 	    gl.glVertex2f(-1,1);
 	    gl.glVertex2f(1,1);
@@ -44,7 +44,7 @@ public class TimePortVisualization extends AbstractVisualization {
 	    	 */
 	    	gl.glBegin(GL.GL_LINES);
 	    	nedLog = (float)(Math.log(Ports[i])/ Math.log(2)/7);
-	    	gl.glColor3f(nedLog, 0, 0);
+	    	gl.glColor3f(0, nedLog, 0);
 	        gl.glVertex2f(-1 + 2*((float)i/noPorts) , (float) -0.8);
 	    	gl.glVertex2f(-1 + 2*((float)i/noPorts), (float) (-0.8 + nedLog));
 	
@@ -55,7 +55,7 @@ public class TimePortVisualization extends AbstractVisualization {
 	@Override
 	public String name() {
 		// TODO Auto-generated method stub
-		return "Ports";
+		return "Ports Copy";
 	}
 
 }

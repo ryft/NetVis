@@ -18,10 +18,8 @@ public abstract class AbstractVisualization implements Visualization, DataContro
 	
 	@Override
 	public void allDataChanged(List<Packet> allPackets) {
-		
+		joglPanel.redraw();
 	}
-
-
 
 	@Override
 	public void newPacketsArrived(List<Packet> newPackets) {
