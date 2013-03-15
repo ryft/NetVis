@@ -1,8 +1,10 @@
 package netvis.data.model;
 
+import java.awt.event.ActionListener;
+
 import javax.swing.JComponent;
 
-public interface PacketFilter {
+public interface PacketFilter extends ActionListener{
 	
 	/**
 	 * Returns TRUE if packet passes the filter test

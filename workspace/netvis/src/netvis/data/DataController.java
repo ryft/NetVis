@@ -18,6 +18,7 @@ public class DataController implements ActionListener {
 	final List<PacketFilter> filters;
 	final List<Packet> allPackets;
 	final List<Packet> filteredPackets;
+	private int noUpdated = 0;
 	
 	/**
 	 * @param dataFeeder 
@@ -79,8 +80,13 @@ public class DataController implements ActionListener {
 		if (!dataFeeder.hasNext()) timer.stop();
 	}
 	
+	// Redraw only when all the filters have applied their changes
 	public void filterUpdated(){
-		allDataChanged();
+		noUpdated++;
+		if(noUpdated == filters.size()){
+			allDataChanged();
+			noUpdated = 0;
+		}
 	}
 	
 	/**
