@@ -43,15 +43,11 @@ public class DataController implements ActionListener {
 	
 	public void addFilter(PacketFilter packetFilter){
 		filters.add(packetFilter);
-		applyFilters(filteredPackets);
 		allDataChanged();
 	}
 	
 	public void removeFilter(PacketFilter packetFilter){
 		filters.remove(packetFilter);
-		filteredPackets.clear();
-		filteredPackets.addAll(allPackets);
-		applyFilters(filteredPackets);
 		allDataChanged();
 	}
 	public Iterator<PacketFilter> filterIterator(){
@@ -93,16 +89,22 @@ public class DataController implements ActionListener {
 	 * @return New list containing only the packets that pass the test
 	 */
 	private void applyFilters(List<Packet> list){
+		List<Packet> toBeRemoved = new ArrayList<Packet>();
 		for (PacketFilter f:filters)
 			for(Packet p:list)
 				if (!f.filter(p))
-					list.remove(p);
+					toBeRemoved.add(p);
+		list.removeAll(toBeRemoved);
 	}
 	
 	/**
 	 * Informs listeners that all the data has changed.
 	 */
 	private void allDataChanged() {
+		filteredPackets.clear();
+		filteredPackets.addAll(allPackets);
+		applyFilters(filteredPackets);
+		
 		for (DataControllerListener l : listeners)
 			l.allDataChanged(filteredPackets);
 	}

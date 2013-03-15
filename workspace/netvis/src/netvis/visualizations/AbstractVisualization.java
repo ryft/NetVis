@@ -10,6 +10,7 @@ import netvis.ui.OpenGLPanel;
 public abstract class AbstractVisualization implements Visualization, DataControllerListener{
 	List<Packet> listOfPackets;
 	OpenGLPanel joglPanel;
+	DataController dataController;
 	public AbstractVisualization(DataController dataController, OpenGLPanel joglPanel){
 		dataController.addListener(this);
 		listOfPackets = dataController.getPackets();
@@ -28,5 +29,6 @@ public abstract class AbstractVisualization implements Visualization, DataContro
 
 	public void activate(){
 		joglPanel.setVis(this);
+		joglPanel.redraw();
 	}
 }

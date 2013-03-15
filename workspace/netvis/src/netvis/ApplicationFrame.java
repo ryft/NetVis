@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.SimDataFeeder;
+import netvis.data.model.SourcePortRangeFilter;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.AnalysisPanel;
@@ -32,7 +33,7 @@ public class ApplicationFrame extends JFrame {
 		// Setup data feeder and data controller
 		DataFeeder dataFeeder = new SimDataFeeder("eduroam.csv", 1, this);
 		DataController dataController = new DataController(dataFeeder, 500);
-
+		dataController.addFilter(new SourcePortRangeFilter(dataController));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final JPanel contentPane = new JPanel(new GridBagLayout());
 
@@ -56,7 +57,7 @@ public class ApplicationFrame extends JFrame {
 		visList.get(0).activate();
 		
 		// Set up filter control panel
-		filterPanel = new FilterPanel(visList);
+		filterPanel = new FilterPanel(visList, dataController);
 		final GridBagConstraints filterConstraints = new GridBagConstraints();
 		filterConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		filterConstraints.fill = GridBagConstraints.NONE;

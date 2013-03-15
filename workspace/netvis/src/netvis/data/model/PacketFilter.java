@@ -14,5 +14,10 @@ public interface PacketFilter {
 	 */
 	public String description();
 	
+	/**
+	 * 
+	 * @return The JComponent that controls this filter.
+	 * This class should also act as a controller for the JComponent
+	 */
 	public JComponent getPanel();
 }
