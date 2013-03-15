@@ -1,6 +1,5 @@
 package netvis;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -14,24 +13,21 @@ import netvis.data.DataFeeder;
 import netvis.data.SimDataFeeder;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
-import netvis.ui.TablePanel;
+import netvis.ui.AnalysisPanel;
 
 public class ApplicationFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private final OpenGLPanel glPanel;
 	private final FilterPanel filterPanel;
-	private final TablePanel tablePanel;
+	private final AnalysisPanel analysisPanel;
 
 	public ApplicationFrame() {
 		super("NetVis");
-		
-		DataFeeder dataFeeder = new SimDataFeeder("skype.csv", 1);
-		DataController dataController = new DataController(dataFeeder, 2000);
-		
+
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final JPanel contentPane = new JPanel(new GridBagLayout());
-		
+
 		// Just a frivolity -- let's make it look pretty
 		this.setIconImage(new ImageIcon("img/icon.png").getImage());
 
@@ -59,7 +55,7 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(filterPanel, filterConstraints);
 
 		// Set up table results panel
-		tablePanel = new TablePanel();
+		analysisPanel = new AnalysisPanel();
 		final GridBagConstraints tableConstraints = new GridBagConstraints();
 		tableConstraints.anchor = GridBagConstraints.NORTH;
 		tableConstraints.fill = GridBagConstraints.BOTH;
@@ -69,20 +65,20 @@ public class ApplicationFrame extends JFrame {
 		tableConstraints.gridwidth = 2;
 		tableConstraints.weightx = 1.0;
 		tableConstraints.weighty = 1.0;
-		contentPane.add(tablePanel, tableConstraints);
+		contentPane.add(analysisPanel, tableConstraints);
 
-		// Set the content pane
+		// Link the model together and set the content pane
+		DataFeeder dataFeeder = new SimDataFeeder("skype.csv", 1);
+		DataController dataController = new DataController(dataFeeder, 2000);
+		dataController.addListener(analysisPanel);
+		
 		setContentPane(contentPane);
 		pack();
 	}
 
 	public static void main(String[] args) {
 		ApplicationFrame applicationFrame = new ApplicationFrame();
-		
-		// Dirty trick to set a reasonable size
-		Dimension frameSize = applicationFrame.getMinimumSize();
-		frameSize.setSize(frameSize.getWidth(), frameSize.getHeight() + 100);
-		applicationFrame.setSize(frameSize);
+		applicationFrame.setSize(applicationFrame.getMinimumSize());
 		applicationFrame.setVisible(true);
 	}
 
