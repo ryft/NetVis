@@ -13,16 +13,41 @@ public class TimePortVisualization extends AbstractVisualization {
 	
 	public void render(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
+	  
+	    /*
+	     * Draw the white background
+	     */
+	    gl.glBegin(GL2.GL_QUADS);
+	    gl.glColor3f(1, 1, 1);
+	    gl.glVertex2f(-1,-1);
+	    gl.glVertex2f(-1,1);
+	    gl.glVertex2f(1,1);
+	    gl.glVertex2f(1,-1);
+	    gl.glEnd();
+	    float nedLog = 0;
 	    
-	    int[] Ports = new int[10000];
+	    int noPorts = 70000;
+	    int[] Ports = new int[noPorts];
+	    for (int i = 0; i < noPorts; i++)
+	    	Ports[i] = 0;
 	    for (int i = 0; i < listOfPackets.size(); i++) {
-			Ports[listOfPackets.get(i).sport]++;
+	    	if (listOfPackets.get(i).sport >= noPorts)
+	    		System.out.println(listOfPackets.get(i).sport);
+	    	else
+	    		Ports[listOfPackets.get(i).sport]++;
 		}
-	    for (int i = 0; i < 10000; i++){
+    	gl.glLineWidth(3);
+
+	    for (int i = 0; i < noPorts; i++){
+	    	/*
+	    	 * Draw the lines for  each port
+	    	 */
 	    	gl.glBegin(GL.GL_LINES);
-	    	gl.glColor3d(i/1000, i/1000, i/1000);
-	    	gl.glVertex2i (i/10, Ports[i]*2);
-	        gl.glVertex2i (i/10, 0);
+	    	nedLog = (float)(Math.log(Ports[i])/ Math.log(2)/7);
+	    	gl.glColor3f(nedLog, 0, 0);
+	        gl.glVertex2f(-1 + 2*((float)i/noPorts) , (float) -0.8);
+	    	gl.glVertex2f(-1 + 2*((float)i/noPorts), (float) (-0.8 + nedLog));
+	
 	    	gl.glEnd();
 	    }
 	}

@@ -9,5 +9,8 @@ public interface Visualization {
 	 */
 	public void render(GLAutoDrawable drawable);
 	
+	/**
+	 * Makes this visualization the active one
+	 */
 	public void activate();
 }
