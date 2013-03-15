@@ -89,7 +89,7 @@ public class ApplicationFrame extends JFrame {
 
 	public static void main(String[] args) {
 		ApplicationFrame applicationFrame = new ApplicationFrame();
-		applicationFrame.setSize(applicationFrame.getMinimumSize());
+		applicationFrame.setSize(applicationFrame.getPreferredSize());
 		applicationFrame.setVisible(true);
 	}
 

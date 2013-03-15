@@ -1,16 +1,17 @@
 package netvis.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -18,7 +19,6 @@ import javax.swing.SpringLayout;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 
 import netvis.data.DataControllerListener;
 import netvis.data.model.Packet;
@@ -29,9 +29,12 @@ import netvis.util.SpringUtilities;
  * collects data from the data controller and updates to reflect the data we've
  * seen so far.
  */
-public class AnalysisPanel extends JPanel implements DataControllerListener {
+public class AnalysisPanel extends JSplitPane implements DataControllerListener {
 
 	private static final long serialVersionUID = 1L;
+
+	// Context panel to deliver extra data to
+	protected final ContextPanel contextPanel = new ContextPanel();
 
 	// Set up a separate thread for processing new data so the GUI stays
 	// responsive on extreme input
@@ -77,6 +80,9 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 	protected int minPacketLength = -1; // All packet lengths measured in bytes
 	protected double avgPacketLength = -1;
 	protected int maxPacketLength = -1;
+
+	protected Packet shortestPacket;
+	protected Packet longestPacket;
 
 	protected int totalBytes = 0;
 	protected int avgBytes = -1;
@@ -175,9 +181,16 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 				if (minPacketLength == -1) {
 					minPacketLength = maxPacketLength = p.length;
 					avgPacketLength = p.length;
+					shortestPacket = longestPacket = p;
 				} else {
-					minPacketLength = Math.min(minPacketLength, p.length);
-					maxPacketLength = Math.max(maxPacketLength, p.length);
+					if (p.length < minPacketLength) {
+						minPacketLength = p.length;
+						shortestPacket = p;
+					}
+					if (p.length > maxPacketLength) {
+						maxPacketLength = p.length;
+						longestPacket = p;
+					}
 					avgPacketLength = (avgPacketLength * (totalPackets - 1) + p.length)
 							/ totalPackets;
 				}
@@ -240,24 +253,23 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		// Simply put values into text fields.
 		fieldTotalPackets.setText(String.valueOf(totalPackets));
 		fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerDelta) + " / "
-				+ String.valueOf(Math.round(avgPacketsPerDelta)) + " / "
-				+ String.valueOf(maxPacketsPerDelta));
+				+ String.valueOf(maxPacketsPerDelta) + " / "
+				+ String.valueOf(Math.round(avgPacketsPerDelta)));
 		fieldBytesPerDelta.setText(String.valueOf(minBytesPerDelta) + " / "
-				+ String.valueOf(Math.round(avgBytesPerDelta)) + " / "
-				+ String.valueOf(maxBytesPerDelta));
+				+ String.valueOf(maxBytesPerDelta) + " / "
+				+ String.valueOf(Math.round(avgBytesPerDelta)));
 		fieldUniqueIPs.setText(String.valueOf(senders.size() + " / " + receivers.size()));
 		fieldMostCommonPort.setText(String.valueOf(mostCommonPort));
 		fieldMostCommonProtocol.setText(mostCommonProtocol);
 		fieldPacketLength.setText(String.valueOf(minPacketLength) + " / "
-				+ String.valueOf(Math.round(avgPacketLength)) + " / "
-				+ String.valueOf(maxPacketLength));
+				+ String.valueOf(maxPacketLength) + " / "
+				+ String.valueOf(Math.round(avgPacketLength)));
 	}
 
-	@SuppressWarnings("serial")
 	public AnalysisPanel() {
+		super(JSplitPane.HORIZONTAL_SPLIT);
 
-		// Set up tabbed panes to encapsulate cumulative data under
-		// separate categories
+		// Set up tabbed panes to encapsulate cumulative data under separate categories
 		JTabbedPane tabbedPane = new JTabbedPane();
 
 		JPanel panel1 = new JPanel(new SpringLayout());
@@ -281,7 +293,7 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		fieldPacketsPerDelta = new JTextField();
 		panel1.add(fieldPacketsPerDelta);
 
-		panel1.add(new JLabel("Min/Max/Avg traffic per time increment (bytes): "));
+		panel1.add(new JLabel("Min/Max/Avg bytes per time increment: "));
 		fieldBytesPerDelta = new JTextField();
 		panel1.add(fieldBytesPerDelta);
 
@@ -293,61 +305,10 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		panel2.add(fieldUniqueIPs);
 
 		panel2.add(new JLabel("IP traffic totals: "));
+		JButton showTableButton = new JButton("Show table");
+		panel2.add(showTableButton);
 
-		// IP traffic table -- automatically updates from
-		// ipAddressesSeen array, and ipTrafficTotals map
-		TableModel ipTableData = new AbstractTableModel() {
-			@Override
-			public int getColumnCount() {
-				return 4;
-			}
-
-			@Override
-			public int getRowCount() {
-				return ipAddressesSeen.size();
-			}
-
-			@Override
-			public Object getValueAt(int row, int col) {
-				// Return empty string if we're outside the array bounds
-				if (col >= ipAddressesSeen.size())
-					return new String();
-				assert (ipAddressesSeen.size() == ipTrafficTotals.size());
-
-				String IP = ipAddressesSeen.get(row);
-				IPTraffic traffic = ipTrafficTotals.get(IP);
-
-				switch (col) {
-				case 0:
-					return IP;
-				case 1:
-					return traffic.sent;
-				case 2:
-					return traffic.received;
-				case 3:
-					return traffic.sent + traffic.received;
-				default:
-					return new String();
-				}
-			}
-
-			@Override
-			public String getColumnName(int column) {
-				switch (column) {
-				case 0:
-					return "IP Address";
-				case 1:
-					return "Packets Sent";
-				case 2:
-					return "Packets Received";
-				case 3:
-					return "Packets Total";
-				default:
-					return "";
-				}
-			}
-		};
-
+		IPTableModel ipTableData = new IPTableModel();
 		final JTable ipTable = new JTable(ipTableData);
 		ipTable.setAutoCreateRowSorter(true);
 
@@ -359,9 +320,13 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 			}
 		});
 
-		// Put the table in a scroll pane, it can get big quickly
-		JScrollPane scrollPane = new JScrollPane(ipTable);
-		panel2.add(scrollPane);
+		showTableButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				contextPanel.update(ipTable);
+				repaint();
+			}
+		});
 
 		SpringUtilities.makeCompactGrid(panel2, 2, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
 
@@ -377,16 +342,79 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		panel3.add(new JLabel("Min/Max/Avg packet length (bytes): "));
 		fieldPacketLength = new JTextField();
 		panel3.add(fieldPacketLength);
+		
+		fieldPacketLength.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				contextPanel.update(shortestPacket, longestPacket);
+			}
+		});
 
 		SpringUtilities.makeCompactGrid(panel3, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
 
-		// Set up the controls in the bottom panel of the UI
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-		add(tabbedPane);
-		add(Box.createVerticalGlue());
+		setLeftComponent(tabbedPane);
+		setResizeWeight(0.85);
+		setRightComponent(contextPanel);
 
 		updateThread.run();
+	}
+
+	/**
+	 * IP traffic table -- automatically updates from ipAddressesSeen array and
+	 * ipTrafficTotals map
+	 */
+	@SuppressWarnings("serial")
+	protected class IPTableModel extends AbstractTableModel {
+
+		@Override
+		public int getColumnCount() {
+			return 4;
+		}
+
+		@Override
+		public int getRowCount() {
+			return ipAddressesSeen.size();
+		}
+
+		@Override
+		public Object getValueAt(int row, int col) {
+			// Return empty string if we're outside the array bounds
+			if (col >= ipAddressesSeen.size())
+				return new String();
+			assert (ipAddressesSeen.size() == ipTrafficTotals.size());
+
+			String IP = ipAddressesSeen.get(row);
+			IPTraffic traffic = ipTrafficTotals.get(IP);
+
+			switch (col) {
+			case 0:
+				return IP;
+			case 1:
+				return traffic.sent;
+			case 2:
+				return traffic.received;
+			case 3:
+				return traffic.sent + traffic.received;
+			default:
+				return new String();
+			}
+		}
+
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+			case 0:
+				return "IP Address";
+			case 1:
+				return "Sent";
+			case 2:
+				return "Received";
+			case 3:
+				return "Total";
+			default:
+				return "";
+			}
+		}
 	}
 
 }
