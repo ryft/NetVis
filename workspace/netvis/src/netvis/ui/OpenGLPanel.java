@@ -7,10 +7,13 @@ import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
 import javax.swing.JPanel;
 
+import netvis.visualizations.Visualization;
+
 public class OpenGLPanel extends JPanel implements GLEventListener {
 
 	private static final long serialVersionUID = 1L;
-
+	private Visualization currentVis;
+	private GLCanvas glCanvas;
 	public OpenGLPanel() {
 
 		// Set up OpenGL window
@@ -19,16 +22,22 @@ public class OpenGLPanel extends JPanel implements GLEventListener {
 		GLCapabilities glCaps = new GLCapabilities(glProfile);
 
 		// The canvas is the widget that's drawn in the JFrame
-		GLCanvas glCanvas = new GLCanvas(glCaps);
+		glCanvas = new GLCanvas(glCaps);
 		glCanvas.setSize(800, 600);
 
 		add(glCanvas);
 		glCanvas.addGLEventListener(this);
-
+	}
+	public void redraw(){
+		glCanvas.display();
+	}
+	public void setVis(Visualization vis){
+		currentVis = vis;
 	}
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		currentVis.render(drawable);
 	}
 
 	@Override

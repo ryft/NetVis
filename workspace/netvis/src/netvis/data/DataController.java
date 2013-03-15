@@ -17,6 +17,7 @@ public class DataController implements ActionListener {
 	final List<DataControllerListener> listeners;
 	final List<PacketFilter> filters;
 	final List<Packet> allPackets;
+	final List<Packet> filteredPackets;
 	
 	/**
 	 * @param dataFeeder 
@@ -26,6 +27,8 @@ public class DataController implements ActionListener {
 		this.dataFeeder = dataFeeder;
 		listeners = new ArrayList<DataControllerListener>();
 		filters = new ArrayList<PacketFilter>();
+		filteredPackets = new ArrayList<Packet>();
+
 		allPackets = new ArrayList<Packet>();
 		timer = new Timer(updateInterval, this);
 		timer.start();
@@ -40,11 +43,15 @@ public class DataController implements ActionListener {
 	
 	public void addFilter(PacketFilter packetFilter){
 		filters.add(packetFilter);
+		applyFilters(filteredPackets);
 		allDataChanged();
 	}
 	
 	public void removeFilter(PacketFilter packetFilter){
 		filters.remove(packetFilter);
+		filteredPackets.clear();
+		filteredPackets.addAll(allPackets);
+		applyFilters(filteredPackets);
 		allDataChanged();
 	}
 	public Iterator<PacketFilter> filterIterator(){
@@ -55,7 +62,7 @@ public class DataController implements ActionListener {
 	 * Returns all the packets with the filters applied
 	 */
 	public List<Packet> getPackets(){
-		return applyFilters(allPackets);
+		return filteredPackets;
 	}
 
 	/**
@@ -66,7 +73,8 @@ public class DataController implements ActionListener {
 		List<Packet> newPackets = dataFeeder.getNewPackets();
 		allPackets.addAll(newPackets); // First add the new packets to the controller
 		
-		newPackets = applyFilters(newPackets); // Then apply the filters to them
+		applyFilters(newPackets); // Then apply the filters to them
+		filteredPackets.addAll(newPackets);
 
 		for (DataControllerListener l : listeners)
 			l.newPacketsArrived(newPackets);
@@ -77,24 +85,19 @@ public class DataController implements ActionListener {
 	 * @param list List to be filtered
 	 * @return New list containing only the packets that pass the test
 	 */
-	private List<Packet> applyFilters(List<Packet> list){
-		List<Packet> filteredList = new ArrayList<Packet>(list);
-		
+	private void applyFilters(List<Packet> list){
 		for (PacketFilter f:filters)
-			for(Packet p:filteredList)
+			for(Packet p:list)
 				if (!f.filter(p))
-					filteredList.remove(p);
-		
-		return filteredList;
+					list.remove(p);
 	}
 	
 	/**
 	 * Informs listeners that all the data has changed.
 	 */
 	private void allDataChanged() {
-		List<Packet> filteredList = applyFilters(allPackets);
 		for (DataControllerListener l : listeners)
-			l.newPacketsArrived(filteredList);
+			l.allDataChanged(filteredPackets);
 	}
 
 }

@@ -1,5 +1,4 @@
 package netvis;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -14,6 +13,8 @@ import netvis.data.SimDataFeeder;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.AnalysisPanel;
+import netvis.visualizations.TimePortVisualization;
+import netvis.visualizations.Visualization;
 
 public class ApplicationFrame extends JFrame {
 
@@ -41,7 +42,7 @@ public class ApplicationFrame extends JFrame {
 		glConstraints.weightx = 0.0;
 		glConstraints.weighty = 0.0;
 		contentPane.add(glPanel, glConstraints);
-
+		
 		// Set up filter control panel
 		filterPanel = new FilterPanel();
 		final GridBagConstraints filterConstraints = new GridBagConstraints();
@@ -71,6 +72,8 @@ public class ApplicationFrame extends JFrame {
 		DataFeeder dataFeeder = new SimDataFeeder("skype.csv", 1);
 		DataController dataController = new DataController(dataFeeder, 2000);
 		dataController.addListener(analysisPanel);
+		Visualization v = new TimePortVisualization(dataController, glPanel);
+		v.activate();
 		
 		setContentPane(contentPane);
 		pack();
