@@ -1,6 +1,5 @@
 package netvis.ui;
 
-import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,12 +11,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
@@ -42,16 +39,12 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 
 	// Declare fields to be updated dynamically
 	final JTextField fieldTotalPackets;
-	final JTextField fieldMinPacketsPerDelta;
-	final JTextField fieldAvgPacketsPerDelta;
-	final JTextField fieldMaxPacketsPerDelta;
-	final JTextField fieldSrcIPs;
-	final JTextField fieldDestIPs;
+	final JTextField fieldPacketsPerDelta;
+	final JTextField fieldPacketLength;
+	final JTextField fieldBytesPerDelta;
+	final JTextField fieldUniqueIPs;
 	final JTextField fieldMostCommonPort;
 	final JTextField fieldMostCommonProtocol;
-	final JTextField fieldMinPacketLength;
-	final JTextField fieldAvgPacketLength;
-	final JTextField fieldMaxPacketLength;
 
 	// Set up constants for Spring Layouts
 	final int INITIAL_X = 0;
@@ -84,6 +77,13 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 	protected int minPacketLength = -1; // All packet lengths measured in bytes
 	protected double avgPacketLength = -1;
 	protected int maxPacketLength = -1;
+
+	protected int totalBytes = 0;
+	protected int avgBytes = -1;
+
+	protected int minBytesPerDelta = -1;
+	protected double avgBytesPerDelta = -1;
+	protected int maxBytesPerDelta = -1;
 
 	/**
 	 * Tiny class to hold traffic data about a specific IP
@@ -138,25 +138,13 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		public void crunchNewData(List<Packet> newPackets) {
 
 			int totalNewPackets = newPackets.size();
+			int totalNewBytes = 0;
 			timeIncrementsPassed++;
-
-			// Update min/max/avg counts for aggregator
-			if (minPacketsPerDelta == -1) {
-				minPacketsPerDelta = maxPacketsPerDelta = totalNewPackets;
-				avgPacketsPerDelta = totalNewPackets;
-			} else {
-				minPacketsPerDelta = Math.min(minPacketsPerDelta,
-						totalNewPackets);
-				maxPacketsPerDelta = Math.max(maxPacketsPerDelta,
-						totalNewPackets);
-				avgPacketsPerDelta = (avgPacketsPerDelta
-						* (timeIncrementsPassed - 1) + totalNewPackets)
-						/ timeIncrementsPassed;
-			}
 
 			for (Packet p : newPackets) {
 				totalPackets++; // Do this incrementally so we can do operations
 								// per # packets seen
+				totalNewBytes += p.length;
 
 				// Update per-IP traffic data
 				for (String ip : new String[] { p.sip, p.dip })
@@ -177,12 +165,11 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 				for (Integer port : new Integer[] { p.sport, p.dport }) {
 					if (!portTrafficTotals.containsKey(port))
 						portTrafficTotals.put(port, 0);
-					portTrafficTotals.put(port, portTrafficTotals.get(port));
+					portTrafficTotals.put(port, portTrafficTotals.get(port) + 1);
 				}
 				if (!protocolTrafficTotals.containsKey(p.protocol))
 					protocolTrafficTotals.put(p.protocol, 0);
-				protocolTrafficTotals.put(p.protocol,
-						protocolTrafficTotals.get(p.protocol));
+				protocolTrafficTotals.put(p.protocol, protocolTrafficTotals.get(p.protocol) + 1);
 
 				// Update packet length min/max/avg counts
 				if (minPacketLength == -1) {
@@ -195,14 +182,43 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 							/ totalPackets;
 				}
 
+				// Get most common port and protocol
 				for (Integer port : portTrafficTotals.keySet()) {
-					if (portTrafficTotals.get(port) > mostCommonPortCount)
-						mostCommonPortCount = port;
+					if (portTrafficTotals.get(port) > mostCommonPortCount) {
+						mostCommonPortCount = portTrafficTotals.get(port);
+						mostCommonPort = port;
+					}
 				}
 				for (String protocol : protocolTrafficTotals.keySet()) {
-					if (protocolTrafficTotals.get(protocol) > mostCommonProtocolCount)
+					if (protocolTrafficTotals.get(protocol) > mostCommonProtocolCount) {
+						mostCommonProtocolCount = protocolTrafficTotals.get(protocol);
 						mostCommonProtocol = protocol;
+					}
 				}
+			}
+
+			totalBytes += totalNewBytes;
+
+			// Update min/max/avg counts for aggregator - packets
+			if (minPacketsPerDelta == -1) {
+				minPacketsPerDelta = maxPacketsPerDelta = totalNewPackets;
+				avgPacketsPerDelta = totalNewPackets;
+			} else {
+				minPacketsPerDelta = Math.min(minPacketsPerDelta, totalNewPackets);
+				maxPacketsPerDelta = Math.max(maxPacketsPerDelta, totalNewPackets);
+				avgPacketsPerDelta = (avgPacketsPerDelta * (timeIncrementsPassed - 1) + totalNewPackets)
+						/ timeIncrementsPassed;
+			}
+
+			// Update min/max/avg counts for aggregator - traffic
+			if (minBytesPerDelta == -1) {
+				minBytesPerDelta = maxBytesPerDelta = totalNewBytes;
+				avgBytesPerDelta = totalNewBytes;
+			} else {
+				minBytesPerDelta = Math.min(minBytesPerDelta, totalNewBytes);
+				maxBytesPerDelta = Math.max(maxBytesPerDelta, totalNewBytes);
+				avgBytesPerDelta = (avgBytesPerDelta * (timeIncrementsPassed - 1) + totalNewBytes)
+						/ timeIncrementsPassed;
 			}
 
 			// Tell the components to update to reflect the new data
@@ -223,26 +239,22 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 
 		// Simply put values into text fields.
 		fieldTotalPackets.setText(String.valueOf(totalPackets));
-		fieldMinPacketsPerDelta.setText(String.valueOf(minPacketsPerDelta));
-		fieldAvgPacketsPerDelta.setText(String.valueOf(Math
-				.round(avgPacketsPerDelta)));
-		fieldMaxPacketsPerDelta.setText(String.valueOf(maxPacketsPerDelta));
-		fieldSrcIPs.setText(String.valueOf(senders.size()));
-		fieldDestIPs.setText(String.valueOf(receivers.size()));
-		fieldMostCommonPort.setText(String.valueOf(totalPackets));
+		fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerDelta) + " / "
+				+ String.valueOf(Math.round(avgPacketsPerDelta)) + " / "
+				+ String.valueOf(maxPacketsPerDelta));
+		fieldBytesPerDelta.setText(String.valueOf(minBytesPerDelta) + " / "
+				+ String.valueOf(Math.round(avgBytesPerDelta)) + " / "
+				+ String.valueOf(maxBytesPerDelta));
+		fieldUniqueIPs.setText(String.valueOf(senders.size() + " / " + receivers.size()));
+		fieldMostCommonPort.setText(String.valueOf(mostCommonPort));
 		fieldMostCommonProtocol.setText(mostCommonProtocol);
-		fieldMinPacketLength.setText(String.valueOf(minPacketLength));
-		fieldAvgPacketLength
-				.setText(String.valueOf(Math.round(avgPacketLength)));
-		fieldMaxPacketLength.setText(String.valueOf(maxPacketLength));
+		fieldPacketLength.setText(String.valueOf(minPacketLength) + " / "
+				+ String.valueOf(Math.round(avgPacketLength)) + " / "
+				+ String.valueOf(maxPacketLength));
 	}
 
 	@SuppressWarnings("serial")
 	public AnalysisPanel() {
-
-		// Show a pretty heading
-		JLabel titleLabel = new JLabel("Cumulative Analysis");
-		titleLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
 
 		// Set up tabbed panes to encapsulate cumulative data under
 		// separate categories
@@ -265,29 +277,20 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		fieldTotalPackets = new JTextField();
 		panel1.add(fieldTotalPackets);
 
-		panel1.add(new JLabel("Minimum packets per time increment: "));
-		fieldMinPacketsPerDelta = new JTextField();
-		panel1.add(fieldMinPacketsPerDelta);
+		panel1.add(new JLabel("Min/Max/Avg packets per time increment: "));
+		fieldPacketsPerDelta = new JTextField();
+		panel1.add(fieldPacketsPerDelta);
 
-		panel1.add(new JLabel("Average packets per time increment: "));
-		fieldAvgPacketsPerDelta = new JTextField();
-		panel1.add(fieldAvgPacketsPerDelta);
+		panel1.add(new JLabel("Min/Max/Avg traffic per time increment (bytes): "));
+		fieldBytesPerDelta = new JTextField();
+		panel1.add(fieldBytesPerDelta);
 
-		panel1.add(new JLabel("Maximum packets per time increment: "));
-		fieldMaxPacketsPerDelta = new JTextField();
-		panel1.add(fieldMaxPacketsPerDelta);
-
-		SpringUtilities.makeCompactGrid(panel1, 4, 2, INITIAL_X, INITIAL_Y,
-				PADDING_X, PADDING_Y);
+		SpringUtilities.makeCompactGrid(panel1, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
 
 		// Add controls to the src/dest data tab
-		panel2.add(new JLabel("Unique sender IPs: "));
-		fieldSrcIPs = new JTextField();
-		panel2.add(fieldSrcIPs);
-
-		panel2.add(new JLabel("Unique receiver IPs: "));
-		fieldDestIPs = new JTextField();
-		panel2.add(fieldDestIPs);
+		panel2.add(new JLabel("Unique sender/receiver IPs: "));
+		fieldUniqueIPs = new JTextField();
+		panel2.add(fieldUniqueIPs);
 
 		panel2.add(new JLabel("IP traffic totals: "));
 
@@ -344,10 +347,10 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 				}
 			}
 		};
-		
+
 		final JTable ipTable = new JTable(ipTableData);
 		ipTable.setAutoCreateRowSorter(true);
-		
+
 		// Refresh the table, from experience this doesn't happen automatically
 		ipTableData.addTableModelListener(new TableModelListener() {
 			@Override
@@ -360,8 +363,7 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		JScrollPane scrollPane = new JScrollPane(ipTable);
 		panel2.add(scrollPane);
 
-		SpringUtilities.makeCompactGrid(panel2, 3, 2, INITIAL_X, INITIAL_Y,
-				PADDING_X, PADDING_Y);
+		SpringUtilities.makeCompactGrid(panel2, 2, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
 
 		// Add controls to the packet details tab
 		panel3.add(new JLabel("Most commonly used port: "));
@@ -372,26 +374,15 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		fieldMostCommonProtocol = new JTextField();
 		panel3.add(fieldMostCommonProtocol);
 
-		panel3.add(new JLabel("Minimum packet length (bytes): "));
-		fieldMinPacketLength = new JTextField();
-		panel3.add(fieldMinPacketLength);
+		panel3.add(new JLabel("Min/Max/Avg packet length (bytes): "));
+		fieldPacketLength = new JTextField();
+		panel3.add(fieldPacketLength);
 
-		panel3.add(new JLabel("Average packet length (bytes): "));
-		fieldAvgPacketLength = new JTextField();
-		panel3.add(fieldAvgPacketLength);
-
-		panel3.add(new JLabel("Maximum packet length (bytes): "));
-		fieldMaxPacketLength = new JTextField();
-		panel3.add(fieldMaxPacketLength);
-
-		SpringUtilities.makeCompactGrid(panel3, 5, 2, INITIAL_X, INITIAL_Y,
-				PADDING_X, PADDING_Y);
+		SpringUtilities.makeCompactGrid(panel3, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
 
 		// Set up the controls in the bottom panel of the UI
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		add(titleLabel);
-		add(new JSeparator(SwingConstants.HORIZONTAL));
 		add(tabbedPane);
 		add(Box.createVerticalGlue());
 

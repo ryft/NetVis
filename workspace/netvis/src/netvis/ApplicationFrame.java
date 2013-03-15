@@ -31,7 +31,7 @@ public class ApplicationFrame extends JFrame {
 		super("NetVis");
 		
 		// Setup data feeder and data controller
-		DataFeeder dataFeeder = new SimDataFeeder("eduroam.csv", 1, this);
+		DataFeeder dataFeeder = new SimDataFeeder("skype.csv", 1, this);
 		DataController dataController = new DataController(dataFeeder, 500);
 		dataController.addFilter(new SourcePortRangeFilter(dataController));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);

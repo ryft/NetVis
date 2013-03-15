@@ -89,15 +89,22 @@ public class SimDataFeeder implements DataFeeder {
 		return new Packet(no, time, line[2], line[3], sport, line[5], line[6],
 				dport, line[8], length, line[10]);
 	}
-	
+
 	// Protect ourselves from NumberFormatException errors
 	protected static Integer parseInt(String str) {
-		if (str.length() == 0) return 0;
-		else return Integer.parseInt(str);
+		try {
+			return Integer.parseInt(str);
+		} catch (NumberFormatException nfe) {
+			return 0;
+		}
 	}
+
 	protected static Float parseFloat(String str) {
-		if (str.length() == 0) return 0f;
-		else return Float.parseFloat(str);
+		try {
+			return Float.parseFloat(str);
+		} catch (NumberFormatException nfe) {
+			return 0f;
+		}
 	}
 
 }
