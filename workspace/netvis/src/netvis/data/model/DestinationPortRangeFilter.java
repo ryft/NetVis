@@ -12,13 +12,13 @@ import javax.swing.JTextField;
 
 import netvis.data.DataController;
 
-public class SourcePortRangeFilter implements PacketFilter, ActionListener{
+public class DestinationPortRangeFilter implements PacketFilter, ActionListener {
 	int lower_bound, upper_bound;
 	final DataController dataController;
 	JComponent filterPanel;
 	JTextField lbField, ubField;
 	JButton updateButton;
-	public SourcePortRangeFilter(DataController dataController){
+	public DestinationPortRangeFilter(DataController dataController){
 		this.dataController = dataController;
 		lower_bound = 0;
 		upper_bound = 65535;	// Highest possible UDP & TCP port
@@ -27,7 +27,7 @@ public class SourcePortRangeFilter implements PacketFilter, ActionListener{
 		updateButton = new JButton("Filter");
 		
 		updateButton.addActionListener(this);
-		JLabel titleLabel = new JLabel("Source Port");
+		JLabel titleLabel = new JLabel("Destination Port");
 
 		filterPanel = new JPanel();
 		filterPanel.add(titleLabel);
@@ -40,7 +40,7 @@ public class SourcePortRangeFilter implements PacketFilter, ActionListener{
 	
 	@Override
 	public boolean filter(Packet packet) {
-		if (lower_bound > packet.sport || upper_bound < packet.sport)
+		if (lower_bound > packet.dport || upper_bound < packet.dport)
 			return false;
 		else 
 			return true;
@@ -48,7 +48,7 @@ public class SourcePortRangeFilter implements PacketFilter, ActionListener{
 
 	@Override
 	public String description() {
-		return "Filter by source port";
+		return "Filter by destination port";
 	}
 
 	@Override
