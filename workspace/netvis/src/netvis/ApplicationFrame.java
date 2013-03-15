@@ -12,8 +12,7 @@ import javax.swing.JPanel;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.SimDataFeeder;
-import netvis.data.model.DestinationPortRangeFilter;
-import netvis.data.model.SourcePortRangeFilter;
+import netvis.data.filters.PortRangeFilter;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.AnalysisPanel;
@@ -34,8 +33,7 @@ public class ApplicationFrame extends JFrame {
 		// Setup data feeder and data controller
 		DataFeeder dataFeeder = new SimDataFeeder("skype.csv", 1, this);
 		DataController dataController = new DataController(dataFeeder, 500);
-		dataController.addFilter(new SourcePortRangeFilter(dataController));
-		dataController.addFilter(new DestinationPortRangeFilter(dataController));
+		dataController.addFilter(new PortRangeFilter(dataController));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final JPanel contentPane = new JPanel(new GridBagLayout());
 

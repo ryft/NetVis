@@ -70,35 +70,7 @@ public class FilterPanel extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(Box.createVerticalGlue());
 
-		/*
-		// Create filter options
-		JButton dummyButton = new JButton("Button");
-		dummyButton.setAlignmentX(LEFT_ALIGNMENT);
 
-		JCheckBox dummyCheckBox1 = new JCheckBox("CheckBox 1");
-		dummyCheckBox1.setAlignmentX(LEFT_ALIGNMENT);
-		JCheckBox dummyCheckBox2 = new JCheckBox("CheckBox 2");
-		dummyCheckBox2.setAlignmentX(LEFT_ALIGNMENT);
-
-		JRadioButton dummyRadioButton1 = new JRadioButton("Radio 1");
-		dummyRadioButton1.setAlignmentX(LEFT_ALIGNMENT);
-		JRadioButton dummyRadioButton2 = new JRadioButton("Radio 2");
-		dummyRadioButton2.setAlignmentX(LEFT_ALIGNMENT);
-		ButtonGroup dummyRadioGroup = new ButtonGroup();
-		dummyRadioGroup.add(dummyRadioButton1);
-		dummyRadioGroup.add(dummyRadioButton2);
-
-
-
-		add(new JSeparator(SwingConstants.HORIZONTAL));
-		add(dummyButton);
-		add(new JSeparator(SwingConstants.HORIZONTAL));
-		add(dummyCheckBox1);
-		add(dummyCheckBox2);
-		add(new JSeparator(SwingConstants.HORIZONTAL));
-		add(dummyRadioButton1);
-		add(dummyRadioButton2);
-		add(new JSeparator(SwingConstants.HORIZONTAL)); */
 	}
 
 }

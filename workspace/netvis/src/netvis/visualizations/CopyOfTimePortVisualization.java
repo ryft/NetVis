@@ -4,6 +4,7 @@ import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import netvis.data.DataController;
+import netvis.data.DataUtilities;
 import netvis.ui.OpenGLPanel;
 
 public class CopyOfTimePortVisualization extends AbstractVisualization {
@@ -26,7 +27,7 @@ public class CopyOfTimePortVisualization extends AbstractVisualization {
 	    gl.glEnd();
 	    float nedLog = 0;
 	    
-	    int noPorts = 70000;
+	    int noPorts = DataUtilities.MAX_PORT;
 	    int[] Ports = new int[noPorts];
 	    for (int i = 0; i < noPorts; i++)
 	    	Ports[i] = 0;
