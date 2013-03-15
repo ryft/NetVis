@@ -8,7 +8,7 @@ public class Packet {
 	/**
 	 * 
 	 * @param no Packet number
-	 * @param time Time elapsed since rst packet (seconds)
+	 * @param time Time elapsed since first packet (seconds)
 	 * @param sip Source IPv4/6 address
 	 * @param smac Source hardware (MAC) address
 	 * @param sport Source Port

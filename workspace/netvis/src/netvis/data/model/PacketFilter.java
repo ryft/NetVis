@@ -1,5 +1,7 @@
 package netvis.data.model;
 
+import javax.swing.JComponent;
+
 public interface PacketFilter {
 	
 	/**
@@ -11,4 +13,6 @@ public interface PacketFilter {
 	 * Eg. Source Port: Between 8000 and 9000 or Protocols: HTTP/HTTPS
 	 */
 	public String description();
+	
+	public JComponent getPanel();
 }

@@ -26,7 +26,6 @@ public class FilterPanel extends JPanel {
 	public FilterPanel(final List<Visualization> visList) {
 		this.visList = visList;
 		
-		
 		JLabel titleVisLabel = new JLabel("Visualizations");
 		titleVisLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
 

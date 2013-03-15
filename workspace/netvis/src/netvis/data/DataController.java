@@ -83,6 +83,10 @@ public class DataController implements ActionListener {
 		if (!dataFeeder.hasNext()) timer.stop();
 	}
 	
+	public void filterUpdated(){
+		allDataChanged();
+	}
+	
 	/**
 	 * 
 	 * @param list List to be filtered
