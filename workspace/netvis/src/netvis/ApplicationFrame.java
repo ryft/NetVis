@@ -1,43 +1,58 @@
 package netvis;
+
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.SimDataFeeder;
 import netvis.data.filters.ProtocolFilter;
-import netvis.data.model.DestinationPortRangeFilter;
-import netvis.data.model.SourcePortRangeFilter;
+import netvis.data.filters.PortRangeFilter;
+import netvis.ui.AnalysisPanel;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
-import netvis.ui.AnalysisPanel;
+import netvis.ui.VisControlsContainer;
+import netvis.util.NetUtilities;
 import netvis.visualizations.CopyOfTimePortVisualization;
 import netvis.visualizations.TimePortVisualization;
 import netvis.visualizations.Visualization;
 
+/**
+ * The entry point to the application. Glues the whole GUI together and
+ * instantiates the domain components.
+ */
+@SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private final OpenGLPanel glPanel;
-	private final FilterPanel filterPanel;
-	private final AnalysisPanel analysisPanel;
+	// Declare panels for use in the GUI
+	protected final OpenGLPanel glPanel;
+	protected final FilterPanel filterPanel;
+	protected final AnalysisPanel analysisPanel;
+	protected final StatusBar statusBar;
 
+	/**
+	 * Construct a default application frame.
+	 */
 	public ApplicationFrame() {
 		super("NetVis");
-		
+
 		// Setup data feeder and data controller
-		DataFeeder dataFeeder = new SimDataFeeder("skype.csv", 1, this);
+		DataFeeder dataFeeder = new SimDataFeeder("eduroam.csv", 1, this);
 		DataController dataController = new DataController(dataFeeder, 500);
-		dataController.addFilter(new SourcePortRangeFilter(dataController));
-		dataController.addFilter(new DestinationPortRangeFilter(dataController));
 		dataController.addFilter(new ProtocolFilter(dataController));
+		dataController.addFilter(new PortRangeFilter(dataController));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final JPanel contentPane = new JPanel(new GridBagLayout());
 
@@ -55,13 +70,15 @@ public class ApplicationFrame extends JFrame {
 		glConstraints.weighty = 0.0;
 		contentPane.add(glPanel, glConstraints);
 		
-		List<Visualization> visList = new ArrayList<Visualization>();
-		visList.add(new TimePortVisualization(dataController, glPanel));
-		visList.add(new CopyOfTimePortVisualization(dataController, glPanel));
-		visList.get(0).activate();
+		VisControlsContainer visControlsContainer = new VisControlsContainer();
 		
+		List<Visualization> visList = new ArrayList<Visualization>();
+		visList.add(new TimePortVisualization(dataController, glPanel, visControlsContainer));
+		visList.add(new CopyOfTimePortVisualization(dataController, glPanel, visControlsContainer));
+		visList.get(0).activate();
+
 		// Set up filter control panel
-		filterPanel = new FilterPanel(visList, dataController);
+		filterPanel = new FilterPanel(visList, dataController, visControlsContainer);
 		final GridBagConstraints filterConstraints = new GridBagConstraints();
 		filterConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		filterConstraints.fill = GridBagConstraints.NONE;
@@ -77,7 +94,7 @@ public class ApplicationFrame extends JFrame {
 		final GridBagConstraints tableConstraints = new GridBagConstraints();
 		tableConstraints.anchor = GridBagConstraints.NORTH;
 		tableConstraints.fill = GridBagConstraints.BOTH;
-		tableConstraints.insets = new Insets(5, 10, 10, 10);
+		tableConstraints.insets = new Insets(5, 10, 0, 10);
 		tableConstraints.gridx = 0;
 		tableConstraints.gridy = 1;
 		tableConstraints.gridwidth = 2;
@@ -85,15 +102,71 @@ public class ApplicationFrame extends JFrame {
 		tableConstraints.weighty = 1.0;
 		contentPane.add(analysisPanel, tableConstraints);
 
+		// Set up a status bar panel
+		statusBar = new StatusBar();
+		final GridBagConstraints statusBarConstraints = new GridBagConstraints();
+		statusBarConstraints.anchor = GridBagConstraints.NORTH;
+		statusBarConstraints.fill = GridBagConstraints.NONE;
+		statusBarConstraints.gridx = 0;
+		statusBarConstraints.gridy = 2;
+		statusBarConstraints.gridwidth = 2;
+		statusBarConstraints.weightx = 0.0;
+		statusBarConstraints.weighty = 0.0;
+		contentPane.add(statusBar, statusBarConstraints);
+
 		// Link the model together and set the content pane
 		dataController.addListener(analysisPanel);
 		setContentPane(contentPane);
 		pack();
 	}
 
+	/**
+	 * A simple status bar, which updates every second to display the current
+	 * JVM memory usage, as well as the total memory available to the JVM (heap
+	 * size limit).
+	 */
+	protected class StatusBar extends JPanel implements ActionListener {
+
+		Timer timer = new Timer(1000, this);
+		JLabel label = new JLabel("JMV memory usage statistics");
+		Runtime runtime = Runtime.getRuntime();
+
+		/**
+		 * Create a new status bar JPanel which displays JVM memory usage
+		 */
+		public StatusBar() {
+			add(label);
+			timer.start();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			
+			// Get heap usage stats from the JVM Runtime object
+			Long freeMemory = runtime.freeMemory();
+			Long totalMemory = runtime.totalMemory();
+			Long usedMemory = totalMemory - freeMemory;
+			Long percentageUsed = Math.round(usedMemory * 100.0 / totalMemory);
+
+			// Display the usage stats in increasingly bright red text as usage
+			// approaches 100%
+			if (percentageUsed >= 80)
+				if (percentageUsed < 90)
+					label.setForeground(Color.red.darker().darker());
+				else
+					label.setForeground(Color.red);
+			else
+				label.setForeground(Color.darkGray);
+
+			label.setText("JVM memory usage statistics: " + NetUtilities.parseBytes(usedMemory)
+					+ " / " + NetUtilities.parseBytes(totalMemory) + " (" + percentageUsed
+					+ "%) in use");
+		}
+	}
+
 	public static void main(String[] args) {
 		ApplicationFrame applicationFrame = new ApplicationFrame();
-		applicationFrame.setSize(applicationFrame.getMinimumSize());
+		applicationFrame.setSize(applicationFrame.getPreferredSize());
 		applicationFrame.setVisible(true);
 	}
 

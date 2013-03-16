@@ -1,16 +1,21 @@
 package netvis.ui;
 
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -18,10 +23,10 @@ import javax.swing.SpringLayout;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 
 import netvis.data.DataControllerListener;
 import netvis.data.model.Packet;
+import netvis.util.NetUtilities;
 import netvis.util.SpringUtilities;
 
 /**
@@ -29,71 +34,244 @@ import netvis.util.SpringUtilities;
  * collects data from the data controller and updates to reflect the data we've
  * seen so far.
  */
-public class AnalysisPanel extends JPanel implements DataControllerListener {
+@SuppressWarnings("serial")
+public class AnalysisPanel extends JSplitPane implements DataControllerListener {
 
-	private static final long serialVersionUID = 1L;
+	/** Context panel to deliver extra data to */
+	protected final ContextPanel contextPanel = new ContextPanel();
 
-	// Set up a separate thread for processing new data so the GUI stays
-	// responsive on extreme input
+	/** Set up a separate thread for processing new data so the GUI stays
+		responsive on extreme input */
 	protected final Updater updateThread = new Updater();
 
 	// Declare fields to be updated dynamically
-	final JTextField fieldTotalPackets;
-	final JTextField fieldPacketsPerDelta;
-	final JTextField fieldPacketLength;
-	final JTextField fieldBytesPerDelta;
-	final JTextField fieldUniqueIPs;
-	final JTextField fieldMostCommonPort;
-	final JTextField fieldMostCommonProtocol;
+	protected final JTextField fieldTotals;
+	protected final JTextField fieldPacketsPerDelta;
+	protected final JTextField fieldPacketLength;
+	protected final JTextField fieldBytesPerDelta;
+	protected final JTextField fieldUniqueSenderIPs;
+	protected final JTextField fieldUniqueReceiverIPs;
+	protected final JTextField fieldMostCommonPort;
+	protected final JTextField fieldMostCommonProtocol;
 
 	// Set up constants for Spring Layouts
-	final int INITIAL_X = 0;
-	final int INITIAL_Y = 0;
-	final int PADDING_X = 5;
-	final int PADDING_Y = 5;
+	protected final int INITIAL_X = 0;
+	protected final int INITIAL_Y = 0;
+	protected final int PADDING_X = 5;
+	protected final int PADDING_Y = 5;
 
 	// Data to be updated by the data controller, and displayed by the UI
-	final List<String> ipAddressesSeen = new ArrayList<String>();
-	final Map<String, IPTraffic> ipTrafficTotals = new HashMap<String, IPTraffic>();
+	protected final List<String> ipAddressesSeen = new ArrayList<String>();
+	protected final Map<String, IPTraffic> ipTrafficTotals = new HashMap<String, IPTraffic>();
+	protected final List<String> senderIPs = new ArrayList<String>();
+	protected final List<String> receiverIPs = new ArrayList<String>();
 
-	final List<String> senders = new ArrayList<String>();
-	final List<String> receivers = new ArrayList<String>();
-
+	// Set up a map for the number of times each port and protocol is used
 	protected Map<Integer, Integer> portTrafficTotals = new HashMap<Integer, Integer>();
 	protected Map<String, Integer> protocolTrafficTotals = new HashMap<String, Integer>();
+	
 	protected Integer mostCommonPortCount = -1;
 	protected Integer mostCommonPort = null;
 	protected Integer mostCommonProtocolCount = -1;
 	protected String mostCommonProtocol = null;
 
+	// Lists of the number of packets/bytes seen after each interval (must be increasing)
+	protected final List<Integer> packetsSeenOverTime = new ArrayList<Integer>();
+	protected final List<Integer> bytesSeenOverTime = new ArrayList<Integer>();
+
 	protected int totalPackets = 0;
 	protected double totalTimePassed = 0; // Time measured in seconds
-	protected int timeIncrementsPassed = 0;
+	protected int totalIntervalsPassed = 0;
 
-	protected int minPacketsPerDelta = -1;
-	protected double avgPacketsPerDelta = -1;
-	protected int maxPacketsPerDelta = -1;
+	protected int minPacketsPerInterval = -1;
+	protected double avgPacketsPerInterval = -1;
+	protected int maxPacketsPerInterval = -1;
 
 	protected int minPacketLength = -1; // All packet lengths measured in bytes
 	protected double avgPacketLength = -1;
 	protected int maxPacketLength = -1;
 
+	protected Packet shortestPacket = null;
+	protected Packet longestPacket = null;
+
 	protected int totalBytes = 0;
 	protected int avgBytes = -1;
 
-	protected int minBytesPerDelta = -1;
-	protected double avgBytesPerDelta = -1;
-	protected int maxBytesPerDelta = -1;
+	protected int minBytesPerInterval = -1;
+	protected double avgBytesPerInterval = -1;
+	protected int maxBytesPerInterval = -1;
 
-	/**
-	 * Tiny class to hold traffic data about a specific IP
-	 */
+	/** Tiny class to hold traffic data about a specific IP */
 	protected class IPTraffic {
 		public int sent = 0;
 		public int received = 0;
 
+		/** Create an empty traffic accumulator */
 		public IPTraffic() {
 		}
+	}
+
+	/**
+	 * Create a new Analysis Panel, with controls which autonomously listen to
+	 * data from the data controller and send data to a Context Panel.
+	 */
+	public AnalysisPanel() {
+		super(JSplitPane.HORIZONTAL_SPLIT);
+
+		// Set up tab panes to encapsulate cumulative data under separate categories
+		JTabbedPane tabbedPane = new JTabbedPane();
+
+		JPanel panel1 = new JPanel(new SpringLayout());
+		tabbedPane.addTab("Aggregation data", panel1);
+		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+
+		JPanel panel2 = new JPanel(new SpringLayout());
+		tabbedPane.addTab("Source/Destination info", panel2);
+		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+
+		JPanel panel3 = new JPanel(new SpringLayout());
+		tabbedPane.addTab("Packet details", panel3);
+		tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+
+		// PANEL 1: Add controls to the aggregation data tab
+		panel1.add(new JLabel("Total packets/traffic transmitted: "));
+		fieldTotals = new JTextField();
+		panel1.add(fieldTotals);
+
+		JLabel labelPacketsPerDelta = new AbstractContextLink("Min/Max/Avg packets per time interval: "){
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				contextPanel.update("Packets transmitted over "+Math.round(totalTimePassed)+"s, "+
+						"current total: "+totalPackets, packetsSeenOverTime);
+			}
+		};
+		panel1.add(labelPacketsPerDelta);
+		fieldPacketsPerDelta = new JTextField();
+		panel1.add(fieldPacketsPerDelta);
+
+		JLabel labelBytesPerDelta = new AbstractContextLink("Min/Max/Avg traffic per time interval: "){
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				contextPanel.update("Bytes transmitted over "+Math.round(totalTimePassed)+"s, "+
+						"current total: "+totalBytes+" bytes", bytesSeenOverTime);
+			}
+		};
+		panel1.add(labelBytesPerDelta);
+		fieldBytesPerDelta = new JTextField();
+		panel1.add(fieldBytesPerDelta);
+
+		SpringUtilities.makeCompactGrid(panel1, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
+
+		// PANEL 2: Add controls to the src/dest data tab
+		panel2.add(new JLabel("Unique sender IPs: "));
+		fieldUniqueSenderIPs = new JTextField();
+		panel2.add(fieldUniqueSenderIPs);
+
+		panel2.add(new JLabel("Unique receiver IPs: "));
+		fieldUniqueReceiverIPs = new JTextField();
+		panel2.add(fieldUniqueReceiverIPs);
+
+		panel2.add(new JLabel("IP traffic totals: "));
+		JButton showTableButton = new JButton("Show/Update IP packet traffic");
+		panel2.add(showTableButton);
+
+		IPTableModel ipTableData = new IPTableModel();
+		final JTable ipTable = new JTable(ipTableData);
+		ipTable.setAutoCreateRowSorter(true);
+
+		// Refresh the table, from experience this doesn't happen automatically
+		ipTableData.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent arg0) {
+				ipTable.repaint();
+			}
+		});
+
+		showTableButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				contextPanel.update(ipTable);
+				repaint();
+			}
+		});
+
+		SpringUtilities.makeCompactGrid(panel2, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
+		
+		// PANEL 3: Add controls to the packet details tab
+		JLabel labelMostCommonPort = new AbstractContextLink("Most commonly used port: ") {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				contextPanel.update("Total traffic, grouped and sorted by port", portTrafficTotals);
+			}
+		};
+		panel3.add(labelMostCommonPort);
+		fieldMostCommonPort = new JTextField();
+		panel3.add(fieldMostCommonPort);
+
+		JLabel labelMostCommonProtocol = new AbstractContextLink("Most commonly used protocol: ") {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				contextPanel.update("Total traffic, grouped and sorted by protocol", protocolTrafficTotals);
+			}
+		};
+		panel3.add(labelMostCommonProtocol);
+		fieldMostCommonProtocol = new JTextField();
+		panel3.add(fieldMostCommonProtocol);
+
+		JLabel labelPacketLength = new AbstractContextLink("Min/Max/Avg packet length: ") {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				contextPanel.update(shortestPacket, longestPacket);
+			}
+		};
+		panel3.add(labelPacketLength);
+		fieldPacketLength = new JTextField();
+		panel3.add(fieldPacketLength);
+
+		SpringUtilities.makeCompactGrid(panel3, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
+		
+		// Put together the tab pane and set it up next to the context panel
+		setLeftComponent(tabbedPane);
+		setResizeWeight(0.85);
+		setRightComponent(contextPanel);
+
+		updateThread.run();	// Initiate the data handling thread
+	}
+
+	/**
+	 * Custom JLabel subclass to act as a 'hyperlink' -- the mouse clicked function is abstract
+	 * because the behaviour differs for each link.
+	 */
+	protected abstract class AbstractContextLink extends JLabel implements MouseListener {
+
+		/**
+		 * Construct a link label which displays the specified text
+		 * @param labelText	the text to show on the label
+		 */
+		public AbstractContextLink(String labelText) {
+			super(labelText);
+			addMouseListener(this);
+			setForeground(Color.blue.darker().darker());
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			setCursor(Cursor.getDefaultCursor());
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+
 	}
 
 	@Override
@@ -102,8 +280,8 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		// Reset all collected data
 		ipAddressesSeen.clear();
 		ipTrafficTotals.clear();
-		senders.clear();
-		receivers.clear();
+		senderIPs.clear();
+		receiverIPs.clear();
 
 		portTrafficTotals.clear();
 		protocolTrafficTotals.clear();
@@ -111,18 +289,43 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		mostCommonPort = null;
 		mostCommonProtocolCount = -1;
 		mostCommonProtocol = null;
+		
+		packetsSeenOverTime.clear();
+		bytesSeenOverTime.clear();
 
 		totalPackets = 0;
 		totalTimePassed = 0;
-		timeIncrementsPassed = 0;
+		totalIntervalsPassed = 0;
 
-		minPacketsPerDelta = -1;
-		avgPacketsPerDelta = -1;
-		maxPacketsPerDelta = -1;
+		minPacketsPerInterval = -1;
+		avgPacketsPerInterval = -1;
+		maxPacketsPerInterval = -1;
 
 		minPacketLength = -1;
 		avgPacketLength = -1;
 		maxPacketLength = -1;
+		
+		shortestPacket = null;
+		longestPacket = null;
+
+		totalBytes = 0;
+		avgBytes = -1;
+
+		minBytesPerInterval = -1;
+		avgBytesPerInterval = -1;
+		maxBytesPerInterval = -1;
+		
+		// Clear all fields
+		updateControls();
+	}
+
+	@Override
+	public void newPacketsArrived(List<Packet> newPackets) {
+
+		// Process the new packets in a separate thread to the JPanel thread so
+		// that the GUI stays responsive on extreme input (although the data
+		// may lag behind)
+		updateThread.crunchNewData(newPackets);
 	}
 
 	/**
@@ -139,12 +342,14 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 
 			int totalNewPackets = newPackets.size();
 			int totalNewBytes = 0;
-			timeIncrementsPassed++;
+			totalIntervalsPassed++;
 
 			for (Packet p : newPackets) {
 				totalPackets++; // Do this incrementally so we can do operations
 								// per # packets seen
 				totalNewBytes += p.length;
+				// Make sure the total time passed always increases
+				totalTimePassed = Math.max(totalTimePassed, p.time);
 
 				// Update per-IP traffic data
 				for (String ip : new String[] { p.sip, p.dip })
@@ -156,10 +361,10 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 				ipTrafficTotals.get(p.dip).received++;
 
 				// Add IPs to unique senders/receivers lists
-				if (!senders.contains(p.sip))
-					senders.add(p.sip);
-				if (!receivers.contains(p.dip))
-					receivers.add(p.dip);
+				if (!senderIPs.contains(p.sip))
+					senderIPs.add(p.sip);
+				if (!receiverIPs.contains(p.dip))
+					receiverIPs.add(p.dip);
 
 				// Update port and protocol traffic tallies
 				for (Integer port : new Integer[] { p.sport, p.dport }) {
@@ -175,9 +380,16 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 				if (minPacketLength == -1) {
 					minPacketLength = maxPacketLength = p.length;
 					avgPacketLength = p.length;
+					shortestPacket = longestPacket = p;
 				} else {
-					minPacketLength = Math.min(minPacketLength, p.length);
-					maxPacketLength = Math.max(maxPacketLength, p.length);
+					if (p.length < minPacketLength) {
+						minPacketLength = p.length;
+						shortestPacket = p;
+					}
+					if (p.length > maxPacketLength) {
+						maxPacketLength = p.length;
+						longestPacket = p;
+					}
 					avgPacketLength = (avgPacketLength * (totalPackets - 1) + p.length)
 							/ totalPackets;
 				}
@@ -198,27 +410,29 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 			}
 
 			totalBytes += totalNewBytes;
+			bytesSeenOverTime.add(totalBytes);
+			packetsSeenOverTime.add(totalPackets);
 
 			// Update min/max/avg counts for aggregator - packets
-			if (minPacketsPerDelta == -1) {
-				minPacketsPerDelta = maxPacketsPerDelta = totalNewPackets;
-				avgPacketsPerDelta = totalNewPackets;
+			if (minPacketsPerInterval == -1) {
+				minPacketsPerInterval = maxPacketsPerInterval = totalNewPackets;
+				avgPacketsPerInterval = totalNewPackets;
 			} else {
-				minPacketsPerDelta = Math.min(minPacketsPerDelta, totalNewPackets);
-				maxPacketsPerDelta = Math.max(maxPacketsPerDelta, totalNewPackets);
-				avgPacketsPerDelta = (avgPacketsPerDelta * (timeIncrementsPassed - 1) + totalNewPackets)
-						/ timeIncrementsPassed;
+				minPacketsPerInterval = Math.min(minPacketsPerInterval, totalNewPackets);
+				maxPacketsPerInterval = Math.max(maxPacketsPerInterval, totalNewPackets);
+				avgPacketsPerInterval = (avgPacketsPerInterval * (totalIntervalsPassed - 1) + totalNewPackets)
+						/ totalIntervalsPassed;
 			}
 
 			// Update min/max/avg counts for aggregator - traffic
-			if (minBytesPerDelta == -1) {
-				minBytesPerDelta = maxBytesPerDelta = totalNewBytes;
-				avgBytesPerDelta = totalNewBytes;
+			if (minBytesPerInterval == -1) {
+				minBytesPerInterval = maxBytesPerInterval = totalNewBytes;
+				avgBytesPerInterval = totalNewBytes;
 			} else {
-				minBytesPerDelta = Math.min(minBytesPerDelta, totalNewBytes);
-				maxBytesPerDelta = Math.max(maxBytesPerDelta, totalNewBytes);
-				avgBytesPerDelta = (avgBytesPerDelta * (timeIncrementsPassed - 1) + totalNewBytes)
-						/ timeIncrementsPassed;
+				minBytesPerInterval = Math.min(minBytesPerInterval, totalNewBytes);
+				maxBytesPerInterval = Math.max(maxBytesPerInterval, totalNewBytes);
+				avgBytesPerInterval = (avgBytesPerInterval * (totalIntervalsPassed - 1) + totalNewBytes)
+						/ totalIntervalsPassed;
 			}
 
 			// Tell the components to update to reflect the new data
@@ -226,167 +440,85 @@ public class AnalysisPanel extends JPanel implements DataControllerListener {
 		}
 	}
 
-	@Override
-	public void newPacketsArrived(List<Packet> newPackets) {
-
-		// Process the new packets in a separate thread to the JPanel thread so
-		// that the GUI stays responsive on extreme input (although the data
-		// will lag behind)
-		updateThread.crunchNewData(newPackets);
-	}
-
+	/**
+	 * Internal function to refresh all necessary fields with new updated information when new
+	 * data arrives
+	 */
 	protected void updateControls() {
 
 		// Simply put values into text fields.
-		fieldTotalPackets.setText(String.valueOf(totalPackets));
-		fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerDelta) + " / "
-				+ String.valueOf(Math.round(avgPacketsPerDelta)) + " / "
-				+ String.valueOf(maxPacketsPerDelta));
-		fieldBytesPerDelta.setText(String.valueOf(minBytesPerDelta) + " / "
-				+ String.valueOf(Math.round(avgBytesPerDelta)) + " / "
-				+ String.valueOf(maxBytesPerDelta));
-		fieldUniqueIPs.setText(String.valueOf(senders.size() + " / " + receivers.size()));
+		fieldTotals.setText(String.valueOf(totalPackets) + " / "
+				+ NetUtilities.parseBytes(totalBytes));
+		fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerInterval) + " / "
+				+ String.valueOf(maxPacketsPerInterval) + " / "
+				+ String.valueOf(Math.round(avgPacketsPerInterval)));
+		fieldBytesPerDelta.setText(NetUtilities.parseBytes(minBytesPerInterval) + " / "
+				+ NetUtilities.parseBytes(maxBytesPerInterval) + " / "
+				+ NetUtilities.parseBytes(Math.round(avgBytesPerInterval)));
+		fieldUniqueSenderIPs.setText(String.valueOf(senderIPs.size()));
+		fieldUniqueReceiverIPs.setText(String.valueOf(receiverIPs.size()));
 		fieldMostCommonPort.setText(String.valueOf(mostCommonPort));
 		fieldMostCommonProtocol.setText(mostCommonProtocol);
-		fieldPacketLength.setText(String.valueOf(minPacketLength) + " / "
-				+ String.valueOf(Math.round(avgPacketLength)) + " / "
-				+ String.valueOf(maxPacketLength));
+		fieldPacketLength.setText(NetUtilities.parseBytes(minPacketLength) + " / "
+				+ NetUtilities.parseBytes(maxPacketLength) + " / "
+				+ NetUtilities.parseBytes(Math.round(avgPacketLength)));
 	}
 
-	@SuppressWarnings("serial")
-	public AnalysisPanel() {
+	/**
+	 * IP traffic table -- automatically updates from ipAddressesSeen array and
+	 * ipTrafficTotals map
+	 */
+	protected class IPTableModel extends AbstractTableModel {
 
-		// Set up tabbed panes to encapsulate cumulative data under
-		// separate categories
-		JTabbedPane tabbedPane = new JTabbedPane();
+		@Override
+		public int getColumnCount() {
+			return 4;
+		}
 
-		JPanel panel1 = new JPanel(new SpringLayout());
-		tabbedPane.addTab("Aggregation data", panel1);
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+		@Override
+		public int getRowCount() {
+			return ipAddressesSeen.size();
+		}
 
-		JPanel panel2 = new JPanel(new SpringLayout());
-		tabbedPane.addTab("Source/Destination info", panel2);
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+		@Override
+		public Object getValueAt(int row, int col) {
+			// Return empty string if we're outside the array bounds
+			if (col >= ipAddressesSeen.size())
+				return new String();
+			assert (ipAddressesSeen.size() == ipTrafficTotals.size());
 
-		JPanel panel3 = new JPanel(new SpringLayout());
-		tabbedPane.addTab("Packet details", panel3);
-		tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+			String IP = ipAddressesSeen.get(row);
+			IPTraffic traffic = ipTrafficTotals.get(IP);
 
-		// Add controls to the aggregation data tab
-		panel1.add(new JLabel("Total packets seen: "));
-		fieldTotalPackets = new JTextField();
-		panel1.add(fieldTotalPackets);
-
-		panel1.add(new JLabel("Min/Max/Avg packets per time increment: "));
-		fieldPacketsPerDelta = new JTextField();
-		panel1.add(fieldPacketsPerDelta);
-
-		panel1.add(new JLabel("Min/Max/Avg traffic per time increment (bytes): "));
-		fieldBytesPerDelta = new JTextField();
-		panel1.add(fieldBytesPerDelta);
-
-		SpringUtilities.makeCompactGrid(panel1, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
-
-		// Add controls to the src/dest data tab
-		panel2.add(new JLabel("Unique sender/receiver IPs: "));
-		fieldUniqueIPs = new JTextField();
-		panel2.add(fieldUniqueIPs);
-
-		panel2.add(new JLabel("IP traffic totals: "));
-
-		// IP traffic table -- automatically updates from
-		// ipAddressesSeen array, and ipTrafficTotals map
-		TableModel ipTableData = new AbstractTableModel() {
-			@Override
-			public int getColumnCount() {
-				return 4;
+			switch (col) {
+			case 0:
+				return IP;
+			case 1:
+				return traffic.sent;
+			case 2:
+				return traffic.received;
+			case 3:
+				return traffic.sent + traffic.received;
+			default:
+				return new String();
 			}
+		}
 
-			@Override
-			public int getRowCount() {
-				return ipAddressesSeen.size();
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+			case 0:
+				return "IP Address";
+			case 1:
+				return "Sent";
+			case 2:
+				return "Received";
+			case 3:
+				return "Total";
+			default:
+				return "";
 			}
-
-			@Override
-			public Object getValueAt(int row, int col) {
-				// Return empty string if we're outside the array bounds
-				if (col >= ipAddressesSeen.size())
-					return new String();
-				assert (ipAddressesSeen.size() == ipTrafficTotals.size());
-
-				String IP = ipAddressesSeen.get(row);
-				IPTraffic traffic = ipTrafficTotals.get(IP);
-
-				switch (col) {
-				case 0:
-					return IP;
-				case 1:
-					return traffic.sent;
-				case 2:
-					return traffic.received;
-				case 3:
-					return traffic.sent + traffic.received;
-				default:
-					return new String();
-				}
-			}
-
-			@Override
-			public String getColumnName(int column) {
-				switch (column) {
-				case 0:
-					return "IP Address";
-				case 1:
-					return "Packets Sent";
-				case 2:
-					return "Packets Received";
-				case 3:
-					return "Packets Total";
-				default:
-					return "";
-				}
-			}
-		};
-
-		final JTable ipTable = new JTable(ipTableData);
-		ipTable.setAutoCreateRowSorter(true);
-
-		// Refresh the table, from experience this doesn't happen automatically
-		ipTableData.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent arg0) {
-				ipTable.repaint();
-			}
-		});
-
-		// Put the table in a scroll pane, it can get big quickly
-		JScrollPane scrollPane = new JScrollPane(ipTable);
-		panel2.add(scrollPane);
-
-		SpringUtilities.makeCompactGrid(panel2, 2, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
-
-		// Add controls to the packet details tab
-		panel3.add(new JLabel("Most commonly used port: "));
-		fieldMostCommonPort = new JTextField();
-		panel3.add(fieldMostCommonPort);
-
-		panel3.add(new JLabel("Most commonly used protocol: "));
-		fieldMostCommonProtocol = new JTextField();
-		panel3.add(fieldMostCommonProtocol);
-
-		panel3.add(new JLabel("Min/Max/Avg packet length (bytes): "));
-		fieldPacketLength = new JTextField();
-		panel3.add(fieldPacketLength);
-
-		SpringUtilities.makeCompactGrid(panel3, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
-
-		// Set up the controls in the bottom panel of the UI
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-		add(tabbedPane);
-		add(Box.createVerticalGlue());
-
-		updateThread.run();
+		}
 	}
 
 }
