@@ -36,7 +36,7 @@ public class ProtocolFilter implements PacketFilter{
 		// Create checkboxes for each protocol and add them to nested menus
 		final JPopupMenu rootMenu = new JPopupMenu();
 		// TCP/IP family
-		JMenu tcpipMenu = new JMenu("TPC/IP family");
+		JMenu tcpipMenu = new JMenu("TCP/IP family");
 		rootMenu.add(tcpipMenu);
 		// Link Layer
 		JMenu linkLayerMenu = new JMenu("Link Layer");
@@ -254,8 +254,11 @@ public class ProtocolFilter implements PacketFilter{
 		filterPanel.add(rootButton);
 		
 		// Initialise the hashmap
-		actionPerformed(null);
-		
+		Iterator<JCheckBoxMenuItem> it = checkBoxList.iterator();
+		while(it.hasNext()) {
+			JCheckBoxMenuItem checkBox = it.next();
+			protocols.put(checkBox.getText(), checkBox.isSelected());
+		}
 	}
 
 	@Override
