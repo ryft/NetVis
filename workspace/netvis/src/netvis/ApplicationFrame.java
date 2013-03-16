@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.SimDataFeeder;
+import netvis.data.filters.ProtocolFilter;
 import netvis.data.model.DestinationPortRangeFilter;
 import netvis.data.model.SourcePortRangeFilter;
 import netvis.ui.FilterPanel;
@@ -36,6 +37,7 @@ public class ApplicationFrame extends JFrame {
 		DataController dataController = new DataController(dataFeeder, 500);
 		dataController.addFilter(new SourcePortRangeFilter(dataController));
 		dataController.addFilter(new DestinationPortRangeFilter(dataController));
+		dataController.addFilter(new ProtocolFilter(dataController));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final JPanel contentPane = new JPanel(new GridBagLayout());
 
