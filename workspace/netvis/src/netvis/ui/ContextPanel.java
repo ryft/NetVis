@@ -1,10 +1,13 @@
 package netvis.ui;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.Box;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -15,6 +18,10 @@ import netvis.data.model.Packet;
  * by the Analysis panel with relevant contextual data. Can be passed specific
  * data (e.g. a single packet) or a whole component (e.g. a table, chart or
  * graph) to show directly.
+ * 
+ * Contextual views won't update automatically by design; this would be a huge
+ * performance drain. They can all be manually refreshed by clicking on the
+ * relevant control again.
  */
 @SuppressWarnings("serial")
 public class ContextPanel extends JScrollPane {
@@ -23,7 +30,22 @@ public class ContextPanel extends JScrollPane {
 	 * Empty context panel, containing only default user instructions
 	 */
 	public ContextPanel() {
-		super(new JTextArea("Click on a button or blue element on the left to see more details."));
+		super(new JTextArea("Click on a button or blue element on the left to see more details.\n\n"
+				+"Contextual views don't update automatically for performance\n"
+				+"reasons. They can all be manually refreshed by clicking on\n"
+				+"the relevant control again."));
+	}
+	
+	/**
+	 * Update the context panel with a simple line graph, with the provided data points plotted
+	 * @param title	graph title, displayed at the top
+	 * @param dataPoints	uniformly distributed data points to plot on the y-axis
+	 */
+	public void update(String title, List<Integer> dataPoints) {
+		Box graphWrapper = Box.createVerticalBox();
+		graphWrapper.add(new JLabel(title));
+		graphWrapper.add(new SimpleLineGraph(dataPoints));
+		update(graphWrapper);
 	}
 
 	/**
