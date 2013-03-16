@@ -26,7 +26,8 @@ import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.DummyDataFeeder;
 import netvis.data.SimDataFeeder;
-import netvis.data.filters.DummyFilter;
+import netvis.data.filters.PortRangeFilter;
+import netvis.data.filters.ProtocolFilter;
 import netvis.ui.AnalysisPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.RightPanel;
@@ -65,7 +66,8 @@ public class ApplicationFrame extends JFrame {
 		// Setup data feeder and data controller
 		dataFeeder = new DummyDataFeeder(this);
 		dataController = new DataController(dataFeeder, 500);
-		dataController.addFilter(new DummyFilter());
+		dataController.addFilter(new ProtocolFilter(dataController));
+		dataController.addFilter(new PortRangeFilter(dataController));
 
 		contentPane = new JPanel(new GridBagLayout());
 
