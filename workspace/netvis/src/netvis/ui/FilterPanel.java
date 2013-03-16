@@ -24,10 +24,9 @@ public class FilterPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	protected final List<Visualization> visList;
 	protected final DataController dataController;
-	public FilterPanel(final List<Visualization> visList, DataController dataController) {
+	public FilterPanel(final List<Visualization> visList, DataController dataController, VisControlsContainer visControlContainer) {
 		this.visList = visList;
 		this.dataController = dataController;
-		
 		
 		JLabel titleVisLabel = new JLabel("Visualizations");
 		titleVisLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -42,14 +41,21 @@ public class FilterPanel extends JPanel {
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
 		
+		JLabel visContainerTitle = new JLabel("Visualization Controls");
+		visContainerTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
+
 		JLabel titleLabel = new JLabel("Filters");
 		titleLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-		
-		
 		
 		add(titleVisLabel);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 		add(visComboBox);
+		
+		add(visContainerTitle);
+		add(new JSeparator(SwingConstants.HORIZONTAL));
+		visControlContainer.setAlignmentX(LEFT_ALIGNMENT);
+		add(visControlContainer);
+		
 		add(titleLabel);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 
