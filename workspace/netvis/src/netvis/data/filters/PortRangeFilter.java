@@ -1,7 +1,6 @@
 package netvis.data.filters;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,7 +15,7 @@ import netvis.data.DataUtilities;
 import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
 
-public class PortRangeFilter implements PacketFilter, ActionListener {
+public class PortRangeFilter implements PacketFilter {
 	int source_lower_bound, source_upper_bound, dest_lower_bound, dest_upper_bound;
 	final DataController dataController;
 	JComponent filterPanel;

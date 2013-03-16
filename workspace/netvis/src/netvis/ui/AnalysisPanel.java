@@ -40,10 +40,6 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	/** Context panel to deliver extra data to */
 	protected final ContextPanel contextPanel = new ContextPanel();
 
-	/** Set up a separate thread for processing new data so the GUI stays
-		responsive on extreme input */
-	protected final Updater updateThread = new Updater();
-
 	// Declare fields to be updated dynamically
 	protected final JTextField fieldTotals;
 	protected final JTextField fieldPacketsPerDelta;
@@ -234,8 +230,6 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		setLeftComponent(tabbedPane);
 		setResizeWeight(0.85);
 		setRightComponent(contextPanel);
-
-		updateThread.run();	// Initiate the data handling thread
 	}
 
 	/**
@@ -325,7 +319,8 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		// Process the new packets in a separate thread to the JPanel thread so
 		// that the GUI stays responsive on extreme input (although the data
 		// may lag behind)
-		updateThread.crunchNewData(newPackets);
+		Thread updater = new Updater(newPackets);
+		updater.run();
 	}
 
 	/**
@@ -334,12 +329,20 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	 */
 	protected class Updater extends Thread {
 
+		List<Packet> newPackets;
+		
 		/**
 		 * @param newPackets
 		 *            Packets received during the previous time interval
 		 */
-		public void crunchNewData(List<Packet> newPackets) {
-
+		public Updater(List<Packet> newPackets) {
+			this.newPackets = newPackets;
+		}
+		
+		@Override
+		public void run() {
+			
+			// Crunch new data
 			int totalNewPackets = newPackets.size();
 			int totalNewBytes = 0;
 			totalIntervalsPassed++;

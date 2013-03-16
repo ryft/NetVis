@@ -23,17 +23,14 @@ public class SimDataFeeder implements DataFeeder {
 	/**
 	 * 
 	 * @param fileName
-	 *            CSV file that contains the capture. Must be in folder
-	 *            ./csv/captures
+	 *            CSV file that contains the capture.
 	 * @param timeScale
 	 *            Slow down / speed up the time of the Data Feeder
 	 */
-	public SimDataFeeder(String fileName, double timeScale,
+	public SimDataFeeder(File file, double timeScale,
 			ApplicationFrame parent) {
+		String fileName = file.getAbsolutePath();
 		try {
-			File dir = new File("./../../csv/captures/");
-			File file = new File(dir, fileName);
-
 			Reader reader = new FileReader(file);
 			csvReader = new CSVReader(reader);
 

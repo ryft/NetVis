@@ -6,23 +6,32 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
+import netvis.data.DummyDataFeeder;
 import netvis.data.SimDataFeeder;
-import netvis.data.filters.PortRangeFilter;
+import netvis.data.filters.DummyFilter;
 import netvis.ui.AnalysisPanel;
-import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
+import netvis.ui.RightPanel;
 import netvis.ui.VisControlsContainer;
+import netvis.util.ExceptionHandler;
 import netvis.util.NetUtilities;
 import netvis.visualizations.CopyOfTimePortVisualization;
 import netvis.visualizations.TimePortVisualization;
@@ -36,10 +45,16 @@ import netvis.visualizations.Visualization;
 public class ApplicationFrame extends JFrame {
 
 	// Declare panels for use in the GUI
+	protected final ApplicationFrame parent = this;
+	protected final JPanel contentPane;
 	protected final OpenGLPanel glPanel;
-	protected final FilterPanel filterPanel;
+	protected final RightPanel rightPanel;
 	protected final AnalysisPanel analysisPanel;
 	protected final StatusBar statusBar;
+
+	protected DataFeeder dataFeeder;
+	protected DataController dataController;
+	protected List<Visualization> visList;
 
 	/**
 	 * Construct a default application frame.
@@ -48,11 +63,11 @@ public class ApplicationFrame extends JFrame {
 		super("NetVis");
 
 		// Setup data feeder and data controller
-		DataFeeder dataFeeder = new SimDataFeeder("eduroam.csv", 1, this);
-		DataController dataController = new DataController(dataFeeder, 500);
-		dataController.addFilter(new PortRangeFilter(dataController));
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		final JPanel contentPane = new JPanel(new GridBagLayout());
+		dataFeeder = new DummyDataFeeder(this);
+		dataController = new DataController(dataFeeder, 500);
+		dataController.addFilter(new DummyFilter());
+
+		contentPane = new JPanel(new GridBagLayout());
 
 		// Just a frivolity -- let's make it look pretty
 		this.setIconImage(new ImageIcon("img/icon.png").getImage());
@@ -67,16 +82,16 @@ public class ApplicationFrame extends JFrame {
 		glConstraints.weightx = 0.0;
 		glConstraints.weighty = 0.0;
 		contentPane.add(glPanel, glConstraints);
-		
+
+		// Set up references to all visualisations
 		VisControlsContainer visControlsContainer = new VisControlsContainer();
-		
-		List<Visualization> visList = new ArrayList<Visualization>();
+		visList = new ArrayList<Visualization>();
 		visList.add(new TimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new CopyOfTimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.get(0).activate();
 
 		// Set up filter control panel
-		filterPanel = new FilterPanel(visList, dataController, visControlsContainer);
+		rightPanel = new RightPanel(visList, dataController, visControlsContainer);
 		final GridBagConstraints filterConstraints = new GridBagConstraints();
 		filterConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		filterConstraints.fill = GridBagConstraints.NONE;
@@ -85,7 +100,7 @@ public class ApplicationFrame extends JFrame {
 		filterConstraints.gridy = 0;
 		filterConstraints.weightx = 1.0;
 		filterConstraints.weighty = 0.0;
-		contentPane.add(filterPanel, filterConstraints);
+		contentPane.add(rightPanel, filterConstraints);
 
 		// Set up table results panel
 		analysisPanel = new AnalysisPanel();
@@ -115,7 +130,61 @@ public class ApplicationFrame extends JFrame {
 		// Link the model together and set the content pane
 		dataController.addListener(analysisPanel);
 		setContentPane(contentPane);
+		setJMenuBar(createMenuBar());
 		pack();
+
+		// Register a nice exception handler
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(parent));
+	}
+
+	public JMenuBar createMenuBar() {
+
+		// Set up menu bar + helper objects
+		JMenuBar menuBar = new JMenuBar();
+		final JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileFilter(new FileNameExtensionFilter("CSV packet capture file", "csv"));
+
+		// File menu
+		JMenu fileMenu = new JMenu("File");
+		fileMenu.setMnemonic(KeyEvent.VK_F);
+		fileMenu.getAccessibleContext().setAccessibleDescription(
+				"File menu for managing the application state");
+
+		// Open a CSV file
+		JMenuItem openCSVItem = new JMenuItem("Open CSV...", KeyEvent.VK_O);
+		openCSVItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+		openCSVItem.getAccessibleContext().setAccessibleDescription("Open a CSV data source");
+
+		// Listen for open CSV events
+		openCSVItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
+
+					dataFeeder = new SimDataFeeder(fileChooser.getSelectedFile(), 1, parent);
+					dataController.setDataFeeder(dataFeeder);
+				}
+			}
+		});
+
+		// Exit the application
+		JMenuItem exitItem = new JMenuItem("Exit", KeyEvent.VK_X);
+		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
+		exitItem.getAccessibleContext().setAccessibleDescription("Exit the application");
+
+		// Listen for exit events
+		exitItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}
+		});
+
+		// Put it together
+		fileMenu.add(openCSVItem);
+		fileMenu.addSeparator();
+		fileMenu.add(exitItem);
+		menuBar.add(fileMenu);
+
+		return menuBar;
 	}
 
 	/**
@@ -126,8 +195,9 @@ public class ApplicationFrame extends JFrame {
 	protected class StatusBar extends JPanel implements ActionListener {
 
 		Timer timer = new Timer(1000, this);
-		JLabel label = new JLabel("JMV memory usage statistics");
+		JLabel label = new JLabel("JMV memory usage statistics loading...");
 		Runtime runtime = Runtime.getRuntime();
+		Long prevUsage = 0l;
 
 		/**
 		 * Create a new status bar JPanel which displays JVM memory usage
@@ -139,7 +209,7 @@ public class ApplicationFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			
+
 			// Get heap usage stats from the JVM Runtime object
 			Long freeMemory = runtime.freeMemory();
 			Long totalMemory = runtime.totalMemory();
@@ -156,14 +226,23 @@ public class ApplicationFrame extends JFrame {
 			else
 				label.setForeground(Color.darkGray);
 
+			// Show green text briefly after a garbage collection
+			// (usage drops below 90% of previous)
+			if (usedMemory < prevUsage * 0.9)
+				label.setForeground(Color.green.darker().darker());
+
 			label.setText("JVM memory usage statistics: " + NetUtilities.parseBytes(usedMemory)
 					+ " / " + NetUtilities.parseBytes(totalMemory) + " (" + percentageUsed
 					+ "%) in use");
+
+			prevUsage = usedMemory;
 		}
 	}
 
 	public static void main(String[] args) {
+
 		ApplicationFrame applicationFrame = new ApplicationFrame();
+		applicationFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		applicationFrame.setSize(applicationFrame.getPreferredSize());
 		applicationFrame.setVisible(true);
 	}

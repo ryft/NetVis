@@ -23,7 +23,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener {
 
 		// The canvas is the widget that's drawn in the JFrame
 		glCanvas = new GLCanvas(glCaps);
-		glCanvas.setSize(800, 600);
+		glCanvas.setSize(800, 500);
 
 		add(glCanvas);
 		glCanvas.addGLEventListener(this);

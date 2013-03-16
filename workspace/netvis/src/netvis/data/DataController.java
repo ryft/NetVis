@@ -113,6 +113,17 @@ public class DataController implements ActionListener {
 		
 		for (DataControllerListener l : listeners)
 			l.allDataChanged(filteredPackets);
+		
+		timer.start();
+	}
+	
+	/**
+	 * Sets a new data feeder and resets the state of the controller and listeners
+	 * @param newDataFeeder	New data feeder
+	 */
+	public void setDataFeeder(DataFeeder newDataFeeder) {
+		this.dataFeeder = newDataFeeder;
+		allDataChanged();
 	}
 
 }
