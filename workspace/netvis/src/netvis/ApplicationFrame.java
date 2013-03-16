@@ -16,6 +16,7 @@ import netvis.data.filters.PortRangeFilter;
 import netvis.ui.FilterPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.AnalysisPanel;
+import netvis.ui.VisControlsContainer;
 import netvis.visualizations.CopyOfTimePortVisualization;
 import netvis.visualizations.TimePortVisualization;
 import netvis.visualizations.Visualization;
@@ -51,13 +52,15 @@ public class ApplicationFrame extends JFrame {
 		glConstraints.weighty = 0.0;
 		contentPane.add(glPanel, glConstraints);
 		
+		VisControlsContainer visControlsContainer = new VisControlsContainer();
+		
 		List<Visualization> visList = new ArrayList<Visualization>();
-		visList.add(new TimePortVisualization(dataController, glPanel));
-		visList.add(new CopyOfTimePortVisualization(dataController, glPanel));
+		visList.add(new TimePortVisualization(dataController, glPanel, visControlsContainer));
+		visList.add(new CopyOfTimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.get(0).activate();
 		
 		// Set up filter control panel
-		filterPanel = new FilterPanel(visList, dataController);
+		filterPanel = new FilterPanel(visList, dataController, visControlsContainer);
 		final GridBagConstraints filterConstraints = new GridBagConstraints();
 		filterConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		filterConstraints.fill = GridBagConstraints.NONE;

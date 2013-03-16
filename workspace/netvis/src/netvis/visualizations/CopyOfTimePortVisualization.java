@@ -6,10 +6,11 @@ import javax.media.opengl.GLAutoDrawable;
 import netvis.data.DataController;
 import netvis.data.DataUtilities;
 import netvis.ui.OpenGLPanel;
+import netvis.ui.VisControlsContainer;
 
 public class CopyOfTimePortVisualization extends AbstractVisualization {
-	public CopyOfTimePortVisualization(DataController dc, OpenGLPanel joglPanel){
-		super(dc, joglPanel);
+	public CopyOfTimePortVisualization(DataController dc, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
+		super(dc, joglPanel, visControlsContainer);
 	}
 	
 	public void render(GLAutoDrawable drawable) {
