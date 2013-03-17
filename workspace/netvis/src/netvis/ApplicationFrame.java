@@ -7,6 +7,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +46,8 @@ import netvis.visualizations.Visualization;
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
 
+	protected final boolean DEBUG_MODE = true;
+
 	// Declare panels for use in the GUI
 	protected final ApplicationFrame parent = this;
 	protected final JPanel contentPane;
@@ -64,7 +67,10 @@ public class ApplicationFrame extends JFrame {
 		super("NetVis");
 
 		// Setup data feeder and data controller
-		dataFeeder = new DummyDataFeeder(this);
+		if (DEBUG_MODE)
+			dataFeeder = new SimDataFeeder(new File("../../csv/captures/eduroam.csv"), 1, this);
+		else
+			dataFeeder = new DummyDataFeeder(this);
 		dataController = new DataController(dataFeeder, 500);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
@@ -136,7 +142,8 @@ public class ApplicationFrame extends JFrame {
 		pack();
 
 		// Register a nice exception handler
-		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(parent));
+		if (!DEBUG_MODE)
+			Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(parent));
 	}
 
 	public JMenuBar createMenuBar() {
@@ -197,7 +204,7 @@ public class ApplicationFrame extends JFrame {
 	protected class StatusBar extends JPanel implements ActionListener {
 
 		Timer timer = new Timer(1000, this);
-		JLabel label = new JLabel("JMV memory usage statistics loading...");
+		JLabel label = new JLabel("JVM memory usage statistics loading...");
 		Runtime runtime = Runtime.getRuntime();
 		Long prevUsage = 0l;
 

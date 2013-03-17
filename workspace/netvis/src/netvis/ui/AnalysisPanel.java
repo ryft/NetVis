@@ -65,13 +65,14 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	// Set up a map for the number of times each port and protocol is used
 	protected Map<Integer, Integer> portTrafficTotals = new HashMap<Integer, Integer>();
 	protected Map<String, Integer> protocolTrafficTotals = new HashMap<String, Integer>();
-	
+
 	protected Integer mostCommonPortCount = -1;
 	protected Integer mostCommonPort = null;
 	protected Integer mostCommonProtocolCount = -1;
 	protected String mostCommonProtocol = null;
 
-	// Lists of the number of packets/bytes seen after each interval (must be increasing)
+	// Lists of the number of packets/bytes seen after each interval (must be
+	// increasing)
 	protected final List<Integer> packetsSeenOverTime = new ArrayList<Integer>();
 	protected final List<Integer> bytesSeenOverTime = new ArrayList<Integer>();
 
@@ -79,6 +80,10 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	protected double totalTimePassed = 0; // Time measured in seconds
 	protected int totalIntervalsPassed = 0;
 
+	/*
+	 * We often need to make a distinction between 0 (no traffic) and -1 (no
+	 * records) for the purposes of updating with new data.
+	 */
 	protected int minPacketsPerInterval = -1;
 	protected double avgPacketsPerInterval = -1;
 	protected int maxPacketsPerInterval = -1;
@@ -97,6 +102,15 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	protected double avgBytesPerInterval = -1;
 	protected int maxBytesPerInterval = -1;
 
+	// These controls need to be declared here so we have a reference to
+	// enable/disable them
+	protected final JLabel labelPacketsPerDelta;
+	protected final JLabel labelBytesPerDelta;
+	protected final JLabel labelMostCommonPort;
+	protected final JLabel labelMostCommonProtocol;
+	protected final JLabel labelPacketLength;
+	protected final JButton buttonShowTable;
+
 	/** Tiny class to hold traffic data about a specific IP */
 	protected class IPTraffic {
 		public int sent = 0;
@@ -114,7 +128,8 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	public AnalysisPanel() {
 		super(JSplitPane.HORIZONTAL_SPLIT);
 
-		// Set up tab panes to encapsulate cumulative data under separate categories
+		// Set up tab panes to encapsulate cumulative data under separate
+		// categories
 		JTabbedPane tabbedPane = new JTabbedPane();
 
 		JPanel panel1 = new JPanel(new SpringLayout());
@@ -134,22 +149,23 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		fieldTotals = new JTextField();
 		panel1.add(fieldTotals);
 
-		JLabel labelPacketsPerDelta = new AbstractContextLink("Min/Max/Avg packets per time interval: "){
+		labelPacketsPerDelta = new AbstractContextLink("Min/Max/Avg packets per time interval: ") {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				contextPanel.update("Packets transmitted over "+Math.round(totalTimePassed)+"s, "+
-						"current total: "+totalPackets, packetsSeenOverTime);
+				contextPanel.update("Packets transmitted over " + Math.round(totalTimePassed)
+						+ "s, " + "current total: " + totalPackets, packetsSeenOverTime);
 			}
 		};
 		panel1.add(labelPacketsPerDelta);
 		fieldPacketsPerDelta = new JTextField();
 		panel1.add(fieldPacketsPerDelta);
 
-		JLabel labelBytesPerDelta = new AbstractContextLink("Min/Max/Avg traffic per time interval: "){
+		labelBytesPerDelta = new AbstractContextLink("Min/Max/Avg traffic per time interval: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				contextPanel.update("Bytes transmitted over "+Math.round(totalTimePassed)+"s, "+
-						"current total: "+totalBytes+" bytes", bytesSeenOverTime);
+				contextPanel.update("Bytes transmitted over " + Math.round(totalTimePassed) + "s, "
+						+ "current total: " + NetUtilities.parseBytes(totalBytes),
+						bytesSeenOverTime);
 			}
 		};
 		panel1.add(labelBytesPerDelta);
@@ -168,8 +184,8 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		panel2.add(fieldUniqueReceiverIPs);
 
 		panel2.add(new JLabel("IP traffic totals: "));
-		JButton showTableButton = new JButton("Show/Update IP packet traffic");
-		panel2.add(showTableButton);
+		buttonShowTable = new JButton("Show/Update IP packet traffic table");
+		panel2.add(buttonShowTable);
 
 		IPTableModel ipTableData = new IPTableModel();
 		final JTable ipTable = new JTable(ipTableData);
@@ -183,7 +199,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 			}
 		});
 
-		showTableButton.addActionListener(new ActionListener() {
+		buttonShowTable.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				contextPanel.update(ipTable);
@@ -192,9 +208,9 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		});
 
 		SpringUtilities.makeCompactGrid(panel2, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
-		
+
 		// PANEL 3: Add controls to the packet details tab
-		JLabel labelMostCommonPort = new AbstractContextLink("Most commonly used port: ") {
+		labelMostCommonPort = new AbstractContextLink("Most commonly used port: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				contextPanel.update("Total traffic, grouped and sorted by port", portTrafficTotals);
@@ -204,17 +220,18 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		fieldMostCommonPort = new JTextField();
 		panel3.add(fieldMostCommonPort);
 
-		JLabel labelMostCommonProtocol = new AbstractContextLink("Most commonly used protocol: ") {
+		labelMostCommonProtocol = new AbstractContextLink("Most commonly used protocol: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				contextPanel.update("Total traffic, grouped and sorted by protocol", protocolTrafficTotals);
+				contextPanel.update("Total traffic, grouped and sorted by protocol",
+						protocolTrafficTotals);
 			}
 		};
 		panel3.add(labelMostCommonProtocol);
 		fieldMostCommonProtocol = new JTextField();
 		panel3.add(fieldMostCommonProtocol);
 
-		JLabel labelPacketLength = new AbstractContextLink("Min/Max/Avg packet length: ") {
+		labelPacketLength = new AbstractContextLink("Min/Max/Avg packet length: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				contextPanel.update(shortestPacket, longestPacket);
@@ -225,32 +242,42 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		panel3.add(fieldPacketLength);
 
 		SpringUtilities.makeCompactGrid(panel3, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
-		
+
 		// Put together the tab pane and set it up next to the context panel
 		setLeftComponent(tabbedPane);
 		setResizeWeight(0.85);
 		setRightComponent(contextPanel);
+		updateControls();
 	}
 
 	/**
-	 * Custom JLabel subclass to act as a 'hyperlink' -- the mouse clicked function is abstract
-	 * because the behaviour differs for each link.
+	 * Custom JLabel subclass to act as a 'hyperlink' -- the mouse clicked
+	 * function is abstract because the behaviour differs for each link.
+	 * Supports enable/disabling correctly. isEnabled() is called by too many
+	 * internal functions, so is not over-ridden. Therefore officially, the
+	 * JLabel is always enabled.
 	 */
 	protected abstract class AbstractContextLink extends JLabel implements MouseListener {
+		protected final Color activeColour = Color.blue.darker().darker();
+		protected final Color inactiveColour = Color.darkGray.darker();
+		protected boolean isEnabled = true;
+		protected Cursor cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 
 		/**
 		 * Construct a link label which displays the specified text
-		 * @param labelText	the text to show on the label
+		 * 
+		 * @param labelText
+		 *            the text to show on the label
 		 */
 		public AbstractContextLink(String labelText) {
 			super(labelText);
+			setForeground(activeColour);
 			addMouseListener(this);
-			setForeground(Color.blue.darker().darker());
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			setCursor(cursor);
 		}
 
 		@Override
@@ -266,6 +293,20 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		public void mouseReleased(MouseEvent e) {
 		}
 
+		@Override
+		public void setEnabled(boolean enable) {
+			if (enable && !isEnabled) {
+				setForeground(activeColour);
+				cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+				addMouseListener(this);
+				isEnabled = true;
+			} else if (!enable && isEnabled) {
+				setForeground(inactiveColour);
+				cursor = Cursor.getDefaultCursor();
+				removeMouseListener(this);
+				isEnabled = false;
+			}
+		}
 	}
 
 	@Override
@@ -283,7 +324,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		mostCommonPort = null;
 		mostCommonProtocolCount = -1;
 		mostCommonProtocol = null;
-		
+
 		packetsSeenOverTime.clear();
 		bytesSeenOverTime.clear();
 
@@ -298,7 +339,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		minPacketLength = -1;
 		avgPacketLength = -1;
 		maxPacketLength = -1;
-		
+
 		shortestPacket = null;
 		longestPacket = null;
 
@@ -308,7 +349,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		minBytesPerInterval = -1;
 		avgBytesPerInterval = -1;
 		maxBytesPerInterval = -1;
-		
+
 		// Clear all fields
 		updateControls();
 	}
@@ -330,7 +371,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	protected class Updater extends Thread {
 
 		List<Packet> newPackets;
-		
+
 		/**
 		 * @param newPackets
 		 *            Packets received during the previous time interval
@@ -338,10 +379,10 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		public Updater(List<Packet> newPackets) {
 			this.newPackets = newPackets;
 		}
-		
+
 		@Override
 		public void run() {
-			
+
 			// Crunch new data
 			int totalNewPackets = newPackets.size();
 			int totalNewBytes = 0;
@@ -444,27 +485,55 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	}
 
 	/**
-	 * Internal function to refresh all necessary fields with new updated information when new
-	 * data arrives
+	 * Internal function to refresh all necessary fields with new updated
+	 * information when new data arrives
 	 */
 	protected void updateControls() {
 
-		// Simply put values into text fields.
+		// Enable/disable labels as required by the state of the data and put
+		// values into text fields.
+		// PANEL 1
 		fieldTotals.setText(String.valueOf(totalPackets) + " / "
 				+ NetUtilities.parseBytes(totalBytes));
-		fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerInterval) + " / "
-				+ String.valueOf(maxPacketsPerInterval) + " / "
-				+ String.valueOf(Math.round(avgPacketsPerInterval)));
-		fieldBytesPerDelta.setText(NetUtilities.parseBytes(minBytesPerInterval) + " / "
-				+ NetUtilities.parseBytes(maxBytesPerInterval) + " / "
-				+ NetUtilities.parseBytes(Math.round(avgBytesPerInterval)));
+
+		labelPacketsPerDelta.setEnabled(packetsSeenOverTime.size() > 0);
+		if (minPacketsPerInterval < 0)
+			fieldPacketsPerDelta.setText("0 / 0 / 0");
+		else
+			fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerInterval) + " / "
+					+ String.valueOf(maxPacketsPerInterval) + " / "
+					+ String.valueOf(Math.round(avgPacketsPerInterval)));
+
+		labelBytesPerDelta.setEnabled(bytesSeenOverTime.size() > 0);
+		if (minBytesPerInterval < 0)
+			fieldBytesPerDelta.setText("0 B / 0 B / 0 B");
+		else
+			fieldBytesPerDelta.setText(NetUtilities.parseBytes(minBytesPerInterval) + " / "
+					+ NetUtilities.parseBytes(maxBytesPerInterval) + " / "
+					+ NetUtilities.parseBytes(Math.round(avgBytesPerInterval)));
+
+		// PANEL 2
 		fieldUniqueSenderIPs.setText(String.valueOf(senderIPs.size()));
 		fieldUniqueReceiverIPs.setText(String.valueOf(receiverIPs.size()));
-		fieldMostCommonPort.setText(String.valueOf(mostCommonPort));
+		buttonShowTable.setEnabled(ipTrafficTotals.size() > 0);
+
+		// PANEL 3
+		labelMostCommonPort.setEnabled(mostCommonPortCount > -1);
+		if (mostCommonPort == null)
+			fieldMostCommonPort.setText("");
+		else
+			fieldMostCommonPort.setText(String.valueOf(mostCommonPort));
+
+		labelMostCommonProtocol.setEnabled(mostCommonProtocolCount > -1);
 		fieldMostCommonProtocol.setText(mostCommonProtocol);
-		fieldPacketLength.setText(NetUtilities.parseBytes(minPacketLength) + " / "
-				+ NetUtilities.parseBytes(maxPacketLength) + " / "
-				+ NetUtilities.parseBytes(Math.round(avgPacketLength)));
+
+		labelPacketLength.setEnabled(minPacketLength > -1);
+		if (minPacketLength < 0)
+			fieldPacketLength.setText("0 B / 0 B / 0 B");
+		else
+			fieldPacketLength.setText(NetUtilities.parseBytes(minPacketLength) + " / "
+					+ NetUtilities.parseBytes(maxPacketLength) + " / "
+					+ NetUtilities.parseBytes(Math.round(avgPacketLength)));
 	}
 
 	/**

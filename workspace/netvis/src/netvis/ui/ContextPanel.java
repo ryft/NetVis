@@ -30,7 +30,8 @@ public class ContextPanel extends JScrollPane {
 	 * Empty context panel, containing only default user instructions
 	 */
 	public ContextPanel() {
-		super(new JTextArea("Click on a button or blue element on the left to see more details.\n\n"
+		super(new JTextArea("Click on a button or blue element on the left while data is\n"
+				+"available to see more details.\n\n"
 				+"Contextual views don't update automatically for performance\n"
 				+"reasons. They can all be manually refreshed by clicking on\n"
 				+"the relevant control again."));
