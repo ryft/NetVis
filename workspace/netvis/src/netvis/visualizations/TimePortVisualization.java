@@ -19,19 +19,23 @@ import netvis.ui.VisControlsContainer;
 public class TimePortVisualization extends AbstractVisualization {
 	int noPorts;
 	boolean sourceEnabled, destEnabled;
-	public TimePortVisualization(DataController dc, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
+	public TimePortVisualization(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 		super(dc, joglPanel, visControlsContainer);
 	    noPorts = DataUtilities.MAX_PORT;
 	    this.sourceEnabled = true;
 	    this.destEnabled = true;
 	    
-	    JLabel sourceText = new JLabel("Source");
+	    createControls();
+	}
+	
+	private void createControls() {
+		JLabel sourceText = new JLabel("Source");
 	    JCheckBox sourceCheckBox = new JCheckBox();
 	    sourceCheckBox.setSelected(this.sourceEnabled);
 	    sourceCheckBox.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				sourceEnabled = !sourceEnabled;
-				dataController.filterUpdated();
+				joglPanel.redraw();
 			}
 	    });
 	    
@@ -41,7 +45,7 @@ public class TimePortVisualization extends AbstractVisualization {
 	    destCheckBox.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				destEnabled = !destEnabled;
-				dataController.filterUpdated();
+				joglPanel.redraw();
 			}
 	    });
 	    visControls.add(sourceText);
@@ -49,10 +53,8 @@ public class TimePortVisualization extends AbstractVisualization {
 	    
 	    visControls.add(destText);
 	    visControls.add(destCheckBox);
-	    
-	
 	}
-	
+
 	public void render(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
 	    gl.glEnable(GL2.GL_BLEND);
@@ -110,35 +112,33 @@ public class TimePortVisualization extends AbstractVisualization {
 	}
 
 	private void drawLine(GL2 gl, int val, int i, int type) {
-	    double nedLog = 0;
-		gl.glBegin(GL.GL_LINES);
-
-    	nedLog = (Math.log(val)/ Math.log(2)/7);
-    	if (type == 0)
-    		gl.glColor4d(nedLog/4+0.4, 0, 0, 0.6);
-    	else
-    		gl.glColor4d(0, nedLog/4+0.4, 0, 0.6);
-    	gl.glVertex2f(-1 + 2*((float)i/noPorts) , (float) -0.8);
-    	gl.glVertex2f(-1 + 2*((float)i/noPorts), (float) (-0.8 + nedLog));
-
-    	gl.glEnd();		
+		if (val != 0){
+		    double nedLog = 0;
+			gl.glBegin(GL.GL_LINES);
+	
+	    	nedLog = (Math.log(val)/ Math.log(2)/7);
+	    	if (type == 0)
+	    		gl.glColor4d(nedLog/4+0.4, 0, 0, 0.6);
+	    	else
+	    		gl.glColor4d(0, nedLog/4+0.4, 0, 0.6);
+	    	gl.glVertex2f(-1 + 2*((float)i/noPorts) , (float) -0.8);
+	    	gl.glVertex2f(-1 + 2*((float)i/noPorts), (float) (-0.8 + nedLog));
+	
+	    	gl.glEnd();		
+		}
 	}
 
-	@Override
 	public String name() {
-		// TODO Auto-generated method stub
 		return "Ports";
 	}
 
-	
-	private void drawBottom(GL2 gl){
-		
+	private void drawBottom(GL2 gl){		
 		gl.glColor3f(1, 1, 1);
 
 	    final GLUT glut = new GLUT();
         gl.glRasterPos2d(-0.9,0.93); // set position
 
-        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, "Source/Destination Port Traffic");
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, "Source/Destination Port Traffic (LOG)");
         gl.glColor3d(0.8, 0, 0);
         gl.glRasterPos2d(-0.9,0.88); // set position
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_10, "\n Source");

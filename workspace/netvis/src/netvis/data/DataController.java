@@ -123,6 +123,7 @@ public class DataController implements ActionListener {
 	 */
 	public void setDataFeeder(DataFeeder newDataFeeder) {
 		this.dataFeeder = newDataFeeder;
+		this.allPackets.clear();
 		allDataChanged();
 	}
 
