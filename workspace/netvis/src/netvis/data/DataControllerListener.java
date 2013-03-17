@@ -7,12 +7,21 @@ import netvis.data.model.Packet;
 public interface DataControllerListener {
 	/**
 	 * There has been a major data change. (Eg. new filter applied)
-	 * @param newPackets The new list of packets
+	 * 
+	 * @param allPackets
+	 *            The new list of packets
+	 * @param updateInterval
+	 *            The interval time in ms
+	 * @param intervalsComplete
+	 *            The number of completed intervals so far
 	 */
-	public void allDataChanged(List<Packet> allPackets);
+	public void allDataChanged(List<Packet> allPackets, int updateInterval, int intervalsComplete);
+
 	/**
 	 * Some new packets are available
-	 * @param newPackets The new packets that are available
+	 * 
+	 * @param newPackets
+	 *            The new packets that are available
 	 */
 	public void newPacketsArrived(List<Packet> newPackets);
 }

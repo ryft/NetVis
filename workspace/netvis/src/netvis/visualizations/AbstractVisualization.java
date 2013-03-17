@@ -31,7 +31,7 @@ public abstract class AbstractVisualization implements Visualization, DataContro
 	}
 	
 	@Override
-	public void allDataChanged(List<Packet> allPackets) {
+	public void allDataChanged(List<Packet> allPackets, int updateInterval, int intervalsComplete) {
 		this.newPackets = allPackets;
 		
 		this.allDataChanged = true;

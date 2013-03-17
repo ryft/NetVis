@@ -1,12 +1,15 @@
 package netvis;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +74,7 @@ public class ApplicationFrame extends JFrame {
 			dataFeeder = new SimDataFeeder(new File("../../csv/captures/eduroam.csv"), 1, this);
 		else
 			dataFeeder = new DummyDataFeeder(this);
+		
 		dataController = new DataController(dataFeeder, 500);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
@@ -201,7 +205,7 @@ public class ApplicationFrame extends JFrame {
 	 * JVM memory usage, as well as the total memory available to the JVM (heap
 	 * size limit).
 	 */
-	protected class StatusBar extends JPanel implements ActionListener {
+	protected class StatusBar extends JPanel implements ActionListener, MouseListener {
 
 		Timer timer = new Timer(1000, this);
 		JLabel label = new JLabel("JVM memory usage statistics loading...");
@@ -214,6 +218,7 @@ public class ApplicationFrame extends JFrame {
 		public StatusBar() {
 			add(label);
 			timer.start();
+			addMouseListener(this);
 		}
 
 		@Override
@@ -235,9 +240,8 @@ public class ApplicationFrame extends JFrame {
 			else
 				label.setForeground(Color.darkGray);
 
-			// Show green text briefly after a garbage collection
-			// (usage drops below 90% of previous)
-			if (usedMemory < prevUsage * 0.9)
+			// Show green text briefly after a garbage collection (usage drops)
+			if (usedMemory < prevUsage)
 				label.setForeground(Color.green.darker().darker());
 
 			label.setText("JVM memory usage statistics: " + NetUtilities.parseBytes(usedMemory)
@@ -245,6 +249,30 @@ public class ApplicationFrame extends JFrame {
 					+ "%) in use");
 
 			prevUsage = usedMemory;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			// Attempt to garbage collect when the status label is clicked
+			System.gc();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent arg0) {
+			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		}
+
+		@Override
+		public void mouseExited(MouseEvent arg0) {
+			setCursor(Cursor.getDefaultCursor());
+		}
+
+		@Override
+		public void mousePressed(MouseEvent arg0) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent arg0) {
 		}
 	}
 

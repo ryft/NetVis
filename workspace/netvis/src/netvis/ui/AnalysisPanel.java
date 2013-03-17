@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -20,6 +22,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.Timer;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
@@ -36,6 +39,11 @@ import netvis.util.SpringUtilities;
  */
 @SuppressWarnings("serial")
 public class AnalysisPanel extends JSplitPane implements DataControllerListener {
+
+	/** List of all inputs we've collected */
+	protected Queue<List<Packet>> updateQueue = new LinkedBlockingDeque<List<Packet>>();
+	/** List of updates received while running static analysis */
+	protected Queue<List<Packet>> batchQueue = new LinkedBlockingDeque<List<Packet>>();
 
 	/** Context panel to deliver extra data to */
 	protected final ContextPanel contextPanel = new ContextPanel();
@@ -247,7 +255,290 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		setLeftComponent(tabbedPane);
 		setResizeWeight(0.85);
 		setRightComponent(contextPanel);
+
 		updateControls();
+
+		Timer updater = new Timer(500, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				runUpdates();
+			}
+		});
+		updater.start();
+	}
+
+	@Override
+	public void allDataChanged(List<Packet> allPackets, int updateIntervalms, int intervalsComplete) {
+
+		// Essentially reset the state of the panel, re-process all provided
+		// packets, then (and only then) start processing new packets from the
+		// controller again.
+
+		// Convert ms to seconds
+		double updateInterval = (double) updateIntervalms / 1000;
+
+		ipAddressesSeen.clear();
+		ipTrafficTotals.clear();
+		senderIPs.clear();
+		receiverIPs.clear();
+
+		portTrafficTotals.clear();
+		protocolTrafficTotals.clear();
+		mostCommonPortCount = -1;
+		mostCommonPort = null;
+		mostCommonProtocolCount = -1;
+		mostCommonProtocol = null;
+
+		packetsSeenOverTime.clear();
+		bytesSeenOverTime.clear();
+
+		totalPackets = 0;
+		totalTimePassed = 0;
+		totalIntervalsPassed = 0;
+
+		minPacketsPerInterval = -1;
+		avgPacketsPerInterval = -1;
+		maxPacketsPerInterval = -1;
+
+		minPacketLength = -1;
+		avgPacketLength = -1;
+		maxPacketLength = -1;
+
+		shortestPacket = null;
+		longestPacket = null;
+
+		totalBytes = 0;
+		avgBytes = -1;
+
+		minBytesPerInterval = -1;
+		avgBytesPerInterval = -1;
+		maxBytesPerInterval = -1;
+
+		// Split up all the previous data into blocks as large as one update
+		// interval, so we can simulate their arrival by putting them in the
+		// batch queue to be processed with high priority.
+
+		int currIndex = 0;
+		List<Packet> currentBlock = new ArrayList<Packet>();
+
+		// Split packets into blocks of size updateInterval
+		for (int i = 0; i < intervalsComplete; i++) {
+			while (currIndex < allPackets.size()
+					&& allPackets.get(currIndex).time < (i + 1) * updateInterval) {
+				currentBlock.add(allPackets.get(currIndex));
+				currIndex++;
+			}
+
+			// Send the current block to the batch queue
+			batchQueue.add(currentBlock);
+			currentBlock.clear();
+		}
+
+		// Update all fields
+		updateControls();
+	}
+
+	@Override
+	public void newPacketsArrived(List<Packet> newPackets) {
+		// Add update to the job queue for processing.
+		updateQueue.add(newPackets);
+	}
+
+	/**
+	 * Synchronised block which runs all queued updates. Most of the time there
+	 * will be only one job in the update queue (when the data controller gives
+	 * us some new packets) but whenever the previous data is changed, these
+	 * jobs are put in the batch queue, and need to be run before we process any
+	 * new packets from the controller.
+	 */
+	protected synchronized void runUpdates() {
+
+		// Run analysis on all batch updates first, and (importantly) leave the
+		// update queue alone, as the batch queue may still be being filled and
+		// we may break the ordering by processing any new packets.
+		if (batchQueue.size() > 0) {
+
+			// Take a snapshot of the current state of the queue
+			Queue<List<Packet>> batchQueueClone = new LinkedBlockingDeque<List<Packet>>();
+			for (int job = 0; job < batchQueue.size(); job++)
+				batchQueueClone.add(batchQueue.remove());
+
+			// Run all batch jobs
+			while (batchQueueClone.size() > 0) {
+				doUpdate(batchQueueClone.remove());
+			}
+
+			// Similarly for update jobs
+		} else if (updateQueue.size() > 0) {
+
+			Queue<List<Packet>> updateQueueClone = new LinkedBlockingDeque<List<Packet>>();
+			for (int job = 0; job < updateQueue.size(); job++)
+				updateQueueClone.add(updateQueue.remove());
+
+			while (updateQueueClone.size() > 0) {
+				doUpdate(updateQueueClone.remove());
+			}
+
+		}
+	}
+
+	/**
+	 * @param newPackets
+	 *            Packets received during exactly one time interval
+	 */
+	protected void doUpdate(List<Packet> newPackets) {
+
+		// Process new data
+		int totalNewPackets = newPackets.size();
+		int totalNewBytes = 0;
+		totalIntervalsPassed++;
+
+		for (Packet p : newPackets) {
+
+			totalPackets++; // Do this incrementally so we can do operations
+							// per # packets seen
+			totalNewBytes += p.length;
+			// Make sure the total time passed always increases
+			totalTimePassed = Math.max(totalTimePassed, p.time);
+
+			// Update per-IP traffic data
+			for (String ip : new String[] { p.sip, p.dip })
+				if (!ipAddressesSeen.contains(ip)) {
+					ipAddressesSeen.add(ip);
+					ipTrafficTotals.put(ip, new IPTraffic());
+				}
+			ipTrafficTotals.get(p.sip).sent++;
+			ipTrafficTotals.get(p.dip).received++;
+
+			// Add IPs to unique senders/receivers lists
+			if (!senderIPs.contains(p.sip))
+				senderIPs.add(p.sip);
+			if (!receiverIPs.contains(p.dip))
+				receiverIPs.add(p.dip);
+
+			// Update port and protocol traffic tallies
+			for (Integer port : new Integer[] { p.sport, p.dport }) {
+				if (!portTrafficTotals.containsKey(port))
+					portTrafficTotals.put(port, 0);
+				portTrafficTotals.put(port, portTrafficTotals.get(port) + 1);
+			}
+			if (!protocolTrafficTotals.containsKey(p.protocol))
+				protocolTrafficTotals.put(p.protocol, 0);
+			protocolTrafficTotals.put(p.protocol, protocolTrafficTotals.get(p.protocol) + 1);
+
+			// Update packet length min/max/avg counts
+			if (minPacketLength == -1) {
+				minPacketLength = maxPacketLength = p.length;
+				avgPacketLength = p.length;
+				shortestPacket = longestPacket = p;
+			} else {
+				if (p.length < minPacketLength) {
+					minPacketLength = p.length;
+					shortestPacket = p;
+				}
+				if (p.length > maxPacketLength) {
+					maxPacketLength = p.length;
+					longestPacket = p;
+				}
+				avgPacketLength = (avgPacketLength * (totalPackets - 1) + p.length) / totalPackets;
+			}
+
+			// Get most common port and protocol
+			for (Integer port : portTrafficTotals.keySet()) {
+				if (portTrafficTotals.get(port) > mostCommonPortCount) {
+					mostCommonPortCount = portTrafficTotals.get(port);
+					mostCommonPort = port;
+				}
+			}
+			for (String protocol : protocolTrafficTotals.keySet()) {
+				if (protocolTrafficTotals.get(protocol) > mostCommonProtocolCount) {
+					mostCommonProtocolCount = protocolTrafficTotals.get(protocol);
+					mostCommonProtocol = protocol;
+				}
+			}
+		}
+
+		totalBytes += totalNewBytes;
+		bytesSeenOverTime.add(totalBytes);
+		packetsSeenOverTime.add(totalPackets);
+
+		// Update min/max/avg counts for aggregator - packets
+		if (minPacketsPerInterval == -1) {
+			minPacketsPerInterval = maxPacketsPerInterval = totalNewPackets;
+			avgPacketsPerInterval = totalNewPackets;
+		} else {
+			minPacketsPerInterval = Math.min(minPacketsPerInterval, totalNewPackets);
+			maxPacketsPerInterval = Math.max(maxPacketsPerInterval, totalNewPackets);
+			avgPacketsPerInterval = (avgPacketsPerInterval * (totalIntervalsPassed - 1) + totalNewPackets)
+					/ totalIntervalsPassed;
+		}
+
+		// Update min/max/avg counts for aggregator - traffic
+		if (minBytesPerInterval == -1) {
+			minBytesPerInterval = maxBytesPerInterval = totalNewBytes;
+			avgBytesPerInterval = totalNewBytes;
+		} else {
+			minBytesPerInterval = Math.min(minBytesPerInterval, totalNewBytes);
+			maxBytesPerInterval = Math.max(maxBytesPerInterval, totalNewBytes);
+			avgBytesPerInterval = (avgBytesPerInterval * (totalIntervalsPassed - 1) + totalNewBytes)
+					/ totalIntervalsPassed;
+		}
+
+		// Tell the components to update to reflect the new data
+		// if (batchQueue.isEmpty()) // Suppress output if necessary
+		updateControls();
+	}
+
+	/**
+	 * Internal function to refresh all necessary fields with new updated
+	 * information when new data arrives
+	 */
+	protected void updateControls() {
+
+		// Enable/disable labels as required by the state of the data and put
+		// values into text fields.
+		// PANEL 1
+		fieldTotals.setText(String.valueOf(totalPackets) + " / "
+				+ NetUtilities.parseBytes(totalBytes));
+
+		labelPacketsPerDelta.setEnabled(packetsSeenOverTime.size() > 0);
+		if (minPacketsPerInterval < 0)
+			fieldPacketsPerDelta.setText("0 / 0 / 0");
+		else
+			fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerInterval) + " / "
+					+ String.valueOf(maxPacketsPerInterval) + " / "
+					+ String.valueOf(Math.round(avgPacketsPerInterval)));
+
+		labelBytesPerDelta.setEnabled(bytesSeenOverTime.size() > 0);
+		if (minBytesPerInterval < 0)
+			fieldBytesPerDelta.setText("0 B / 0 B / 0 B");
+		else
+			fieldBytesPerDelta.setText(NetUtilities.parseBytes(minBytesPerInterval) + " / "
+					+ NetUtilities.parseBytes(maxBytesPerInterval) + " / "
+					+ NetUtilities.parseBytes(Math.round(avgBytesPerInterval)));
+
+		// PANEL 2
+		fieldUniqueSenderIPs.setText(String.valueOf(senderIPs.size()));
+		fieldUniqueReceiverIPs.setText(String.valueOf(receiverIPs.size()));
+		buttonShowTable.setEnabled(ipTrafficTotals.size() > 0);
+
+		// PANEL 3
+		labelMostCommonPort.setEnabled(mostCommonPortCount > -1);
+		if (mostCommonPort == null)
+			fieldMostCommonPort.setText("");
+		else
+			fieldMostCommonPort.setText(String.valueOf(mostCommonPort));
+
+		labelMostCommonProtocol.setEnabled(mostCommonProtocolCount > -1);
+		fieldMostCommonProtocol.setText(mostCommonProtocol);
+
+		labelPacketLength.setEnabled(minPacketLength > -1);
+		if (minPacketLength < 0)
+			fieldPacketLength.setText("0 B / 0 B / 0 B");
+		else
+			fieldPacketLength.setText(NetUtilities.parseBytes(minPacketLength) + " / "
+					+ NetUtilities.parseBytes(maxPacketLength) + " / "
+					+ NetUtilities.parseBytes(Math.round(avgPacketLength)));
 	}
 
 	/**
@@ -307,233 +598,6 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 				isEnabled = false;
 			}
 		}
-	}
-
-	@Override
-	public void allDataChanged(List<Packet> allPackets) {
-
-		// Reset all collected data
-		ipAddressesSeen.clear();
-		ipTrafficTotals.clear();
-		senderIPs.clear();
-		receiverIPs.clear();
-
-		portTrafficTotals.clear();
-		protocolTrafficTotals.clear();
-		mostCommonPortCount = -1;
-		mostCommonPort = null;
-		mostCommonProtocolCount = -1;
-		mostCommonProtocol = null;
-
-		packetsSeenOverTime.clear();
-		bytesSeenOverTime.clear();
-
-		totalPackets = 0;
-		totalTimePassed = 0;
-		totalIntervalsPassed = 0;
-
-		minPacketsPerInterval = -1;
-		avgPacketsPerInterval = -1;
-		maxPacketsPerInterval = -1;
-
-		minPacketLength = -1;
-		avgPacketLength = -1;
-		maxPacketLength = -1;
-
-		shortestPacket = null;
-		longestPacket = null;
-
-		totalBytes = 0;
-		avgBytes = -1;
-
-		minBytesPerInterval = -1;
-		avgBytesPerInterval = -1;
-		maxBytesPerInterval = -1;
-
-		// Clear all fields
-		updateControls();
-	}
-
-	@Override
-	public void newPacketsArrived(List<Packet> newPackets) {
-
-		// Process the new packets in a separate thread to the JPanel thread so
-		// that the GUI stays responsive on extreme input (although the data
-		// may lag behind)
-		Thread updater = new Updater(newPackets);
-		updater.run();
-	}
-
-	/**
-	 * Thread to perform all data handling operations after we receive a new set
-	 * of packets from the data controller
-	 */
-	protected class Updater extends Thread {
-
-		List<Packet> newPackets;
-
-		/**
-		 * @param newPackets
-		 *            Packets received during the previous time interval
-		 */
-		public Updater(List<Packet> newPackets) {
-			this.newPackets = newPackets;
-		}
-
-		@Override
-		public void run() {
-
-			// Crunch new data
-			int totalNewPackets = newPackets.size();
-			int totalNewBytes = 0;
-			totalIntervalsPassed++;
-
-			for (Packet p : newPackets) {
-				totalPackets++; // Do this incrementally so we can do operations
-								// per # packets seen
-				totalNewBytes += p.length;
-				// Make sure the total time passed always increases
-				totalTimePassed = Math.max(totalTimePassed, p.time);
-
-				// Update per-IP traffic data
-				for (String ip : new String[] { p.sip, p.dip })
-					if (!ipAddressesSeen.contains(ip)) {
-						ipAddressesSeen.add(ip);
-						ipTrafficTotals.put(ip, new IPTraffic());
-					}
-				ipTrafficTotals.get(p.sip).sent++;
-				ipTrafficTotals.get(p.dip).received++;
-
-				// Add IPs to unique senders/receivers lists
-				if (!senderIPs.contains(p.sip))
-					senderIPs.add(p.sip);
-				if (!receiverIPs.contains(p.dip))
-					receiverIPs.add(p.dip);
-
-				// Update port and protocol traffic tallies
-				for (Integer port : new Integer[] { p.sport, p.dport }) {
-					if (!portTrafficTotals.containsKey(port))
-						portTrafficTotals.put(port, 0);
-					portTrafficTotals.put(port, portTrafficTotals.get(port) + 1);
-				}
-				if (!protocolTrafficTotals.containsKey(p.protocol))
-					protocolTrafficTotals.put(p.protocol, 0);
-				protocolTrafficTotals.put(p.protocol, protocolTrafficTotals.get(p.protocol) + 1);
-
-				// Update packet length min/max/avg counts
-				if (minPacketLength == -1) {
-					minPacketLength = maxPacketLength = p.length;
-					avgPacketLength = p.length;
-					shortestPacket = longestPacket = p;
-				} else {
-					if (p.length < minPacketLength) {
-						minPacketLength = p.length;
-						shortestPacket = p;
-					}
-					if (p.length > maxPacketLength) {
-						maxPacketLength = p.length;
-						longestPacket = p;
-					}
-					avgPacketLength = (avgPacketLength * (totalPackets - 1) + p.length)
-							/ totalPackets;
-				}
-
-				// Get most common port and protocol
-				for (Integer port : portTrafficTotals.keySet()) {
-					if (portTrafficTotals.get(port) > mostCommonPortCount) {
-						mostCommonPortCount = portTrafficTotals.get(port);
-						mostCommonPort = port;
-					}
-				}
-				for (String protocol : protocolTrafficTotals.keySet()) {
-					if (protocolTrafficTotals.get(protocol) > mostCommonProtocolCount) {
-						mostCommonProtocolCount = protocolTrafficTotals.get(protocol);
-						mostCommonProtocol = protocol;
-					}
-				}
-			}
-
-			totalBytes += totalNewBytes;
-			bytesSeenOverTime.add(totalBytes);
-			packetsSeenOverTime.add(totalPackets);
-
-			// Update min/max/avg counts for aggregator - packets
-			if (minPacketsPerInterval == -1) {
-				minPacketsPerInterval = maxPacketsPerInterval = totalNewPackets;
-				avgPacketsPerInterval = totalNewPackets;
-			} else {
-				minPacketsPerInterval = Math.min(minPacketsPerInterval, totalNewPackets);
-				maxPacketsPerInterval = Math.max(maxPacketsPerInterval, totalNewPackets);
-				avgPacketsPerInterval = (avgPacketsPerInterval * (totalIntervalsPassed - 1) + totalNewPackets)
-						/ totalIntervalsPassed;
-			}
-
-			// Update min/max/avg counts for aggregator - traffic
-			if (minBytesPerInterval == -1) {
-				minBytesPerInterval = maxBytesPerInterval = totalNewBytes;
-				avgBytesPerInterval = totalNewBytes;
-			} else {
-				minBytesPerInterval = Math.min(minBytesPerInterval, totalNewBytes);
-				maxBytesPerInterval = Math.max(maxBytesPerInterval, totalNewBytes);
-				avgBytesPerInterval = (avgBytesPerInterval * (totalIntervalsPassed - 1) + totalNewBytes)
-						/ totalIntervalsPassed;
-			}
-
-			// Tell the components to update to reflect the new data
-			updateControls();
-		}
-	}
-
-	/**
-	 * Internal function to refresh all necessary fields with new updated
-	 * information when new data arrives
-	 */
-	protected void updateControls() {
-
-		// Enable/disable labels as required by the state of the data and put
-		// values into text fields.
-		// PANEL 1
-		fieldTotals.setText(String.valueOf(totalPackets) + " / "
-				+ NetUtilities.parseBytes(totalBytes));
-
-		labelPacketsPerDelta.setEnabled(packetsSeenOverTime.size() > 0);
-		if (minPacketsPerInterval < 0)
-			fieldPacketsPerDelta.setText("0 / 0 / 0");
-		else
-			fieldPacketsPerDelta.setText(String.valueOf(minPacketsPerInterval) + " / "
-					+ String.valueOf(maxPacketsPerInterval) + " / "
-					+ String.valueOf(Math.round(avgPacketsPerInterval)));
-
-		labelBytesPerDelta.setEnabled(bytesSeenOverTime.size() > 0);
-		if (minBytesPerInterval < 0)
-			fieldBytesPerDelta.setText("0 B / 0 B / 0 B");
-		else
-			fieldBytesPerDelta.setText(NetUtilities.parseBytes(minBytesPerInterval) + " / "
-					+ NetUtilities.parseBytes(maxBytesPerInterval) + " / "
-					+ NetUtilities.parseBytes(Math.round(avgBytesPerInterval)));
-
-		// PANEL 2
-		fieldUniqueSenderIPs.setText(String.valueOf(senderIPs.size()));
-		fieldUniqueReceiverIPs.setText(String.valueOf(receiverIPs.size()));
-		buttonShowTable.setEnabled(ipTrafficTotals.size() > 0);
-
-		// PANEL 3
-		labelMostCommonPort.setEnabled(mostCommonPortCount > -1);
-		if (mostCommonPort == null)
-			fieldMostCommonPort.setText("");
-		else
-			fieldMostCommonPort.setText(String.valueOf(mostCommonPort));
-
-		labelMostCommonProtocol.setEnabled(mostCommonProtocolCount > -1);
-		fieldMostCommonProtocol.setText(mostCommonProtocol);
-
-		labelPacketLength.setEnabled(minPacketLength > -1);
-		if (minPacketLength < 0)
-			fieldPacketLength.setText("0 B / 0 B / 0 B");
-		else
-			fieldPacketLength.setText(NetUtilities.parseBytes(minPacketLength) + " / "
-					+ NetUtilities.parseBytes(maxPacketLength) + " / "
-					+ NetUtilities.parseBytes(Math.round(avgPacketLength)));
 	}
 
 	/**

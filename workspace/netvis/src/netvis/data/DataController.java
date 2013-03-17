@@ -19,6 +19,7 @@ public class DataController implements ActionListener {
 	final List<Packet> allPackets;
 	final List<Packet> filteredPackets;
 	private int noUpdated = 0;
+	protected int intervalsComplete = 0;
 	
 	/**
 	 * @param dataFeeder 
@@ -69,6 +70,7 @@ public class DataController implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		List<Packet> newPackets = dataFeeder.getNewPackets();
 		allPackets.addAll(newPackets); // First add the new packets to the controller
+		intervalsComplete++;
 		
 		applyFilters(newPackets); // Then apply the filters to them
 		filteredPackets.addAll(newPackets);
@@ -112,7 +114,7 @@ public class DataController implements ActionListener {
 		applyFilters(filteredPackets);
 		
 		for (DataControllerListener l : listeners)
-			l.allDataChanged(filteredPackets);
+			l.allDataChanged(filteredPackets, timer.getDelay(), intervalsComplete);
 		
 		timer.start();
 	}
