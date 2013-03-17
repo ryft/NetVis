@@ -37,7 +37,7 @@ public class OpenGLPanel extends JPanel implements GLEventListener {
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
-		currentVis.render(drawable);
+		currentVis.renderAbstract(drawable);
 	}
 
 	@Override

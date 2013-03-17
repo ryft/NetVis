@@ -18,4 +18,6 @@ public interface Visualization {
 	 * Visualization name // to be used in the UI
 	 */
 	public String name();
+
+	public void renderAbstract(GLAutoDrawable drawable);
 }

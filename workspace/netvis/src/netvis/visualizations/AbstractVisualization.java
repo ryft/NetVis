@@ -3,6 +3,7 @@ package netvis.visualizations;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.media.opengl.GLAutoDrawable;
 import javax.swing.JPanel;
 
 import netvis.data.DataController;
@@ -35,7 +36,6 @@ public abstract class AbstractVisualization implements Visualization, DataContro
 		
 		this.allDataChanged = true;
 		joglPanel.redraw();
-		this.allDataChanged = true;
 
 	}
 
@@ -51,9 +51,11 @@ public abstract class AbstractVisualization implements Visualization, DataContro
 		this.newPackets = this.listOfPackets;
 		allDataChanged = true;
 		firstDraw = true; // Can use this to draw stuff only at the first render
-		
 		joglPanel.redraw();
-		
+	}
+	
+	public void renderAbstract(GLAutoDrawable drawable){
+		this.render(drawable);
 		allDataChanged = false;
 		firstDraw = false;
 	}
