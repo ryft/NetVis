@@ -115,7 +115,7 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(rightPanel, filterConstraints);
 
 		// Set up table results panel
-		analysisPanel = new AnalysisPanel();
+		analysisPanel = new AnalysisPanel(100);
 		final GridBagConstraints tableConstraints = new GridBagConstraints();
 		tableConstraints.anchor = GridBagConstraints.NORTH;
 		tableConstraints.fill = GridBagConstraints.BOTH;

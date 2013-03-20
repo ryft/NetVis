@@ -1,5 +1,6 @@
 package netvis.ui;
 
+import java.awt.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -25,35 +26,39 @@ import netvis.data.model.Packet;
  */
 @SuppressWarnings("serial")
 public class ContextPanel extends JScrollPane {
+	
+	/** Initial state of the context panel */
+	protected static JComponent initialComponent = new JTextArea(
+			"Click on a button or blue element on the left while data is\n"
+			+"available to see more details.\n\n"
+			+"Contextual views don't update automatically for performance\n"
+			+"reasons. They can all be manually refreshed by clicking on\n"
+			+"the relevant control again.");
+	/** Previously-shown component which we can revert to (if non-null) using revert() */
+	protected Component previousComponent = null;
 
-	/**
-	 * Empty context panel, containing only default user instructions
-	 */
+	/** Initialise empty context panel, containing only default user instructions */
 	public ContextPanel() {
-		super(new JTextArea("Click on a button or blue element on the left while data is\n"
-				+"available to see more details.\n\n"
-				+"Contextual views don't update automatically for performance\n"
-				+"reasons. They can all be manually refreshed by clicking on\n"
-				+"the relevant control again."));
+		super(initialComponent);
 	}
 	
 	/**
 	 * Update the context panel with a simple line graph, with the provided data points plotted
 	 * @param title	graph title, displayed at the top
-	 * @param dataPoints	uniformly distributed data points to plot on the y-axis
+	 * @param dataPoints	Uniformly distributed data points to plot on the y-axis
 	 */
 	public void update(String title, List<Integer> dataPoints) {
 		Box graphWrapper = Box.createVerticalBox();
 		graphWrapper.add(new JLabel(title));
 		graphWrapper.add(new SimpleLineGraph(dataPoints));
-		update(graphWrapper);
+		setComponent(graphWrapper);
 	}
 
 	/**
 	 * Update the context panel to display a comparison between the shortest- and longest-
 	 * length packets received
-	 * @param shortest	the shortest packet received so far
-	 * @param longest	the longest packet received so far
+	 * @param shortest	The shortest packet received so far
+	 * @param longest	The longest packet received so far
 	 */
 	public void update(Packet shortest, Packet longest) {
 		
@@ -75,17 +80,17 @@ public class ContextPanel extends JScrollPane {
 	
 	/**
 	 * Update the context panel with a string which is displayed in a JTextArea
-	 * @param text	string to display
+	 * @param text	String to display
 	 */
 	public void update(String text) {
 		JTextArea descriptionBox = new JTextArea(text);
-		setViewportView(descriptionBox);
+		setComponent(descriptionBox);
 	}
 	
 	/**
 	 * Update the context panel to display a traffic map, sorted by value
 	 * @param title	title to show above the the sorted results
-	 * @param unsortedMap	unsorted map of results to display
+	 * @param unsortedMap	Unsorted map of results to display
 	 */
 	public <T> void update(String title, Map<T, Integer> unsortedMap) {
 		
@@ -101,16 +106,33 @@ public class ContextPanel extends JScrollPane {
 
 	/**
 	 * Update the context panel to simply show a single JComponent
-	 * @param component	the component to display
+	 * @param component	The component to display
 	 */
 	public void update(JComponent component) {
+		setComponent(component);
+	}
+
+	/**
+	 * Stores the current state of the context panel so we can revert to it in future, and
+	 * displays the provided component in the scroll pane
+	 */
+	protected void setComponent(JComponent component) {
+		previousComponent = getComponent(0);
 		setViewportView(component);
+	}
+	
+	/** Reverts the state of the scroll pane to the previously stored component */
+	public void revert() {
+		if (previousComponent != null)
+			setComponent((JComponent) previousComponent);
+		else
+			setComponent(initialComponent);
 	}
 	
 	/**
 	 * Comparator for <T, Integer> maps which compares the integer values while ignoring the
 	 * generic type T entries. Useful for sorting traffic data maps (traffic per port, protocol)
-	 * @param <T>	map entry type
+	 * @param <T>	Map entry type
 	 */
 	protected class MapComparator<T> implements Comparator<T> {
 		

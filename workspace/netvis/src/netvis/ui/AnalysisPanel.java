@@ -38,7 +38,7 @@ import netvis.util.SpringUtilities;
  * seen so far.
  */
 @SuppressWarnings("serial")
-public class AnalysisPanel extends JSplitPane implements DataControllerListener {
+public class AnalysisPanel extends JSplitPane implements DataControllerListener, ActionListener {
 
 	/** List of all inputs we've collected */
 	protected Queue<List<Packet>> updateQueue = new LinkedBlockingDeque<List<Packet>>();
@@ -119,6 +119,9 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	protected final JLabel labelPacketLength;
 	protected final JButton buttonShowTable;
 
+	/** Timer to manage the update of controls. */
+	protected Timer controlUpdateTimer;
+
 	/** Tiny class to hold traffic data about a specific IP */
 	protected class IPTraffic {
 		public int sent = 0;
@@ -132,9 +135,16 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 	/**
 	 * Create a new Analysis Panel, with controls which autonomously listen to
 	 * data from the data controller and send data to a Context Panel.
+	 * 
+	 * @param controlUpdateInterval
+	 *            The time interval between control updates, in ms. Needs to be
+	 *            some multiple of the data controller update interval.
 	 */
-	public AnalysisPanel() {
+	public AnalysisPanel(int controlUpdateInterval) {
 		super(JSplitPane.HORIZONTAL_SPLIT);
+
+		controlUpdateTimer = new Timer(controlUpdateInterval, this);
+		controlUpdateTimer.start();
 
 		// Set up tab panes to encapsulate cumulative data under separate
 		// categories
@@ -256,8 +266,6 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		setResizeWeight(0.85);
 		setRightComponent(contextPanel);
 
-		updateControls();
-
 		Timer updater = new Timer(500, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -275,7 +283,10 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		// controller again.
 
 		// Convert ms to seconds
-		double updateInterval = (double) updateIntervalms / 1000;
+		double updateInterval = ((double) updateIntervalms) / 1000;
+
+		// Stop the controls updating and clear the current data
+		controlUpdateTimer.stop();
 
 		ipAddressesSeen.clear();
 		ipTrafficTotals.clear();
@@ -319,23 +330,27 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 		// batch queue to be processed with high priority.
 
 		int currIndex = 0;
+		int packetCount = allPackets.size();
 		List<Packet> currentBlock = new ArrayList<Packet>();
 
 		// Split packets into blocks of size updateInterval
+		// Loop invariant:
+		// updateInterval*i <= allPackets[i].time < updateInterval*(i+1)
+		// for 0 <= i < intervalsComplete
 		for (int i = 0; i < intervalsComplete; i++) {
-			while (currIndex < allPackets.size()
+			while (currIndex < packetCount
 					&& allPackets.get(currIndex).time < (i + 1) * updateInterval) {
 				currentBlock.add(allPackets.get(currIndex));
 				currIndex++;
 			}
 
 			// Send the current block to the batch queue
-			batchQueue.add(currentBlock);
+			batchQueue.add(new ArrayList<Packet>(currentBlock));
 			currentBlock.clear();
 		}
 
-		// Update all fields
-		updateControls();
+		// All data is processed, allow controls to be updated again
+		controlUpdateTimer.start();
 	}
 
 	@Override
@@ -483,10 +498,15 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener 
 			avgBytesPerInterval = (avgBytesPerInterval * (totalIntervalsPassed - 1) + totalNewBytes)
 					/ totalIntervalsPassed;
 		}
+	}
+
+	@Override
+	// This is the action of the control updater
+	public void actionPerformed(ActionEvent arg0) {
 
 		// Tell the components to update to reflect the new data
-		// if (batchQueue.isEmpty()) // Suppress output if necessary
-		updateControls();
+		if (batchQueue.isEmpty()) // Suppress output if necessary
+			updateControls();
 	}
 
 	/**
