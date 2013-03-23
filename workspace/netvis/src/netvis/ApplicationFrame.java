@@ -282,6 +282,7 @@ public class ApplicationFrame extends JFrame {
 		applicationFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		applicationFrame.setSize(applicationFrame.getPreferredSize());
 		applicationFrame.setVisible(true);
+		applicationFrame.analysisPanel.init();
 	}
 
 }

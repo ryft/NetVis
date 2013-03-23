@@ -119,8 +119,10 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	protected final JLabel labelPacketLength;
 	protected final JButton buttonShowTable;
 
+	/** Timer to manage the processing of new data */
+	protected final Timer dataUpdateTimer;
 	/** Timer to manage the update of controls. */
-	protected Timer controlUpdateTimer;
+	protected final Timer controlUpdateTimer;
 
 	/** Tiny class to hold traffic data about a specific IP */
 	protected class IPTraffic {
@@ -142,9 +144,6 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	 */
 	public AnalysisPanel(int controlUpdateInterval) {
 		super(JSplitPane.HORIZONTAL_SPLIT);
-
-		controlUpdateTimer = new Timer(controlUpdateInterval, this);
-		controlUpdateTimer.start();
 
 		// Set up tab panes to encapsulate cumulative data under separate
 		// categories
@@ -266,13 +265,19 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		setResizeWeight(0.85);
 		setRightComponent(contextPanel);
 
-		Timer updater = new Timer(500, new ActionListener() {
+		dataUpdateTimer = new Timer(500, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				runUpdates();
 			}
 		});
-		updater.start();
+		controlUpdateTimer = new Timer(controlUpdateInterval, this);
+	}
+	
+	public void init() {
+
+		dataUpdateTimer.start();
+		controlUpdateTimer.start();
 	}
 
 	@Override
