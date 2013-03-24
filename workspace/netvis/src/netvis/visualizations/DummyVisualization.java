@@ -15,8 +15,12 @@ import netvis.data.DataController;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 
-public class DummyVisualization extends AbstractVisualization {
+public class DummyVisualization extends Visualization {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	double bgColor;
 	
 	public DummyVisualization(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer) {
@@ -25,12 +29,9 @@ public class DummyVisualization extends AbstractVisualization {
 	}
 
 	@Override
-	public void render(GLAutoDrawable drawable) {
+	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();	   
-		if (this.firstDraw) { // First draw, need to paint a background
-			gl.glColor3d(1, 1, 1);
-			gl.glRectd(-1, -1, 1, 1);
-		}
+
 		// this is useful if you have a incremental visualization
 		// that only draws the new stuff on each iteration
 		if (this.allDataChanged) { 
@@ -71,6 +72,23 @@ public class DummyVisualization extends AbstractVisualization {
 		});
 		dummyPanel.add(checkBox);
 		return dummyPanel;
+	}
+
+	@Override
+	public void dispose(GLAutoDrawable arg0) {
+	}
+
+	@Override
+	public void init(GLAutoDrawable drawable) {
+		GL2 gl = drawable.getGL().getGL2();	   
+
+		gl.glColor3d(1, 1, 1);
+		gl.glRectd(-1, -1, 1, 1);
+	}
+
+	@Override
+	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3,
+			int arg4) {		
 	} 
 
 }

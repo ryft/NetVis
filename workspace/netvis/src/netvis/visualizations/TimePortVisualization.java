@@ -17,7 +17,9 @@ import netvis.data.DataUtilities;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 
-public class TimePortVisualization extends AbstractVisualization {
+public class TimePortVisualization extends Visualization {
+
+	private static final long serialVersionUID = 1L;
 	int noPorts;
 	boolean sourceEnabled, destEnabled;
 	public TimePortVisualization(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
@@ -57,16 +59,8 @@ public class TimePortVisualization extends AbstractVisualization {
 		return localControls;
 	}
 
-	public void render(GLAutoDrawable drawable) {
+	public void display(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
-	    gl.glEnable(GL2.GL_BLEND);
-	    gl.glBlendFunc( GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA );
-		if (firstDraw){
-			gl.glColor3d(0, 0, 0);
-			gl.glRectd(-1, -1, 1, 1);
-	        drawBottom(gl);
-			firstDraw = false;
-		}
 	  
 	    /*
 	     * Draw the white background
@@ -136,7 +130,19 @@ public class TimePortVisualization extends AbstractVisualization {
 		return "Ports";
 	}
 
-	private void drawBottom(GL2 gl){		
+
+	@Override
+	public void dispose(GLAutoDrawable arg0) {
+		
+	}
+
+	@Override
+	public void init(GLAutoDrawable drawable) {
+	    GL2 gl = drawable.getGL().getGL2();	    
+	    gl.glEnable(GL2.GL_BLEND);
+	    gl.glBlendFunc( GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA );
+		gl.glColor3d(0, 0, 0);
+		gl.glRectd(-1, -1, 1, 1);
 		gl.glColor3f(1, 1, 1);
 
 	    final GLUT glut = new GLUT();
@@ -169,5 +175,12 @@ public class TimePortVisualization extends AbstractVisualization {
 	        gl.glRasterPos2d(-0.99 + 2*((float)i/noPorts),-0.87); // set position
 	        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_10, String.valueOf(i));
 		}
+	}
+
+	@Override
+	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3,
+			int arg4) {
+		// TODO Auto-generated method stub
+		
 	}
 }

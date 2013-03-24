@@ -3,6 +3,7 @@ package netvis.data;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class DataController implements ActionListener {
 	 * Returns all the packets with the filters applied
 	 */
 	public List<Packet> getPackets(){
-		return filteredPackets;
+		return Collections.unmodifiableList(filteredPackets);
 	}
 
 	/**
@@ -94,7 +95,6 @@ public class DataController implements ActionListener {
 	/**
 	 * 
 	 * @param list List to be filtered
-	 * @return New list containing only the packets that pass the test
 	 */
 	private void applyFilters(List<Packet> list){
 		List<Packet> toBeRemoved = new ArrayList<Packet>();

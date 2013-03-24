@@ -40,6 +40,7 @@ import netvis.util.ExceptionHandler;
 import netvis.util.NetUtilities;
 import netvis.visualizations.CopyOfTimePortVisualization;
 import netvis.visualizations.DummyVisualization;
+import netvis.visualizations.MulticubeVisualization;
 import netvis.visualizations.TimePortVisualization;
 import netvis.visualizations.Visualization;
 
@@ -72,7 +73,7 @@ public class ApplicationFrame extends JFrame {
 
 		// Setup data feeder and data controller
 		if (DEBUG_MODE)
-			dataFeeder = new SimDataFeeder(new File("../../csv/captures/eduroam.csv"), 1, this);
+			dataFeeder = new SimDataFeeder(new File("../../csv/captures/ssh-attack.csv"), 1, this);
 		else
 			dataFeeder = new DummyDataFeeder(this);
 		
@@ -102,6 +103,7 @@ public class ApplicationFrame extends JFrame {
 		visList.add(new TimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new CopyOfTimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new DummyVisualization(dataController, glPanel, visControlsContainer));
+		visList.add(new MulticubeVisualization(dataController, glPanel, visControlsContainer));
 
 		visList.get(0).activate();
 

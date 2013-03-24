@@ -10,12 +10,14 @@ import netvis.data.DataUtilities;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 
-public class CopyOfTimePortVisualization extends AbstractVisualization {
+public class CopyOfTimePortVisualization extends Visualization {
+	private static final long serialVersionUID = 1L;
+
 	public CopyOfTimePortVisualization(DataController dc, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 		super(dc, joglPanel, visControlsContainer);
 	}
 	
-	public void render(GLAutoDrawable drawable) {
+	public void display(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
 	  
 	    /*
@@ -58,7 +60,6 @@ public class CopyOfTimePortVisualization extends AbstractVisualization {
 
 	@Override
 	public String name() {
-		// TODO Auto-generated method stub
 		return "Ports Copy";
 	}
 
@@ -66,6 +67,25 @@ public class CopyOfTimePortVisualization extends AbstractVisualization {
 	protected JPanel createControls() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void dispose(GLAutoDrawable arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void init(GLAutoDrawable arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3,
+			int arg4) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
