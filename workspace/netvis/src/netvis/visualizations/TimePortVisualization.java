@@ -8,6 +8,7 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
@@ -25,10 +26,10 @@ public class TimePortVisualization extends AbstractVisualization {
 	    this.sourceEnabled = true;
 	    this.destEnabled = true;
 	    
-	    createControls();
 	}
 	
-	private void createControls() {
+	protected JPanel createControls() {
+		JPanel localControls = new JPanel();
 		JLabel sourceText = new JLabel("Source");
 	    JCheckBox sourceCheckBox = new JCheckBox();
 	    sourceCheckBox.setSelected(this.sourceEnabled);
@@ -48,11 +49,12 @@ public class TimePortVisualization extends AbstractVisualization {
 				joglPanel.redraw();
 			}
 	    });
-	    visControls.add(sourceText);
-	    visControls.add(sourceCheckBox);
+	    localControls.add(sourceText);
+	    localControls.add(sourceCheckBox);
 	    
-	    visControls.add(destText);
-	    visControls.add(destCheckBox);
+	    localControls.add(destText);
+	    localControls.add(destCheckBox);
+		return localControls;
 	}
 
 	public void render(GLAutoDrawable drawable) {
@@ -60,6 +62,8 @@ public class TimePortVisualization extends AbstractVisualization {
 	    gl.glEnable(GL2.GL_BLEND);
 	    gl.glBlendFunc( GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA );
 		if (firstDraw){
+			gl.glColor3d(0, 0, 0);
+			gl.glRectd(-1, -1, 1, 1);
 	        drawBottom(gl);
 			firstDraw = false;
 		}

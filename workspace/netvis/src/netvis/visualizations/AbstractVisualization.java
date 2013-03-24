@@ -26,9 +26,11 @@ public abstract class AbstractVisualization implements Visualization, DataContro
 		this.newPackets = new ArrayList<Packet>();
 		this.dataController = dataController;
 		this.joglPanel = joglPanel;
-		this.visControls = new JPanel();
+		this.visControls = this.createControls();
 		this.visContainer = visControlsContainer;
 	}
+	
+	protected abstract JPanel createControls();
 	
 	@Override
 	public void allDataChanged(List<Packet> allPackets, int updateInterval, int intervalsComplete) {

@@ -3,6 +3,8 @@ package netvis.visualizations;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.JPanel;
+
 import netvis.data.DataController;
 import netvis.data.DataUtilities;
 import netvis.ui.OpenGLPanel;
@@ -58,6 +60,12 @@ public class CopyOfTimePortVisualization extends AbstractVisualization {
 	public String name() {
 		// TODO Auto-generated method stub
 		return "Ports Copy";
+	}
+
+	@Override
+	protected JPanel createControls() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

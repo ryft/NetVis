@@ -17,7 +17,8 @@ public class VisControlsContainer extends JPanel {
 		if (lastCtrl != null)
 			this.remove(lastCtrl);
 		
-		this.add(newPanel);
+		if (newPanel != null)
+			this.add(newPanel);
 		lastCtrl = newPanel;
 		this.repaint();
 	}

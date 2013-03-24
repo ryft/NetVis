@@ -39,6 +39,7 @@ import netvis.ui.VisControlsContainer;
 import netvis.util.ExceptionHandler;
 import netvis.util.NetUtilities;
 import netvis.visualizations.CopyOfTimePortVisualization;
+import netvis.visualizations.DummyVisualization;
 import netvis.visualizations.TimePortVisualization;
 import netvis.visualizations.Visualization;
 
@@ -100,6 +101,8 @@ public class ApplicationFrame extends JFrame {
 		visList = new ArrayList<Visualization>();
 		visList.add(new TimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new CopyOfTimePortVisualization(dataController, glPanel, visControlsContainer));
+		visList.add(new DummyVisualization(dataController, glPanel, visControlsContainer));
+
 		visList.get(0).activate();
 
 		// Set up filter control panel
