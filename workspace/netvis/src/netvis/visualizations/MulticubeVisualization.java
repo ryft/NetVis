@@ -51,7 +51,7 @@ public class MulticubeVisualization extends Visualization{
 			gl.glBegin(GL.GL_LINES);
 			gl.glVertex3d(0, 0, i/5);
 			gl.glVertex3d(1, 0, i/5);
-
+			
 			gl.glVertex3d(i/5, 0, 0);
 			gl.glVertex3d(i/5, 0, 1);
 			gl.glEnd();
@@ -189,11 +189,16 @@ public class MulticubeVisualization extends Visualization{
 		// Global settings.
 		gl.glEnable(GL2.GL_DEPTH_TEST);
         gl.glDepthFunc(GL2.GL_LEQUAL);
+        gl.glEnable( GL2.GL_POINT_SMOOTH );
+        gl.glEnable( GL2.GL_LINE_SMOOTH );
+        gl.glEnable( GL2.GL_FOG );
+        gl.glEnable( GL2.GL_DITHER );
+        gl.glHint(GL2.GL_FOG_HINT, GL2.GL_NICEST);
+
         gl.glColor3d(0, 0, 0);
         glut = new GLUT();
 
         // We want a nice perspective.
-        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
         // Create GLU.
         glu = new GLU();
         // Change to projection matrix.

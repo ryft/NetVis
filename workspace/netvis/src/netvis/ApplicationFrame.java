@@ -39,6 +39,7 @@ import netvis.ui.VisControlsContainer;
 import netvis.util.ExceptionHandler;
 import netvis.util.NetUtilities;
 import netvis.visualizations.CopyOfTimePortVisualization;
+import netvis.visualizations.DataflowVisualization;
 import netvis.visualizations.DummyVisualization;
 import netvis.visualizations.MulticubeVisualization;
 import netvis.visualizations.TimePortVisualization;
@@ -104,6 +105,7 @@ public class ApplicationFrame extends JFrame {
 		visList.add(new CopyOfTimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new DummyVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new MulticubeVisualization(dataController, glPanel, visControlsContainer));
+		visList.add(new DataflowVisualization(dataController, glPanel, visControlsContainer));
 
 		visList.get(0).activate();
 
