@@ -34,7 +34,7 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 		this.addGLEventListener(this);
 		
 		dataController.addListener(this);
-		listOfPackets = dataController.getPackets();
+		this.listOfPackets = dataController.getPackets();
 		this.newPackets = new ArrayList<Packet>();
 		this.dataController = dataController;
 		this.joglPanel = joglPanel;

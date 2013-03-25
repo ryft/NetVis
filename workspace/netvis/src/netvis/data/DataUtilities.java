@@ -7,7 +7,10 @@ package netvis.data;
 public class DataUtilities {
 	public static final int MIN_PORT = 0;
 	public static final int MAX_PORT = 65535;
-
+	
+	/**
+	 * Transforms an IPV4 into a double value in the range [0..1]
+	 */
 	public static double normalizeV4Ip(String ip) {
 		int i = 0;
 		int c = 0;
@@ -28,8 +31,11 @@ public class DataUtilities {
 		return f;
 	}
 
-	public static double normalizePort(int sport) {
-		return (double)sport / MAX_PORT;
+	/**
+	 * Transforms a port into a double value in the range [0..1]
+	 */
+	public static double normalizePort(int port) {
+		return (double)port / MAX_PORT;
 	}
 	
 	
