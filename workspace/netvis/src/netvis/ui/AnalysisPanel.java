@@ -44,7 +44,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	protected Queue<List<Packet>> updateQueue = new LinkedBlockingDeque<List<Packet>>();
 	/** List of updates received while running static analysis */
 	protected Queue<List<Packet>> batchQueue = new LinkedBlockingDeque<List<Packet>>();
-	/** Flag to block certain events while static analysis is running.
+	/** Flag to block certain events while static analysis jobs are being created.
 	 * 	Any outside modification of this variable is unsafe. */
 	public boolean batchProcessBlock = false;
 
@@ -172,7 +172,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelPacketsPerDelta = new AbstractContextLink("Min/Max/Avg packets per time interval: ") {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				if (!batchProcessBlock)
+				if (batchQueue.size() == 0 && !batchProcessBlock)
 					contextPanel.update("Packets transmitted over " + Math.round(totalTimePassed)
 							+ "s, " + "current total: " + totalPackets, packetsSeenOverTime);
 			}
@@ -184,7 +184,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelBytesPerDelta = new AbstractContextLink("Min/Max/Avg traffic per time interval: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (!batchProcessBlock)
+				if (batchQueue.size() == 0 && !batchProcessBlock)
 					contextPanel.update("Bytes transmitted over " + Math.round(totalTimePassed) + "s, "
 							+ "current total: " + Utilities.parseBytes(totalBytes),
 							bytesSeenOverTime);
@@ -224,7 +224,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		buttonShowTable.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (!batchProcessBlock) {
+				if (batchQueue.size() == 0 && !batchProcessBlock) {
 					contextPanel.update(ipTable);
 					repaint();
 				}
@@ -237,7 +237,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelMostCommonPort = new AbstractContextLink("Most commonly used port: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (!batchProcessBlock)
+				if (batchQueue.size() == 0 && !batchProcessBlock)
 					contextPanel.update("Total traffic, grouped and sorted by port", portTrafficTotals);
 			}
 		};
@@ -248,7 +248,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelMostCommonProtocol = new AbstractContextLink("Most commonly used protocol: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (!batchProcessBlock)
+				if (batchQueue.size() == 0 && !batchProcessBlock)
 					contextPanel.update("Total traffic, grouped and sorted by protocol",
 							protocolTrafficTotals);
 			}
@@ -260,7 +260,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelPacketLength = new AbstractContextLink("Min/Max/Avg packet length: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (!batchProcessBlock)
+				if (batchQueue.size() == 0 && !batchProcessBlock)
 					contextPanel.update(shortestPacket, longestPacket);
 			}
 		};
@@ -524,7 +524,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	public void actionPerformed(ActionEvent arg0) {
 
 		// Tell the components to update to reflect the new data
-		if (!batchProcessBlock) // Suppress output if necessary
+		if (batchQueue.size() == 0 && !batchProcessBlock) // Suppress output if necessary
 			updateControls();
 	}
 
