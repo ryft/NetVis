@@ -9,6 +9,7 @@ import netvis.data.model.Packet;
 public class DummyDataFeeder implements DataFeeder {
 
 	public DummyDataFeeder(ApplicationFrame parent) {
+		parent.setTitle("NetVis");
 	}
 
 	@Override

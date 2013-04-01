@@ -49,6 +49,8 @@ public class SimDataFeeder implements DataFeeder {
 		}
 		this.timeScale = timeScale;
 		initialTime = System.currentTimeMillis();
+		
+		parent.setTitle("NetVis - " + fileName);
 	}
 
 	@Override

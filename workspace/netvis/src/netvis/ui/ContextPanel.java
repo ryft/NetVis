@@ -1,7 +1,6 @@
 package netvis.ui;
 
 import java.awt.Component;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import netvis.data.model.Packet;
+import netvis.util.Utilities.MapComparator;
 
 /**
  * Context panel to display data in the bottom-right of the GUI and be updated
@@ -89,7 +89,7 @@ public class ContextPanel extends JScrollPane {
 	
 	/**
 	 * Update the context panel to display a traffic map, sorted by value
-	 * @param title	title to show above the the sorted results
+	 * @param title	Title to show above the the sorted results
 	 * @param unsortedMap	Unsorted map of results to display
 	 */
 	public <T> void update(String title, Map<T, Integer> unsortedMap) {
@@ -127,29 +127,6 @@ public class ContextPanel extends JScrollPane {
 			setComponent((JComponent) previousComponent);
 		else
 			setComponent(initialComponent);
-	}
-	
-	/**
-	 * Comparator for <T, Integer> maps which compares the integer values while ignoring the
-	 * generic type T entries. Useful for sorting traffic data maps (traffic per port, protocol)
-	 * @param <T>	Map entry type
-	 */
-	protected class MapComparator<T> implements Comparator<T> {
-		
-		Map<T, Integer> base;
-		
-	    public MapComparator(Map<T, Integer> base) {
-	        this.base = base;
-	    }
-
-		@Override
-	    public int compare(T a, T b) {
-	        if (base.get(a) >= base.get(b)) {
-	            return -1;
-	        } else {
-	            return 1;
-	        }
-	    }
 	}
 
 }
