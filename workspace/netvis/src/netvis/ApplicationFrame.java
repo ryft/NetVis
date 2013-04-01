@@ -2,6 +2,8 @@ package netvis;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -52,7 +54,9 @@ import netvis.visualizations.Visualization;
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
 
+	// Flags governing the behaviour of the application window
 	protected final boolean DEBUG_MODE = true;
+	protected boolean FULL_SCREEN = false;
 
 	// Declare panels for use in the GUI
 	protected final ApplicationFrame parent = this;
@@ -61,6 +65,7 @@ public class ApplicationFrame extends JFrame {
 	protected final RightPanel rightPanel;
 	protected final AnalysisPanel analysisPanel;
 	protected final StatusBar statusBar;
+	protected final JMenuBar menuBar;
 
 	protected DataFeeder dataFeeder;
 	protected DataController dataController;
@@ -74,7 +79,7 @@ public class ApplicationFrame extends JFrame {
 
 		// Setup data feeder and data controller
 		if (DEBUG_MODE)
-			dataFeeder = new SimDataFeeder(new File("../../csv/captures/ssh-attack.csv"), 1, this);
+			dataFeeder = new SimDataFeeder(new File("../../csv/captures/eduroam.csv"), 1, this);
 		else
 			dataFeeder = new DummyDataFeeder(this);
 		
@@ -94,8 +99,8 @@ public class ApplicationFrame extends JFrame {
 		glConstraints.fill = GridBagConstraints.BOTH;
 		glConstraints.gridx = 0;
 		glConstraints.gridy = 0;
-		glConstraints.weightx = 0.0;
-		glConstraints.weighty = 0.0;
+		glConstraints.weightx = 1.0;
+		glConstraints.weighty = 1.0;
 		contentPane.add(glPanel, glConstraints);
 
 		// Set up references to all visualisations
@@ -111,15 +116,15 @@ public class ApplicationFrame extends JFrame {
 
 		// Set up filter control panel
 		rightPanel = new RightPanel(visList, dataController, visControlsContainer);
-		final GridBagConstraints filterConstraints = new GridBagConstraints();
-		filterConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
-		filterConstraints.fill = GridBagConstraints.NONE;
-		filterConstraints.insets = new Insets(10, 5, 0, 10);
-		filterConstraints.gridx = 1;
-		filterConstraints.gridy = 0;
-		filterConstraints.weightx = 1.0;
-		filterConstraints.weighty = 0.0;
-		contentPane.add(rightPanel, filterConstraints);
+		final GridBagConstraints rightConstraints = new GridBagConstraints();
+		rightConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		rightConstraints.fill = GridBagConstraints.NONE;
+		rightConstraints.insets = new Insets(10, 5, 0, 10);
+		rightConstraints.gridx = 1;
+		rightConstraints.gridy = 0;
+		rightConstraints.weightx = 0.0;
+		rightConstraints.weighty = 1.0;
+		contentPane.add(rightPanel, rightConstraints);
 
 		// Set up table results panel
 		analysisPanel = new AnalysisPanel(100);
@@ -130,8 +135,8 @@ public class ApplicationFrame extends JFrame {
 		tableConstraints.gridx = 0;
 		tableConstraints.gridy = 1;
 		tableConstraints.gridwidth = 2;
-		tableConstraints.weightx = 1.0;
-		tableConstraints.weighty = 1.0;
+		tableConstraints.weightx = 0.0;
+		tableConstraints.weighty = 0.0;
 		contentPane.add(analysisPanel, tableConstraints);
 
 		// Set up a status bar panel
@@ -149,7 +154,8 @@ public class ApplicationFrame extends JFrame {
 		// Link the model together and set the content pane
 		dataController.addListener(analysisPanel);
 		setContentPane(contentPane);
-		setJMenuBar(createMenuBar());
+		menuBar = createMenuBar();
+		setJMenuBar(menuBar);
 		pack();
 
 		// Register a nice exception handler
@@ -198,11 +204,82 @@ public class ApplicationFrame extends JFrame {
 			}
 		});
 
+		// View menu
+		JMenu viewMenu = new JMenu("View");
+		fileMenu.setMnemonic(KeyEvent.VK_V);
+		fileMenu.getAccessibleContext().setAccessibleDescription(
+				"View menu for controlling the view parameters of the application");
+
+		// Reset the application size
+		JMenuItem resetViewItem = new JMenuItem("Reset Size", KeyEvent.VK_R);
+		resetViewItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+		resetViewItem.getAccessibleContext().setAccessibleDescription("Reset the size of the application window");
+		
+		// Listen for reset events
+		resetViewItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				setSize(990, 730);
+			}
+		});
+
+		// Make the application full-screen
+		JMenuItem fullScreenItem = new JMenuItem("Full Screen", KeyEvent.VK_F);
+		fullScreenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
+		fullScreenItem.getAccessibleContext().setAccessibleDescription("Toggle full-screen window");
+		
+		// Listen for full-screen events
+		class FullScreenListener implements ActionListener {
+			JFrame parent;
+			public FullScreenListener(JFrame parent) {
+				this.parent = parent;
+			}
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				// Get references to required system resources
+		        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+				GraphicsDevice device = env.getDefaultScreenDevice();
+				
+				if (FULL_SCREEN)	// Attempt to go full-screen
+					try {
+						parent.dispose();
+						parent.setUndecorated(false);
+						parent.setResizable(true);
+			            device.setFullScreenWindow(null);
+					    parent.setExtendedState(JFrame.NORMAL);
+			            parent.setVisible(true);
+			            FULL_SCREEN = false;
+					} catch (Exception ex) {
+						parent.setVisible(true);
+					}
+				
+				else				// Attempt to revert to normal window
+					try {
+						parent.dispose();
+						parent.setUndecorated(true);
+						parent.setResizable(false);
+			            device.setFullScreenWindow(parent);
+					    parent.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			            parent.validate();
+			            FULL_SCREEN = true;
+					} catch (Exception ex) {
+						parent.setVisible(true);
+					}
+				
+			}
+		}
+		fullScreenItem.addActionListener(new FullScreenListener(this));
+
 		// Put it together
 		fileMenu.add(openCSVItem);
 		fileMenu.addSeparator();
 		fileMenu.add(exitItem);
 		menuBar.add(fileMenu);
+
+		viewMenu.add(resetViewItem);
+		viewMenu.add(fullScreenItem);
+		menuBar.add(viewMenu);
 
 		return menuBar;
 	}
@@ -291,5 +368,4 @@ public class ApplicationFrame extends JFrame {
 		applicationFrame.setVisible(true);
 		applicationFrame.analysisPanel.init();
 	}
-
 }
