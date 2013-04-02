@@ -29,7 +29,7 @@ import javax.swing.table.AbstractTableModel;
 
 import netvis.data.DataControllerListener;
 import netvis.data.model.Packet;
-import netvis.util.NetUtilities;
+import netvis.util.Utilities;
 import netvis.util.SpringUtilities;
 
 /**
@@ -44,6 +44,9 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	protected Queue<List<Packet>> updateQueue = new LinkedBlockingDeque<List<Packet>>();
 	/** List of updates received while running static analysis */
 	protected Queue<List<Packet>> batchQueue = new LinkedBlockingDeque<List<Packet>>();
+	/** Flag to block certain events while static analysis jobs are being created.
+	 * 	Any outside modification of this variable is unsafe. */
+	public boolean batchProcessBlock = false;
 
 	/** Context panel to deliver extra data to */
 	protected final ContextPanel contextPanel = new ContextPanel();
@@ -169,8 +172,9 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelPacketsPerDelta = new AbstractContextLink("Min/Max/Avg packets per time interval: ") {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				contextPanel.update("Packets transmitted over " + Math.round(totalTimePassed)
-						+ "s, " + "current total: " + totalPackets, packetsSeenOverTime);
+				if (batchQueue.size() == 0 && !batchProcessBlock)
+					contextPanel.update("Packets transmitted over " + Math.round(totalTimePassed)
+							+ "s, " + "current total: " + totalPackets, packetsSeenOverTime);
 			}
 		};
 		panel1.add(labelPacketsPerDelta);
@@ -180,9 +184,10 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelBytesPerDelta = new AbstractContextLink("Min/Max/Avg traffic per time interval: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				contextPanel.update("Bytes transmitted over " + Math.round(totalTimePassed) + "s, "
-						+ "current total: " + NetUtilities.parseBytes(totalBytes),
-						bytesSeenOverTime);
+				if (batchQueue.size() == 0 && !batchProcessBlock)
+					contextPanel.update("Bytes transmitted over " + Math.round(totalTimePassed) + "s, "
+							+ "current total: " + Utilities.parseBytes(totalBytes),
+							bytesSeenOverTime);
 			}
 		};
 		panel1.add(labelBytesPerDelta);
@@ -219,8 +224,10 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		buttonShowTable.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				contextPanel.update(ipTable);
-				repaint();
+				if (batchQueue.size() == 0 && !batchProcessBlock) {
+					contextPanel.update(ipTable);
+					repaint();
+				}
 			}
 		});
 
@@ -230,7 +237,8 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelMostCommonPort = new AbstractContextLink("Most commonly used port: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				contextPanel.update("Total traffic, grouped and sorted by port", portTrafficTotals);
+				if (batchQueue.size() == 0 && !batchProcessBlock)
+					contextPanel.update("Total traffic, grouped and sorted by port", portTrafficTotals);
 			}
 		};
 		panel3.add(labelMostCommonPort);
@@ -240,8 +248,9 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelMostCommonProtocol = new AbstractContextLink("Most commonly used protocol: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				contextPanel.update("Total traffic, grouped and sorted by protocol",
-						protocolTrafficTotals);
+				if (batchQueue.size() == 0 && !batchProcessBlock)
+					contextPanel.update("Total traffic, grouped and sorted by protocol",
+							protocolTrafficTotals);
 			}
 		};
 		panel3.add(labelMostCommonProtocol);
@@ -251,7 +260,8 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		labelPacketLength = new AbstractContextLink("Min/Max/Avg packet length: ") {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				contextPanel.update(shortestPacket, longestPacket);
+				if (batchQueue.size() == 0 && !batchProcessBlock)
+					contextPanel.update(shortestPacket, longestPacket);
 			}
 		};
 		panel3.add(labelPacketLength);
@@ -290,6 +300,8 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		// Convert ms to seconds
 		double updateInterval = ((double) updateIntervalms) / 1000;
 
+		// Block anything which relies on uninterrupted data flow
+		batchProcessBlock = true;
 		// Stop the controls updating and clear the current data
 		controlUpdateTimer.stop();
 
@@ -356,6 +368,8 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 
 		// All data is processed, allow controls to be updated again
 		controlUpdateTimer.start();
+		// Release all controls
+		batchProcessBlock = false;
 	}
 
 	@Override
@@ -376,7 +390,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		// Run analysis on all batch updates first, and (importantly) leave the
 		// update queue alone, as the batch queue may still be being filled and
 		// we may break the ordering by processing any new packets.
-		if (batchQueue.size() > 0) {
+		if (batchQueue.size() > 0 || batchProcessBlock) {
 
 			// Take a snapshot of the current state of the queue
 			Queue<List<Packet>> batchQueueClone = new LinkedBlockingDeque<List<Packet>>();
@@ -510,7 +524,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	public void actionPerformed(ActionEvent arg0) {
 
 		// Tell the components to update to reflect the new data
-		if (batchQueue.isEmpty()) // Suppress output if necessary
+		if (batchQueue.size() == 0 && !batchProcessBlock) // Suppress output if necessary
 			updateControls();
 	}
 
@@ -524,7 +538,7 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		// values into text fields.
 		// PANEL 1
 		fieldTotals.setText(String.valueOf(totalPackets) + " / "
-				+ NetUtilities.parseBytes(totalBytes));
+				+ Utilities.parseBytes(totalBytes));
 
 		labelPacketsPerDelta.setEnabled(packetsSeenOverTime.size() > 0);
 		if (minPacketsPerInterval < 0)
@@ -538,9 +552,9 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		if (minBytesPerInterval < 0)
 			fieldBytesPerDelta.setText("0 B / 0 B / 0 B");
 		else
-			fieldBytesPerDelta.setText(NetUtilities.parseBytes(minBytesPerInterval) + " / "
-					+ NetUtilities.parseBytes(maxBytesPerInterval) + " / "
-					+ NetUtilities.parseBytes(Math.round(avgBytesPerInterval)));
+			fieldBytesPerDelta.setText(Utilities.parseBytes(minBytesPerInterval) + " / "
+					+ Utilities.parseBytes(maxBytesPerInterval) + " / "
+					+ Utilities.parseBytes(Math.round(avgBytesPerInterval)));
 
 		// PANEL 2
 		fieldUniqueSenderIPs.setText(String.valueOf(senderIPs.size()));
@@ -561,9 +575,9 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		if (minPacketLength < 0)
 			fieldPacketLength.setText("0 B / 0 B / 0 B");
 		else
-			fieldPacketLength.setText(NetUtilities.parseBytes(minPacketLength) + " / "
-					+ NetUtilities.parseBytes(maxPacketLength) + " / "
-					+ NetUtilities.parseBytes(Math.round(avgPacketLength)));
+			fieldPacketLength.setText(Utilities.parseBytes(minPacketLength) + " / "
+					+ Utilities.parseBytes(maxPacketLength) + " / "
+					+ Utilities.parseBytes(Math.round(avgPacketLength)));
 	}
 
 	/**

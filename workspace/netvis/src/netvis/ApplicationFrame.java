@@ -39,11 +39,12 @@ import netvis.ui.OpenGLPanel;
 import netvis.ui.RightPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.util.ExceptionHandler;
-import netvis.util.NetUtilities;
+import netvis.util.Utilities;
 import netvis.visualizations.DataflowVisualization;
 import netvis.visualizations.DummyVisualization;
 import netvis.visualizations.MulticubeVisualization;
 import netvis.visualizations.TimePortVisualization;
+import netvis.visualizations.TrafficVolumeVisualization;
 import netvis.visualizations.Visualization;
 
 /**
@@ -82,7 +83,7 @@ public class ApplicationFrame extends JFrame {
 		else
 			dataFeeder = new DummyDataFeeder(this);
 		
-		dataController = new DataController(dataFeeder, 500);
+		dataController = new DataController(dataFeeder, 100);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
 
@@ -109,6 +110,7 @@ public class ApplicationFrame extends JFrame {
 		visList.add(new DummyVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new MulticubeVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new DataflowVisualization(dataController, glPanel, visControlsContainer));
+		visList.add(new TrafficVolumeVisualization(dataController, glPanel, visControlsContainer));
 
 		visList.get(0).activate();
 
@@ -217,6 +219,8 @@ public class ApplicationFrame extends JFrame {
 		resetViewItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if (FULL_SCREEN)
+					ApplicationFrame.this.toggleFullScreen();
 				setSize(990, 730);
 			}
 		});
@@ -227,47 +231,12 @@ public class ApplicationFrame extends JFrame {
 		fullScreenItem.getAccessibleContext().setAccessibleDescription("Toggle full-screen window");
 		
 		// Listen for full-screen events
-		class FullScreenListener implements ActionListener {
-			JFrame parent;
-			public FullScreenListener(JFrame parent) {
-				this.parent = parent;
-			}
+		fullScreenItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				// Get references to required system resources
-		        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-				GraphicsDevice device = env.getDefaultScreenDevice();
-				
-				if (FULL_SCREEN)	// Attempt to go full-screen
-					try {
-						parent.dispose();
-						parent.setUndecorated(false);
-						parent.setResizable(true);
-			            device.setFullScreenWindow(null);
-					    parent.setExtendedState(JFrame.NORMAL);
-			            parent.setVisible(true);
-			            FULL_SCREEN = false;
-					} catch (Exception ex) {
-						parent.setVisible(true);
-					}
-				
-				else				// Attempt to revert to normal window
-					try {
-						parent.dispose();
-						parent.setUndecorated(true);
-						parent.setResizable(false);
-			            device.setFullScreenWindow(parent);
-					    parent.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			            parent.validate();
-			            FULL_SCREEN = true;
-					} catch (Exception ex) {
-						parent.setVisible(true);
-					}
-				
+				ApplicationFrame.this.toggleFullScreen();
 			}
-		}
-		fullScreenItem.addActionListener(new FullScreenListener(this));
+		});
 
 		// Put it together
 		fileMenu.add(openCSVItem);
@@ -280,6 +249,40 @@ public class ApplicationFrame extends JFrame {
 		menuBar.add(viewMenu);
 
 		return menuBar;
+	}
+	
+	protected void toggleFullScreen() {
+
+		// Get references to required system resources
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = env.getDefaultScreenDevice();
+		
+		if (FULL_SCREEN)	// Attempt to go full-screen
+			try {
+				parent.dispose();
+				parent.setUndecorated(false);
+				parent.setResizable(true);
+	            device.setFullScreenWindow(null);
+			    parent.setExtendedState(JFrame.NORMAL);
+	            parent.setVisible(true);
+	            FULL_SCREEN = false;
+			} catch (Exception ex) {
+				parent.setVisible(true);
+			}
+		
+		else				// Attempt to revert to normal window
+			try {
+				parent.dispose();
+				parent.setUndecorated(true);
+				parent.setResizable(false);
+	            device.setFullScreenWindow(parent);
+			    parent.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	            parent.validate();
+	            FULL_SCREEN = true;
+			} catch (Exception ex) {
+				parent.setVisible(true);
+			}
+		
 	}
 
 	/**
@@ -305,32 +308,38 @@ public class ApplicationFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-
-			// Get heap usage stats from the JVM Runtime object
-			Long freeMemory = runtime.freeMemory();
-			Long totalMemory = runtime.totalMemory();
-			Long usedMemory = totalMemory - freeMemory;
-			Long percentageUsed = Math.round(usedMemory * 100.0 / totalMemory);
-
-			// Display the usage stats in increasingly bright red text as usage
-			// approaches 100%
-			if (percentageUsed >= 80)
-				if (percentageUsed < 90)
-					label.setForeground(Color.red.darker().darker());
-				else
-					label.setForeground(Color.red);
-			else
+			
+			if (analysisPanel.batchProcessBlock) {
 				label.setForeground(Color.darkGray);
+				label.setText("Processing filtered data...");
 
-			// Show green text briefly after a garbage collection (usage drops)
-			if (usedMemory < prevUsage)
-				label.setForeground(Color.green.darker().darker());
-
-			label.setText("JVM memory usage statistics: " + NetUtilities.parseBytes(usedMemory)
-					+ " / " + NetUtilities.parseBytes(totalMemory) + " (" + percentageUsed
-					+ "%) in use");
-
-			prevUsage = usedMemory;
+			} else {
+				// Get heap usage stats from the JVM Runtime object
+				Long freeMemory = runtime.freeMemory();
+				Long totalMemory = runtime.totalMemory();
+				Long usedMemory = totalMemory - freeMemory;
+				Long percentageUsed = Math.round(usedMemory * 100.0 / totalMemory);
+	
+				// Display the usage stats in increasingly bright red text as usage
+				// approaches 100%
+				if (percentageUsed >= 80)
+					if (percentageUsed < 90)
+						label.setForeground(Color.red.darker().darker());
+					else
+						label.setForeground(Color.red);
+				else
+					label.setForeground(Color.darkGray);
+	
+				// Show green text briefly after a garbage collection (usage drops)
+				if (usedMemory < prevUsage)
+					label.setForeground(Color.green.darker().darker());
+	
+				label.setText("JVM memory usage statistics: " + Utilities.parseBytes(usedMemory)
+						+ " / " + Utilities.parseBytes(totalMemory) + " (" + percentageUsed
+						+ "%) in use");
+	
+				prevUsage = usedMemory;
+			}
 		}
 
 		@Override
