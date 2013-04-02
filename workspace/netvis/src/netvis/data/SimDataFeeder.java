@@ -15,7 +15,7 @@ import netvis.ApplicationFrame;
 import netvis.data.model.Packet;
 
 public class SimDataFeeder implements DataFeeder {
-	protected long initialTime;
+	protected double initialTime;
 	protected double firstPacketTime, timeScale;
 	protected CSVReader csvReader;
 	protected Iterator<String[]> it;

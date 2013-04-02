@@ -52,13 +52,17 @@ public class DataflowVisualization extends Visualization{
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);        
+        gl.glColor3d(0.2, 0.2, 0.2);
+        gl.glRasterPos3f(0, 1.01f, 0); // set position
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, "Brightness: Time, Opacity: Volume");
+
 		for (int j=1; j < normPasses.size(); j++){
-			gl.glColor3d(((double)j) / 20 + 0.7, ((double)j) / 20 + 0.7, ((double)j) / 20 + 0.7);
+			gl.glColor3d(((double)(j%2)) / 30 + 0.8, ((double)(j%2)) / 30 + 0.8, ((double)(j%2)) / 30 + 0.82);
 			gl.glRectd(((double)j-1) / (normPasses.size() - 1), 0, ((double)j) / (normPasses.size() - 1), 1);
 		}
 		for (int i =0 ; i < normPasses.size(); i++){
 	        gl.glColor3d(0.2, 0.2, 0.2);
-	        gl.glRasterPos3f(((float)i*1.2f) / normPasses.size(), 1.01f, 0); // set position
+	        gl.glRasterPos3f(((float)i*1.2f) / normPasses.size(), -0.04f, 0); // set position
 	        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, normPasses.get(i).name());
 		}
 		Packet p;
@@ -113,7 +117,8 @@ public class DataflowVisualization extends Visualization{
         gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
         gl.glScaled(1.8, 1.8, 1);
         gl.glTranslated(-0.5, -0.5, 0);
-        gl.glClearColor(0.9f, 0.9f, 0.9f, 1);
+        gl.glClearColor(0.7f, 0.7f, 0.7f, 1);
+        gl.glLineWidth(2);
         glut = new GLUT();
 	}
 
