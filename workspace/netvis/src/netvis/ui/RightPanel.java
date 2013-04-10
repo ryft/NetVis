@@ -16,6 +16,8 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
 import netvis.data.DataController;
+import netvis.data.DataFeeder;
+import netvis.data.TimeControlDataController;
 import netvis.data.model.PacketFilter;
 import netvis.visualizations.Visualization;
 
@@ -36,13 +38,16 @@ public class RightPanel extends JPanel {
 	 * @param visControlContainer
 	 *            Container for the relevant visualisation controls
 	 */
-	public RightPanel(final List<Visualization> visList, DataController dataController,
-			VisControlsContainer visControlContainer) {
+	public RightPanel(final List<Visualization> visList, DataFeeder dataFeeder, 
+			DataController dataController, VisControlsContainer visControlContainer) {
 		this.visList = visList;
 		this.dataController = dataController;
 
 		JLabel visualisationsTitle = new TitleLabel("Visualizations");
-
+		JLabel visContainerTitle = new TitleLabel("Visualization Controls");
+		JLabel filtersTitle = new TitleLabel("Filters");
+		JLabel timeTitle = new TitleLabel("Time Control");
+		
 		String[] visNameList = new String[visList.size()];
 		for (int i = 0; i < visList.size(); i++)
 			visNameList[i] = visList.get(i).name();
@@ -54,18 +59,18 @@ public class RightPanel extends JPanel {
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
 
-		JLabel visContainerTitle = new TitleLabel("Visualization Controls");
-		JLabel filtersTitle = new TitleLabel("Filters");
-
+		/** Visualisation choice */
 		add(visualisationsTitle);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 		add(visComboBox);
 
+		/** Visualisation controls */
 		add(visContainerTitle);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 		visControlContainer.setAlignmentX(LEFT_ALIGNMENT);
 		add(visControlContainer);
 
+		/** Filter controls */
 		add(filtersTitle);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 
@@ -82,6 +87,15 @@ public class RightPanel extends JPanel {
 			updateButton.addActionListener(it.next());
 		}
 		this.add(updateButton);
+		add(Box.createVerticalStrut(10));
+		
+		/** Time controls */
+		if (dataController instanceof TimeControlDataController) {
+			add(timeTitle);
+			add(new JSeparator(SwingConstants.HORIZONTAL));
+			add(new TimeControlPanel((TimeControlDataController) dataController));
+		}
+		
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(Box.createVerticalGlue());

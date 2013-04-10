@@ -69,7 +69,7 @@ public class DataController implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		List<Packet> newPackets = dataFeeder.getNewPackets();
+		List<Packet> newPackets = getNewPackets();
 		allPackets.addAll(newPackets); // First add the new packets to the controller
 		intervalsComplete++;
 		
@@ -103,6 +103,14 @@ public class DataController implements ActionListener {
 				if (!f.filter(p))
 					toBeRemoved.add(p);
 		list.removeAll(toBeRemoved);
+	}
+	
+	/**
+	 * Get new packets from DataFeeder. Is overwritten by
+	 * TimeControlled subclass
+	 */
+	protected List<Packet> getNewPackets() {
+		return dataFeeder.getNewPackets();
 	}
 	
 	/**

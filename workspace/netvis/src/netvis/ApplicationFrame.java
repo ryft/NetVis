@@ -31,7 +31,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.DummyDataFeeder;
-import netvis.data.SimDataFeeder;
+import netvis.data.CSVDataFeeder;
+import netvis.data.TimeControlDataController;
+import netvis.data.TimeControlDataFeeder;
 import netvis.data.filters.PortRangeFilter;
 import netvis.data.filters.ProtocolFilter;
 import netvis.ui.AnalysisPanel;
@@ -79,11 +81,12 @@ public class ApplicationFrame extends JFrame {
 
 		// Setup data feeder and data controller
 		if (DEBUG_MODE)
-			dataFeeder = new SimDataFeeder(new File("../../csv/captures/eduroam.csv"), 1, this);
+			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"), this);
 		else
 			dataFeeder = new DummyDataFeeder(this);
 		
-		dataController = new DataController(dataFeeder, 100);
+		// TODO make time-control consistent - why DEBUG_MODE?
+		dataController = new TimeControlDataController((TimeControlDataFeeder) dataFeeder, 100);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
 
@@ -115,7 +118,7 @@ public class ApplicationFrame extends JFrame {
 		visList.get(0).activate();
 
 		// Set up filter control panel
-		rightPanel = new RightPanel(visList, dataController, visControlsContainer);
+		rightPanel = new RightPanel(visList, dataFeeder, dataController, visControlsContainer);
 		final GridBagConstraints rightConstraints = new GridBagConstraints();
 		rightConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		rightConstraints.fill = GridBagConstraints.NONE;
@@ -186,7 +189,7 @@ public class ApplicationFrame extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
 
-					dataFeeder = new SimDataFeeder(fileChooser.getSelectedFile(), 1, parent);
+					dataFeeder = new CSVDataFeeder(fileChooser.getSelectedFile(), parent);
 					dataController.setDataFeeder(dataFeeder);
 				}
 			}
