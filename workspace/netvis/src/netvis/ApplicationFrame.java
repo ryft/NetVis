@@ -32,8 +32,6 @@ import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.DummyDataFeeder;
 import netvis.data.CSVDataFeeder;
-import netvis.data.TimeControlDataController;
-import netvis.data.TimeControlDataFeeder;
 import netvis.data.filters.PortRangeFilter;
 import netvis.data.filters.ProtocolFilter;
 import netvis.ui.AnalysisPanel;
@@ -85,8 +83,7 @@ public class ApplicationFrame extends JFrame {
 		else
 			dataFeeder = new DummyDataFeeder(this);
 		
-		// TODO make time-control consistent - why DEBUG_MODE?
-		dataController = new TimeControlDataController((TimeControlDataFeeder) dataFeeder, 100);
+		dataController = new DataController(dataFeeder, 100);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
 

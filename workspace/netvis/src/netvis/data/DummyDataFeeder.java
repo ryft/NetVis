@@ -3,6 +3,8 @@ package netvis.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JPanel;
+
 import netvis.ApplicationFrame;
 import netvis.data.model.Packet;
 
@@ -20,6 +22,10 @@ public class DummyDataFeeder implements DataFeeder {
 	@Override
 	public boolean hasNext() {
 		return false;
+	}
+	
+	public JPanel controlPanel() {
+		return null;
 	}
 
 }
