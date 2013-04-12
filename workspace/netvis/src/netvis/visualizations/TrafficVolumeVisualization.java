@@ -32,6 +32,10 @@ public class TrafficVolumeVisualization extends Visualization {
 	private final Map<String, Integer> globalProtocolCount = new HashMap<String, Integer>();
 	private final Map<String, GLColour3d> protocolColours = new HashMap<String, GLColour3d>();
 	private double maxY = 0;
+	
+	// Fields governing the update frequency of the graph
+	private int updateInterval = 1;
+	private int updateIteration = 0;
 
 	class GLColour3d {
 		double red = 0.0;
@@ -70,15 +74,18 @@ public class TrafficVolumeVisualization extends Visualization {
 				protocolCountMaps.clear();
 				protocolColours.clear();
 			}
-				
+			
 			this.newPackets = newPackets;
 			maxY = Math.max(maxY, newPackets.size());
-			processNewPackets();
-			this.render();
+			processNewPackets(newPackets);
+			
+			if (updateIteration == 0)
+				this.render();
+			updateIteration = (updateIteration + 1) % updateInterval;
 		}
 	}
 
-	protected void processNewPackets() {
+	protected void processNewPackets(List<Packet> newPackets) {
 
 		// Get the number of packets using each protocol
 		HashMap<String, Integer> protocolCount = new HashMap<String, Integer>();

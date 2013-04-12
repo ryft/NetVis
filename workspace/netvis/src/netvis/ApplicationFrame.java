@@ -55,6 +55,8 @@ import netvis.visualizations.Visualization;
 public class ApplicationFrame extends JFrame {
 
 	// Flags governing the behaviour of the application window
+	/** Debug Mode disables the global exception handler and
+	 *  initialises a CSV data feeder on construction. */
 	protected final boolean DEBUG_MODE = true;
 	protected boolean FULL_SCREEN = false;
 

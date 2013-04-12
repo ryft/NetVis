@@ -23,9 +23,9 @@ public class PortRangeFilter implements PacketFilter {
 	JButton updateButton;
 	public PortRangeFilter(DataController dataController){
 		this.dataController = dataController;
-		source_lower_bound = 0;
-		source_upper_bound = 65535;	// Highest possible UDP & TCP port
-		dest_lower_bound = 0;
+		source_lower_bound = DataUtilities.MIN_PORT;
+		source_upper_bound = DataUtilities.MAX_PORT;	// Highest possible UDP & TCP port
+		dest_lower_bound = DataUtilities.MIN_PORT;
 		dest_upper_bound = DataUtilities.MAX_PORT; 
 		slbField = new JTextField(String.valueOf(source_lower_bound));
 		subField = new JTextField(String.valueOf(source_upper_bound));
