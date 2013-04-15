@@ -58,12 +58,12 @@ public class RightPanel extends JPanel {
 		
 		visComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				visList.get(visComboBox.getSelectedIndex()).activate();
-				
 				// If we are switching away from the visualizaton - deactivate it
 				if (oldVisId != -1)
 					visList.get (oldVisId).deactivate();
 				oldVisId = visComboBox.getSelectedIndex();
+				
+				visList.get(visComboBox.getSelectedIndex()).activate();
 			}
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);

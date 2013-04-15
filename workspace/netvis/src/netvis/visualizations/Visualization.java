@@ -36,7 +36,7 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 		super(new GLCapabilities(GLProfile.getDefault()));
 		this.setPreferredSize(new Dimension(800, 500));
 		this.setSize(800, 500);
-
+		
 		this.addGLEventListener(this);
 		
 		dataController.addListener(this);
@@ -98,6 +98,7 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 	 public abstract String name();
 	 
 	 public void everythingEnds () {
+		 this.destroy();
 		 this.fpskeep.stop();
 		 System.out.println("Visualization " + this.name() + " finishes receiving data");
 	 }

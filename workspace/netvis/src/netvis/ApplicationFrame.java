@@ -88,8 +88,8 @@ public class ApplicationFrame extends JFrame {
 		    public void windowClosing(final WindowEvent event) {
 		        System.out.println(event);
 		        dataController.FinishEverything();
-		        Runtime.getRuntime().exit(0);
 		        System.exit(0);
+		        Runtime.getRuntime().exit(0);
 		    }
 		});
 
@@ -385,6 +385,7 @@ public class ApplicationFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
+
 
 		ApplicationFrame applicationFrame = new ApplicationFrame();
 		applicationFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);

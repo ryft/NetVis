@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.swing.JPanel;
@@ -16,6 +17,7 @@ import javax.swing.Timer;
 
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 import netvis.data.DataController;
 import netvis.data.model.Packet;
@@ -54,9 +56,10 @@ public class ActivityVisualisation extends Visualization {
 		};
 		
 		// Add one test entity
-		entities.add(new Entity (350, 350, 200));
-		entities.add(new Entity (350, 350, 200));
-		entities.add(new Entity (350, 350, 200));
+		entities.add(new Entity (400, 250, 100, 0));
+		entities.add(new Entity (400, 250, 100, Math.PI/2));
+		entities.add(new Entity (400, 250, 100, Math.PI));
+		entities.add(new Entity (400, 250, 100, 3*Math.PI/2));
 		
 		animator = new Timer (20, animatum);
 		animator.start();
@@ -82,39 +85,38 @@ public class ActivityVisualisation extends Visualization {
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
 		
-		gl.glLoadIdentity();
+		gl.glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
+		gl.glClearDepth (0.0);
+		gl.glClear (GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+	
+		//gl.glEnable(GL.GL_DEPTH_TEST);
+		//gl.glDepthFunc(GL2.GL_ALWAYS);
+		gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glEnable (GL.GL_BLEND);
 		
 		//glut.glutInitDisplayMode(GLUT. GLUT_DOUBLE | GLUT.GLUT_RGBA | GLUT.GLUT_DEPTH | GLUT_MULTISAMPLE);
 		gl.glEnable(GL2.GL_MULTISAMPLE);
-		//gl.glShadeModel(GL2.GL_SMOOTH);
-		//gl.glBlendFunc(GL2.GL_SRC_ALPHA_SATURATE, GL2.GL_ONE);
-		gl.glEnable(GL2.GL_BLEND);
+		gl.glShadeModel(GL2.GL_SMOOTH);
+
 		gl.glEnable(GL2.GL_POLYGON_SMOOTH);
-		gl.glDisable (GL2.GL_DEPTH_TEST);
 	    gl.glEnable (GL2.GL_LINE_SMOOTH);
 	    gl.glEnable (GL2.GL_POLYGON_SMOOTH );
 	    gl.glHint (GL2.GL_LINE_SMOOTH_HINT, GL2.GL_NICEST );
 	    gl.glHint (GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST );
 		
-		gl.glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
-		gl.glClear (GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-		
-		//gl.glDepthFunc(GL2.GL_NEVER);
-		gl.glDepthRange (-0.5, 1.0);
-        gl.glRasterPos2d (0, 0);
 		gl.glColor3d (1.0f, 1.0f, 1.0f);
 		//gl.glRectd (-1.0, -1.0, 1.0, 1.0);
 		//gl.glTranslated(0, 0, -0.5);
 
 		// Server image
 		gl.glDepthRange (0.4, 0.9);
-		help.DrawImage (serverimg, 300, 300, 1, 200, 200, gl);
+		help.DrawImage (serverimg, 350, 200, 1, 200, 200, gl);
 		
 		// Draw entities
 		gl.glDepthRange (0.3, 0.8);
 		for (Entity i : entities)
 			help.DrawEntity(i, gl);
-
+		
 		gl.glFlush();
 	}
 	
@@ -130,8 +132,12 @@ public class ActivityVisualisation extends Visualization {
 	}
 
 	@Override
-	public void init(GLAutoDrawable arg0) {
-		// TODO Auto-generated method stub
+	public void init(GLAutoDrawable drawable) {
+		GL2 gl = drawable.getGL().getGL2();
+		
+		gl.glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
+		gl.glClearDepth (0.0);
+		gl.glClear (GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
 	}
 

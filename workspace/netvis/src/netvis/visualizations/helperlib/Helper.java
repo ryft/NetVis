@@ -16,6 +16,7 @@ import javax.media.opengl.GL2;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import netvis.visualizations.comets.Entity;
+import netvis.visualizations.comets.Entity.Position;
 
 public class Helper {
 	
@@ -101,6 +102,7 @@ public class Helper {
 			gl.glVertex2d (left, bottom);
 		gl.glEnd ();
 		gl.glPopMatrix();
+		gl.glDisable(GL.GL_TEXTURE_2D);
 	}
 	
 	public void DrawEntity (Entity lum, GL2 gl)
@@ -113,23 +115,42 @@ public class Helper {
 		double tt = lum.gettilt();
 		
 		gl.glPushMatrix();
-		gl.glTranslated(-XX(250), -YY(250), 0.0);
-		gl.glRotated (tt, 0.0, 0.0, 1.0);
-		gl.glTranslated(XX(250), YY(250), 0.0);
+		//gl.glTranslated(-XX(250), -YY(250), 0.0);
+		//gl.glRotated (tt, 0.0, 0.0, 1.0);
+		//gl.glTranslated(XX(250), YY(250), 0.0);
+		
 		gl.glBegin (GL2.GL_TRIANGLE_FAN);
 			int parts = 50;
-			double rad = 20;
-			gl.glColor3d(0.5f, 0.7f, 0.11f);
-			gl.glVertex2d (2*xx/width - 1, 2*yy/height - 1);
+			double rad = 15;
+			gl.glColor4d(0.5, 0.2, 0.0, 1.0);
+			gl.glVertex2d (XX(xx), YY(yy));
+			gl.glColor4d(0.7, 0.3, 0.1, 0.4);
 			for (int i=0; i<=parts; i++)
 			{
-				//gl.glTexCoord2d(1,0);
-				gl.glColor3d(0.5f, 0.7f, 0.11f);
+				// Rotate
 				double x = xx + rad * Math.cos((2*Math.PI*i)/parts);
 				double y = yy + rad * Math.sin((2*Math.PI*i)/parts);
 				gl.glVertex2d (XX(x), YY(y));
 			}
 		gl.glEnd ();
+		gl.glPopMatrix();
+		
+		double suba = 0.9;
+		double subs = 4;
+		gl.glPushMatrix();
+		gl.glBegin(GL2.GL_QUADS);
+			for (Entity.Position i : lum.getPositions())
+			{
+				int size = 10 - (int) Math.round(subs);
+				gl.glColor4d(0.5, 0.0, 0.0, 1.0-suba);
+				gl.glVertex2d (XX(i.x), YY(i.y));
+				gl.glVertex2d (XX(i.x+size), YY(i.y));
+				gl.glVertex2d (XX(i.x+size), YY(i.y+size));
+				gl.glVertex2d (XX(i.x), YY(i.y+size));
+				suba *= 0.92;
+				subs *= 0.9;
+			}
+		gl.glEnd();
 		gl.glPopMatrix();
 	}
 	

@@ -140,7 +140,8 @@ public class TimePortVisualization extends Visualization {
 	public void init(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
 	    gl.glEnable(GL2.GL_BLEND);
-	    gl.glBlendFunc( GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA );
+	    gl.glBlendFunc (GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA );
+	    gl.glBlendFunc (GL2.GL_ONE, GL2.GL_ONE );
 		gl.glColor3d(0, 0, 0);
 		gl.glRectd(-1, -1, 1, 1);
 		gl.glColor3f(1, 1, 1);
