@@ -25,6 +25,9 @@ public class RightPanel extends JPanel {
 
 	protected final List<Visualization> visList;
 	protected final DataController dataController;
+	
+	// ID of the previous visualisation for the deactivation purpose
+	protected int oldVisId = -1;
 
 	/**
 	 * Panel to be displayed on the right side of the GUI. Shows components for
@@ -48,12 +51,19 @@ public class RightPanel extends JPanel {
 		JLabel dataTitle = new TitleLabel("Data Control");
 		
 		String[] visNameList = new String[visList.size()];
+		
 		for (int i = 0; i < visList.size(); i++)
 			visNameList[i] = visList.get(i).name();
 		final JComboBox<String> visComboBox = new JComboBox<String>(visNameList);
+		
 		visComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				visList.get(visComboBox.getSelectedIndex()).activate();
+				
+				// If we are switching away from the visualizaton - deactivate it
+				if (oldVisId != -1)
+					visList.get (oldVisId).deactivate();
+				oldVisId = visComboBox.getSelectedIndex();
 			}
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);

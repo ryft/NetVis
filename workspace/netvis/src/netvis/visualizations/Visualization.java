@@ -1,12 +1,13 @@
 package netvis.visualizations;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.awt.GLJPanel;
 import javax.swing.JPanel;
 
 import com.jogamp.opengl.util.FPSAnimator;
@@ -17,7 +18,7 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 
-public abstract class Visualization extends GLCanvas implements DataControllerListener, GLEventListener{
+public abstract class Visualization extends GLJPanel implements DataControllerListener, GLEventListener{
 
 	private static final long serialVersionUID = 1L;
 	final List<Packet> listOfPackets;
@@ -25,7 +26,7 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 	final OpenGLPanel joglPanel;
 	final DataController dataController;
 	
-	final FPSAnimator fpskeep;
+	FPSAnimator fpskeep;
 
 	boolean allDataChanged;
 	JPanel visControls;
@@ -33,6 +34,7 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 	public Visualization(DataController dataController, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 
 		super(new GLCapabilities(GLProfile.getDefault()));
+		this.setPreferredSize(new Dimension(800, 500));
 		this.setSize(800, 500);
 
 		this.addGLEventListener(this);
@@ -45,6 +47,7 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 		this.visControls = this.createControls();
 		this.visContainer = visControlsContainer;
 		
+		// Create the timer that will keep the FPS - don't start it yet
 		this.fpskeep = new FPSAnimator(this, 60);
 	}
 	
@@ -74,11 +77,17 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 		allDataChanged = true;
 		
 		// Start the FPSAnimator to keep the framerate around 60
-		this.fpskeep.add(this);
+		System.setProperty("sun.awt.noerasebackground", "true");
+		
+		//this.fpskeep.add(this);
 		this.fpskeep.start();
 
 		// No need to render straight away - timer will take care of that
 		//this.render();
+	}
+	
+	public void deactivate() {
+		this.fpskeep.stop();	
 	}
 	
 	protected void render(){
@@ -89,6 +98,7 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 	 public abstract String name();
 	 
 	 public void everythingEnds () {
+		 this.fpskeep.stop();
 		 System.out.println("Visualization " + this.name() + " finishes receiving data");
 	 }
 }
