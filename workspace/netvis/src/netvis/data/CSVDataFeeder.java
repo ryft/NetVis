@@ -1,5 +1,7 @@
 	package netvis.data;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,15 +12,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import netvis.ApplicationFrame;
 import netvis.data.model.Packet;
+import netvis.ui.TimeControlPanel;
 
-public class CSVDataFeeder implements TimeControlDataFeeder {
-	protected double initialTime;
+public class CSVDataFeeder implements DataFeeder {
 	protected double firstPacketTime, timeScale;
 	protected CSVReader csvReader;
 	protected Iterator<String[]> it;
+	protected Timer secondsTimer;
+	protected int seconds;
+	protected JPanel timeControlPanel;
 
 	/**
 	 * @param fileName
@@ -43,32 +50,72 @@ public class CSVDataFeeder implements TimeControlDataFeeder {
 					JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
-		initialTime = System.currentTimeMillis();
+		
+		// this counts a user-controlled simulation time
+		seconds = 0;
+		ActionListener secondCounter = new ActionListener() {
+		      public void actionPerformed(ActionEvent evt) {
+		          seconds++;
+		      }
+		};
+		secondsTimer = new Timer(1000, secondCounter);
+		secondsTimer.start();
+		
+		timeControlPanel = new TimeControlPanel(this);
 		
 		parent.setTitle("Network Visualizer for noobs — " + fileName);
 	}
 	
 	public List<Packet> getNewPackets() {
-		return getNewPackets((int) (System.currentTimeMillis() - initialTime) / 1000);
-	}
-
-	/**
-	 * @param maxTime
-	 * 			maximum time of packets since first packet of capture
-	 */
-	public List<Packet> getNewPackets(int maxTime) {
-		List<Packet> list = new ArrayList<Packet>();
-		while (it.hasNext()) {
-			list.add(lineToPacket(it.next()));
-			if (list.get(list.size() - 1).time > maxTime)
-				break;
+		if (!secondsTimer.isRunning()) {
+			return null;
+		} else {
+			List<Packet> list = new ArrayList<Packet>();
+			while (it.hasNext()) {
+				list.add(lineToPacket(it.next()));
+				if (list.get(list.size() - 1).time > seconds)
+					break;
+			}
+			return list;
 		}
-		return list;
 	}
 
 	@Override
 	public boolean hasNext() {
 		return it.hasNext();
+	}
+	
+	/**
+	 * Time Controls
+	 */
+	
+	public void play() {
+		secondsTimer.start();
+	}
+	
+	public void pause() {
+		secondsTimer.stop();
+	}
+	
+	public void faster() {
+		secondsTimer.setDelay((int) (secondsTimer.getDelay() * 0.5));
+	}
+	
+	public void slower() {
+		secondsTimer.setDelay((int) (secondsTimer.getDelay() * 2));
+	}
+	
+	public void skipToEnd() {
+		seconds = 14 * 24 * 60 * 60; // assume CSVs don't capture more than 14 days
+		// TODO this might break some statistics, in particular averages over time
+	}
+	
+	public boolean isPlaying() {
+		return secondsTimer.isRunning();
+	}
+	
+	public JPanel controlPanel() {
+		return timeControlPanel;
 	}
 
 	/**

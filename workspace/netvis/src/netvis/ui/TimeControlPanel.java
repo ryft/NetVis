@@ -9,12 +9,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import netvis.data.TimeControlDataController;
+import netvis.data.CSVDataFeeder;
 
 @SuppressWarnings("serial")
 public class TimeControlPanel extends JPanel {
 
-	public TimeControlPanel(final TimeControlDataController dataController) {
+	public TimeControlPanel(final CSVDataFeeder dataFeeder) {
 		final JButton playButton = pictureButton("img/media-playback-pause.png");
 		JButton restartButton = pictureButton("img/media-skip-backward.png");
 		JButton endButton = pictureButton("img/media-skip-forward.png");
@@ -24,18 +24,18 @@ public class TimeControlPanel extends JPanel {
 		final ImageIcon playIcon = new ImageIcon("img/media-playback-start.png");
 		final ImageIcon pauseIcon = new ImageIcon("img/media-playback-pause.png");
 		
-		if (!dataController.isPlaying()) {
+		if (!dataFeeder.isPlaying()) {
 			playButton.setIcon(playIcon); // note initialised to pauseIcon
 		}
-		// TODO playButton should listen to the DataController, not pull
+		// TODO playButton should listen to the DataFeeder, not pull
 		
 		playButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (dataController.isPlaying()) {
-					dataController.pause();
+				if (dataFeeder.isPlaying()) {
+					dataFeeder.pause();
 					playButton.setIcon(playIcon);
 				} else {
-					dataController.play();
+					dataFeeder.play();
 					playButton.setIcon(pauseIcon);
 				}
 			}
@@ -43,25 +43,25 @@ public class TimeControlPanel extends JPanel {
 		
 		restartButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dataController.pause();
+				dataFeeder.pause();
 			}
 		});
 		
 		slowerButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dataController.slower();
+				dataFeeder.slower();
 			}
 		});
 		
 		fasterButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dataController.faster();
+				dataFeeder.faster();
 			}
 		});
 		
 		endButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dataController.skipToEnd();
+				dataFeeder.skipToEnd();
 			}
 		});
 		

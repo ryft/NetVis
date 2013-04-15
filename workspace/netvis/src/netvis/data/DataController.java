@@ -76,15 +76,18 @@ public class DataController implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		List<Packet> newPackets = getNewPackets();
-		allPackets.addAll(newPackets); // First add the new packets to the controller
-		intervalsComplete++;
+		List<Packet> newPackets = dataFeeder.getNewPackets();
 		
-		applyFilters(newPackets); // Then apply the filters to them
-		filteredPackets.addAll(newPackets);
-
-		for (DataControllerListener l : listeners)
-			l.newPacketsArrived(newPackets);
+		if (newPackets != null) {
+			allPackets.addAll(newPackets); // First add the new packets to the controller
+			intervalsComplete++;
+			
+			applyFilters(newPackets); // Then apply the filters to them
+			filteredPackets.addAll(newPackets);
+	
+			for (DataControllerListener l : listeners)
+				l.newPacketsArrived(newPackets);
+		}
 		
 		// If we've reached the end of the capture, stop the timer
 		if (!dataFeeder.hasNext()) timer.stop();
@@ -110,14 +113,6 @@ public class DataController implements ActionListener {
 				if (!f.filter(p))
 					toBeRemoved.add(p);
 		list.removeAll(toBeRemoved);
-	}
-	
-	/**
-	 * Get new packets from DataFeeder. Is overwritten by
-	 * TimeControlled subclass
-	 */
-	protected List<Packet> getNewPackets() {
-		return dataFeeder.getNewPackets();
 	}
 	
 	/**

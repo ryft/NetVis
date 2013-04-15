@@ -606,6 +606,7 @@ public class ProtocolFilter implements PacketFilter {
 		return filterPanel;
 	}
 	
+	@SuppressWarnings("serial")
 	private class ListeningJCheckBoxMenuItem extends JCheckBoxMenuItem implements ActionListener {
 
 		public ListeningJCheckBoxMenuItem(String name, boolean b) {

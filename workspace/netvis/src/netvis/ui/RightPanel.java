@@ -17,7 +17,6 @@ import javax.swing.SwingConstants;
 
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
-import netvis.data.TimeControlDataController;
 import netvis.data.model.PacketFilter;
 import netvis.visualizations.Visualization;
 
@@ -46,7 +45,7 @@ public class RightPanel extends JPanel {
 		JLabel visualisationsTitle = new TitleLabel("Visualizations");
 		JLabel visContainerTitle = new TitleLabel("Visualization Controls");
 		JLabel filtersTitle = new TitleLabel("Filters");
-		JLabel timeTitle = new TitleLabel("Time Control");
+		JLabel dataTitle = new TitleLabel("Data Control");
 		
 		String[] visNameList = new String[visList.size()];
 		for (int i = 0; i < visList.size(); i++)
@@ -89,11 +88,11 @@ public class RightPanel extends JPanel {
 		this.add(updateButton);
 		add(Box.createVerticalStrut(10));
 		
-		/** Time controls */
-		if (dataController instanceof TimeControlDataController) {
-			add(timeTitle);
+		/** Data controls */
+		if (dataFeeder.controlPanel() != null) {
+			add(dataTitle);
 			add(new JSeparator(SwingConstants.HORIZONTAL));
-			add(new TimeControlPanel((TimeControlDataController) dataController));
+			add(dataFeeder.controlPanel());
 		}
 		
 
