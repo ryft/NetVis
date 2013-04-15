@@ -12,6 +12,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowStateListener;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,7 @@ import netvis.visualizations.MulticubeVisualization;
 import netvis.visualizations.TimePortVisualization;
 import netvis.visualizations.TrafficVolumeVisualization;
 import netvis.visualizations.Visualization;
+import netvis.visualizations.comets.ActivityVisualisation;
 
 /**
  * The entry point to the application. Glues the whole GUI together and
@@ -77,7 +81,17 @@ public class ApplicationFrame extends JFrame {
 	 * Construct a default application frame.
 	 */
 	public ApplicationFrame() {
-		super("NetVis");
+		super("Network Visualizer by the Clockwork Dragon team");
+		
+		this.addWindowListener (new WindowAdapter() {
+			@Override
+		    public void windowClosing(final WindowEvent event) {
+		        System.out.println(event);
+		        dataController.FinishEverything();
+		        Runtime.getRuntime().exit(0);
+		        System.exit(0);
+		    }
+		});
 
 		// Setup data feeder and data controller
 		if (DEBUG_MODE)
@@ -109,6 +123,7 @@ public class ApplicationFrame extends JFrame {
 		// Set up references to all visualisations
 		VisControlsContainer visControlsContainer = new VisControlsContainer();
 		visList = new ArrayList<Visualization>();
+		visList.add(new ActivityVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new TimePortVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new DummyVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new MulticubeVisualization(dataController, glPanel, visControlsContainer));

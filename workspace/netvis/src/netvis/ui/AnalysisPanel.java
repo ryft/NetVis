@@ -696,4 +696,10 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		}
 	}
 
+	@Override
+	public void everythingEnds() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

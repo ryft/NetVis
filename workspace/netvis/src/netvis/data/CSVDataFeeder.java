@@ -45,7 +45,7 @@ public class CSVDataFeeder implements TimeControlDataFeeder {
 		}
 		initialTime = System.currentTimeMillis();
 		
-		parent.setTitle("NetVis - " + fileName);
+		parent.setTitle("Network Visualizer for noobs — " + fileName);
 	}
 	
 	public List<Packet> getNewPackets() {

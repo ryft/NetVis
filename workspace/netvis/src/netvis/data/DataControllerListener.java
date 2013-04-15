@@ -24,4 +24,5 @@ public interface DataControllerListener {
 	 *            The new packets that are available
 	 */
 	public void newPacketsArrived(List<Packet> newPackets);
+	public void everythingEnds ();
 }

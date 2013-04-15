@@ -36,6 +36,12 @@ public class TimeControlDataController extends DataController {
 		secondsTimer.start();
 	}
 	
+	public void FinishEverything () {
+		super.FinishEverything();
+		
+		secondsTimer.stop();
+	}
+	
 	/**
 	 * The action of the timer.
 	 */

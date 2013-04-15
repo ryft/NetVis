@@ -9,6 +9,8 @@ import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
 import javax.swing.JPanel;
 
+import com.jogamp.opengl.util.FPSAnimator;
+
 import netvis.data.DataController;
 import netvis.data.DataControllerListener;
 import netvis.data.model.Packet;
@@ -22,6 +24,8 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 	List<Packet> newPackets;
 	final OpenGLPanel joglPanel;
 	final DataController dataController;
+	
+	final FPSAnimator fpskeep;
 
 	boolean allDataChanged;
 	JPanel visControls;
@@ -40,6 +44,8 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 		this.joglPanel = joglPanel;
 		this.visControls = this.createControls();
 		this.visContainer = visControlsContainer;
+		
+		this.fpskeep = new FPSAnimator(this, 60);
 	}
 	
 	protected abstract JPanel createControls();
@@ -66,7 +72,13 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 		visContainer.setVisControl(visControls);
 		this.newPackets = this.listOfPackets;
 		allDataChanged = true;
-		this.render();
+		
+		// Start the FPSAnimator to keep the framerate around 60
+		this.fpskeep.add(this);
+		this.fpskeep.start();
+
+		// No need to render straight away - timer will take care of that
+		//this.render();
 	}
 	
 	protected void render(){
@@ -75,4 +87,8 @@ public abstract class Visualization extends GLCanvas implements DataControllerLi
 	}
 	
 	 public abstract String name();
+	 
+	 public void everythingEnds () {
+		 System.out.println("Visualization " + this.name() + " finishes receiving data");
+	 }
 }

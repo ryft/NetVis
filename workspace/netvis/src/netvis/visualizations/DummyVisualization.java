@@ -22,10 +22,12 @@ public class DummyVisualization extends Visualization {
 	 */
 	private static final long serialVersionUID = 1L;
 	double bgColor;
+	boolean increase;
 	
 	public DummyVisualization(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer) {
 		super(dc, joglPanel, visControlsContainer);
-		bgColor = 0.8;
+		bgColor = 0.5;
+		increase = false;
 	}
 
 	@Override
@@ -38,20 +40,38 @@ public class DummyVisualization extends Visualization {
 			
 		}
 		
+		gl.glColor3d(1-bgColor, 1-bgColor, 1-bgColor);
+		gl.glRectd(-1, -1, 1, 1);
+		
 		gl.glColor3d(bgColor, bgColor, bgColor);
 		gl.glRectd(-0.7, -0.7, 0.7, 0.7);
 		
-        gl.glColor3d(1-bgColor, 1-bgColor, 1-bgColor);
+		if (bgColor < 0.4)
+			increase = true;
+		if (bgColor > 0.6)
+			increase = false;
+		
+		if (increase)
+			bgColor = 1.1*bgColor;
+		else
+			bgColor = 0.9*bgColor;
+		
+        gl.glColor3d(bgColor, bgColor, bgColor);
 
 	    final GLUT glut = new GLUT();
+	    
         gl.glRasterPos2d(-0.5,0); // set position
-
+        gl.glColor3d(1,1,1);
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, "Number of new packets: ");
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf(this.newPackets.size()));
+      
         gl.glRasterPos2d(0,0); // set position
-        
+        gl.glColor3d(1,1,1);
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, "Total number of packets: ");
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf(this.listOfPackets.size()));
+        
+        gl.glColor3d(1,1,1);
+        gl.glFlush();
 
 	}
 
@@ -67,7 +87,7 @@ public class DummyVisualization extends Visualization {
 		JCheckBox checkBox = new JCheckBox();
 		checkBox.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				bgColor = 1 - bgColor;
+				//bgColor = 1 - bgColor;
 			}
 		});
 		dummyPanel.add(checkBox);

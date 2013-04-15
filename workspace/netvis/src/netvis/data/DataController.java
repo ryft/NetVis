@@ -37,6 +37,13 @@ public class DataController implements ActionListener {
 		timer.start();
 	}
 	
+	
+	public void FinishEverything () {
+		this.timer.stop();
+		for (DataControllerListener l : listeners)
+			l.everythingEnds();
+	}
+	
 	public void addListener(DataControllerListener listener){
 		listeners.add(listener);
 	}
