@@ -1,41 +1,54 @@
 package netvis.visualizations.comets;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import com.jogamp.opengl.util.Animator;
-import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.gl2.GLUT;
-
 import netvis.data.DataController;
 import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualizations.Visualization;
-import netvis.visualizations.helperlib.Helper;
 
 public class ActivityVisualisation extends Visualization {
 
-	ByteBuffer serverimg;
-	Helper help;
-	
 	int width;
 	int height;
 	
-	Timer animator;
-	List<Entity> entities;
+	Timer animator, cleaner;
+	
+	Map currentMap;
+	
+	HashMap<String, Candidate> candidates;
+	
+	public class Candidate {
+		
+		// How close the client is to the internal network 0-closest 10-furthest
+		public int proximity;
+		
+		// How much data it send throughout the last interval
+		public int datasize;
+		
+		// Source and destination
+		public String sip, dip;
+		
+		public Candidate (int prox, int dat, String s, String d)
+		{
+			proximity = prox;
+			datasize = dat;
+			
+			sip = s;
+			dip = d;
+		}
+	}
 	
 	public ActivityVisualisation(DataController dataController, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer) {
 		super(dataController, joglPanel, visControlsContainer);
@@ -43,40 +56,33 @@ public class ActivityVisualisation extends Visualization {
 		
 		width = joglPanel.getWidth();
 		height = joglPanel.getHeight();
-		help = new Helper (width, height);
 		
-		entities = new ArrayList<Entity>();
+		candidates = new HashMap<String, Candidate> ();
+		
+		currentMap = new Map (width, height);
 		
 		ActionListener animatum = new ActionListener () {
 			@Override
 			public void actionPerformed (ActionEvent evnt) {
 				// Animate the entities!
-				StepEntities();
+				currentMap.StepNodes();
 			}
 		};
 		
-		// Add one test entity
-		entities.add(new Entity (400, 250, 100, 0));
-		entities.add(new Entity (400, 250, 100, Math.PI/2));
-		entities.add(new Entity (400, 250, 100, Math.PI));
-		entities.add(new Entity (400, 250, 100, 3*Math.PI/2));
-		
 		animator = new Timer (20, animatum);
 		animator.start();
+		
+		ActionListener clearing = new ActionListener () {
+			@Override
+			public void actionPerformed (ActionEvent evnt) {
+				// If enough time has passed reset the candidates -- > TODO
+				candidates.clear();
+			}
+		};
+		
+		cleaner = new Timer (2000, clearing);
+		cleaner.start();
 
-		BufferedImage bufferedImage = null;
-		try {
-			bufferedImage = ImageIO.read(ActivityVisualisation.class.getResource("resources/server.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		serverimg = help.PrepareImage(bufferedImage);
-	}
-
-	public void StepEntities () 
-	{
-		for (Entity i : entities)
-			i.Step();
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -84,45 +90,71 @@ public class ActivityVisualisation extends Visualization {
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
+
+		// Set the width and height to the actuall width and height in pixels, (0, 0) is in the middle
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glLoadIdentity();
+		gl.glOrtho(-this.width/2, this.width/2, -this.height/2, this.height/2, -10, 10);
 		
+		// Clear the board
 		gl.glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
 		gl.glClearDepth (0.0);
 		gl.glClear (GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 	
+		// Depth things - probably unnecessary
 		//gl.glEnable(GL.GL_DEPTH_TEST);
 		//gl.glDepthFunc(GL2.GL_ALWAYS);
+
+		// Use the typical blending options
 		gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         gl.glEnable (GL.GL_BLEND);
 		
 		//glut.glutInitDisplayMode(GLUT. GLUT_DOUBLE | GLUT.GLUT_RGBA | GLUT.GLUT_DEPTH | GLUT_MULTISAMPLE);
+
+		// Try making rendering as nice as possible
 		gl.glEnable(GL2.GL_MULTISAMPLE);
 		gl.glShadeModel(GL2.GL_SMOOTH);
-
 		gl.glEnable(GL2.GL_POLYGON_SMOOTH);
 	    gl.glEnable (GL2.GL_LINE_SMOOTH);
 	    gl.glEnable (GL2.GL_POLYGON_SMOOTH );
 	    gl.glHint (GL2.GL_LINE_SMOOTH_HINT, GL2.GL_NICEST );
 	    gl.glHint (GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST );
 		
-		gl.glColor3d (1.0f, 1.0f, 1.0f);
-		//gl.glRectd (-1.0, -1.0, 1.0, 1.0);
-		//gl.glTranslated(0, 0, -0.5);
-
-		// Server image
-		gl.glDepthRange (0.4, 0.9);
-		help.DrawImage (serverimg, 350, 200, 1, 200, 200, gl);
-		
-		// Draw entities
-		gl.glDepthRange (0.3, 0.8);
-		for (Entity i : entities)
-			help.DrawEntity(i, gl);
+	    // Make the map draw all of the elements
+		currentMap.DrawEverything(gl);
 		
 		gl.glFlush();
 	}
 	
 	@Override
 	public void newPacketsArrived(List<Packet> newPackets) {
+		// Dispatch the data to the specific points in the Map
+		for (Packet i : newPackets)
+		{
+			Candidate dri = candidates.get(i.sip);
+			if (dri == null)
+			{
+				// Create the candidate to be displayed
+				dri = new Candidate (0, i.length, i.sip, i.dip);
+				candidates.put (i.sip, dri);
+			} else
+			{
+				dri.datasize += i.length;
+			}
+		}
 		
+		// Decide on which candidates should be displayed
+		for (String ip : candidates.keySet())
+		{
+			Candidate can = candidates.get(ip);
+			
+			//System.out.println("I'm considering IP: " + ip + " which dataflow: " + can.datasize);
+			if (can.datasize >= 1000)
+			{
+				System.out.println("IP: " + ip + " which dataflow: " + can.datasize + " added to the simulation");
+				currentMap.SuggestNode (can.sip, can.dip);
+			}
+		}
 	}
 
 	@Override
@@ -142,10 +174,16 @@ public class ActivityVisualisation extends Visualization {
 	}
 
 	@Override
-	public void reshape(GLAutoDrawable gl, int arg1, int arg2, int wi, int he) {
+	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi, int he) {
 		width = wi;
 		height = he;
-		help.SetSize (width, height);
+		this.setSize(wi, he);
+		this.setPreferredSize(new Dimension(wi,he));
+		
+		currentMap.SetSize (width, height);
+		
+		GL2 gl = drawable.getGL().getGL2();
+		gl.glViewport (0, 0, wi, he);
 	}
 
 	@Override
