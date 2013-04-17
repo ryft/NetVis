@@ -45,10 +45,16 @@ public class Map {
 	}
 	
 	public void LoadTexture (String name, URL resource) {
-
 		textures.put(name, new Texture (resource));
 	}
-
+	
+	public void DiscardTextures ()
+	{
+		for (Texture t : textures.values())
+		{
+			t.Discard();
+		}
+	}
 	
 	public void DrawEverything(GL2 gl) {
 		for (Node i : nodes.values())

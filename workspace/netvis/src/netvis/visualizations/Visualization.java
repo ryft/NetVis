@@ -88,7 +88,7 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 		this.newPackets = this.listOfPackets;
 		allDataChanged = true;
 		
-		// Start the FPSAnimator to keep the framerate around 60
+		// Start the FPSAnimator to keep the framerate around 120
 		System.setProperty("sun.awt.noerasebackground", "true");
 		
 		//this.fpskeep.add(this);

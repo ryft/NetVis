@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
-import java.awt.event.WindowStateListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
@@ -49,6 +48,7 @@ import netvis.visualizations.MulticubeVisualization;
 import netvis.visualizations.TimePortVisualization;
 import netvis.visualizations.TrafficVolumeVisualization;
 import netvis.visualizations.Visualization;
+import netvis.visualizations.VisualizationsController;
 import netvis.visualizations.comets.ActivityVisualisation;
 
 /**
@@ -75,7 +75,8 @@ public class ApplicationFrame extends JFrame {
 
 	protected DataFeeder dataFeeder;
 	protected DataController dataController;
-	protected List<Visualization> visList;
+	
+	VisControlsContainer visControlsContainer;
 
 	/**
 	 * Construct a default application frame.
@@ -87,6 +88,8 @@ public class ApplicationFrame extends JFrame {
 			@Override
 		    public void windowClosing(final WindowEvent event) {
 		        System.out.println(event);
+		        
+		        // Do whatever you can to stop everything
 		        dataController.FinishEverything();
 		        System.exit(0);
 		        Runtime.getRuntime().exit(0);
@@ -119,18 +122,13 @@ public class ApplicationFrame extends JFrame {
 		glConstraints.weighty = 1.0;
 		contentPane.add(glPanel, glConstraints);
 
-		// Set up references to all visualisations
-		VisControlsContainer visControlsContainer = new VisControlsContainer();
-		visList = new ArrayList<Visualization>();
-		visList.add(new ActivityVisualisation(dataController, glPanel, visControlsContainer));
-		visList.add(new TimePortVisualization(dataController, glPanel, visControlsContainer));
-		visList.add(new DummyVisualization(dataController, glPanel, visControlsContainer));
-		visList.add(new MulticubeVisualization(dataController, glPanel, visControlsContainer));
-		visList.add(new DataflowVisualization(dataController, glPanel, visControlsContainer));
-		visList.add(new TrafficVolumeVisualization(dataController, glPanel, visControlsContainer));
-
+		visControlsContainer = new VisControlsContainer();
+		
+		// Set up all the Visualizations
+		VisualizationsController.GetInstance().InitializeAll (dataController, glPanel, visControlsContainer);
+		
 		// Set up filter control panel
-		rightPanel = new RightPanel(visList, dataFeeder, dataController, visControlsContainer);
+		rightPanel = new RightPanel (dataFeeder, dataController, visControlsContainer);
 		final GridBagConstraints rightConstraints = new GridBagConstraints();
 		rightConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		rightConstraints.fill = GridBagConstraints.NONE;
@@ -176,8 +174,8 @@ public class ApplicationFrame extends JFrame {
 		// Focus on the simulation
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
-		visList.get(0).activate();
-		visList.get(0).requestFocusInWindow();
+		
+		VisualizationsController.GetInstance().ActivateById (0);
 		
 		// Register a nice exception handler
 		if (!DEBUG_MODE)
@@ -241,8 +239,10 @@ public class ApplicationFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (FULL_SCREEN)
+				{
 					ApplicationFrame.this.toggleFullScreen();
-				setSize(990, 730);
+				}
+				//setSize(990, 730);
 			}
 		});
 

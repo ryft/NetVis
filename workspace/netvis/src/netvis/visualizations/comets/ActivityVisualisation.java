@@ -367,5 +367,13 @@ public class ActivityVisualisation extends Visualization {
 		super.everythingEnds();
 		System.out.println("The only visualization stops, you fools...");		
 	}
+	
+	@Override
+	public void activate ()
+	{
+		currentMap.DiscardTextures();
+		
+		super.activate();
+	}
 
 }

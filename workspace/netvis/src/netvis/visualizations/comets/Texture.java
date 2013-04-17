@@ -76,6 +76,11 @@ public class Texture {
 		return Bind(gl);
 	}
 	
+	public void Discard ()
+	{
+		id = -1;
+	}
+	
 	private void LoadFromBuffered(BufferedImage bufferedImage) {
 		width = bufferedImage.getWidth();
 		height = bufferedImage.getHeight();

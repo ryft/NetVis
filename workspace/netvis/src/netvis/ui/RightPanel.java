@@ -18,15 +18,14 @@ import javax.swing.SwingConstants;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.model.PacketFilter;
-import netvis.visualizations.Visualization;
+import netvis.visualizations.VisualizationsController;
 
 @SuppressWarnings("serial")
 public class RightPanel extends JPanel {
 
-	protected final List<Visualization> visList;
 	protected final DataController dataController;
 	
-	// ID of the previous visualisation for the deactivation purpose
+	// ID of the previous visualization for the deactivation purpose
 	protected int oldVisId = -1;
 
 	/**
@@ -40,9 +39,7 @@ public class RightPanel extends JPanel {
 	 * @param visControlContainer
 	 *            Container for the relevant visualisation controls
 	 */
-	public RightPanel(final List<Visualization> visList, DataFeeder dataFeeder, 
-			DataController dataController, VisControlsContainer visControlContainer) {
-		this.visList = visList;
+	public RightPanel(DataFeeder dataFeeder, DataController dataController, VisControlsContainer visControlContainer) {
 		this.dataController = dataController;
 
 		JLabel visualisationsTitle = new TitleLabel("Visualizations");
@@ -50,20 +47,12 @@ public class RightPanel extends JPanel {
 		JLabel filtersTitle = new TitleLabel("Filters");
 		JLabel dataTitle = new TitleLabel("Data Control");
 		
-		String[] visNameList = new String[visList.size()];
-		
-		for (int i = 0; i < visList.size(); i++)
-			visNameList[i] = visList.get(i).name();
-		final JComboBox<String> visComboBox = new JComboBox<String>(visNameList);
+		List<String> visNameList = VisualizationsController.GetInstance().getNList();
+		final JComboBox<String> visComboBox = new JComboBox<String> (visNameList.toArray(new String[visNameList.size()]));
 		
 		visComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// If we are switching away from the visualizaton - deactivate it
-				if (oldVisId != -1)
-					visList.get (oldVisId).deactivate();
-				oldVisId = visComboBox.getSelectedIndex();
-				
-				visList.get(visComboBox.getSelectedIndex()).activate();
+				VisualizationsController.GetInstance().ActivateById (visComboBox.getSelectedIndex());
 			}
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
