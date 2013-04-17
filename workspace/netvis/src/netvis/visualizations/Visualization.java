@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.media.opengl.GLCapabilities;
+import javax.media.opengl.GLCapabilitiesImmutable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLJPanel;
@@ -33,9 +34,11 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 	final VisControlsContainer visContainer;
 	public Visualization(DataController dataController, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 
-		super(new GLCapabilities(GLProfile.getDefault()));
+		super(CreateCapabilities());
+		
 		this.setPreferredSize(new Dimension(800, 500));
 		this.setSize(800, 500);
+		this.setFocusable(true);
 		
 		this.addGLEventListener(this);
 		
@@ -49,6 +52,15 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 		
 		// Create the timer that will keep the FPS - don't start it yet
 		this.fpskeep = new FPSAnimator(this, 60);
+	}
+	
+	private static GLCapabilitiesImmutable CreateCapabilities ()
+	{
+		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+		caps.setSampleBuffers (true);
+		caps.setNumSamples (8);
+		
+		return caps;
 	}
 	
 	protected abstract JPanel createControls();

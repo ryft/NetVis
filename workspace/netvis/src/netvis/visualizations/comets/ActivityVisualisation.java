@@ -1,8 +1,17 @@
 package netvis.visualizations.comets;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.MouseListener;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,6 +31,10 @@ public class ActivityVisualisation extends Visualization {
 
 	int width;
 	int height;
+	
+	Point oldpos = null;
+	Position middle = new Position(0,0);
+	double viewfield = 5.0;
 	
 	Timer animator, cleaner;
 	
@@ -82,7 +95,112 @@ public class ActivityVisualisation extends Visualization {
 		
 		cleaner = new Timer (2000, clearing);
 		cleaner.start();
+		
+		// Now add the keyboard listener which will be responsible for zoomming
+		this.addKeyListener(new KeyListener () {
 
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == KeyEvent.VK_EQUALS)
+				{
+					ZoomIn();
+				};
+				if (e.getKeyChar() == KeyEvent.VK_MINUS)
+				{
+					ZoomOut();
+				}
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			
+		});
+		
+		this.addMouseWheelListener(new MouseWheelListener () {
+
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if (e.getWheelRotation() < 0)
+				{
+					ZoomIn();
+				}
+				if (e.getWheelRotation() > 0)
+				{
+					ZoomOut();
+				}
+			}
+		});
+		
+		this.addMouseMotionListener(new MouseMotionListener() {
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				if (oldpos != null)
+				{
+					middle.x -= (e.getX()-oldpos.x)*viewfield;
+					middle.y += (e.getY()-oldpos.y)*viewfield;
+				};
+				oldpos = e.getPoint();
+			}
+		});
+		
+		this.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				oldpos = null;
+			}
+			
+		});
+		
+		// Add test nodes
+		for (int i=0; i<0; i++)
+		{
+			currentMap.SuggestNode ("testk" + i, "test" + i);
+		}
+		
+	}
+
+	private void ZoomIn() {
+		viewfield *= 0.9;
+	}
+	private void ZoomOut() {
+		viewfield *= 1.1;
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -94,13 +212,15 @@ public class ActivityVisualisation extends Visualization {
 		// Set the width and height to the actuall width and height in pixels, (0, 0) is in the middle
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
-		gl.glOrtho(-this.width/2, this.width/2, -this.height/2, this.height/2, -10, 10);
+		
+		gl.glOrtho(middle.x-this.width*viewfield/2, middle.x+this.width*viewfield/2, middle.y-this.height*viewfield/2, middle.y+this.height*viewfield/2, -10, 10);
 		
 		// Clear the board
 		gl.glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
 		gl.glClearDepth (0.0);
 		gl.glClear (GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-	
+		gl.glShadeModel(GL2.GL_FLAT);
+		
 		// Depth things - probably unnecessary
 		//gl.glEnable(GL.GL_DEPTH_TEST);
 		//gl.glDepthFunc(GL2.GL_ALWAYS);
@@ -116,7 +236,6 @@ public class ActivityVisualisation extends Visualization {
 		gl.glShadeModel(GL2.GL_SMOOTH);
 		gl.glEnable(GL2.GL_POLYGON_SMOOTH);
 	    gl.glEnable (GL2.GL_LINE_SMOOTH);
-	    gl.glEnable (GL2.GL_POLYGON_SMOOTH );
 	    gl.glHint (GL2.GL_LINE_SMOOTH_HINT, GL2.GL_NICEST );
 	    gl.glHint (GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST );
 		
@@ -149,7 +268,7 @@ public class ActivityVisualisation extends Visualization {
 			Candidate can = candidates.get(ip);
 			
 			//System.out.println("I'm considering IP: " + ip + " which dataflow: " + can.datasize);
-			if (can.datasize >= 1000)
+			if (can.datasize >= 2000)
 			{
 				System.out.println("IP: " + ip + " which dataflow: " + can.datasize + " added to the simulation");
 				currentMap.SuggestNode (can.sip, can.dip);

@@ -1,8 +1,6 @@
 package netvis.visualizations.comets;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -15,6 +13,12 @@ public class Map {
 	// IPs mapped to nodes
 	HashMap<String, Node> nodes;
 	HashMap<String, Texture> textures;
+	
+	// Basic size of the node
+	int base = 500;
+	
+	// Connections to be drawn
+	HashMap<String, Connection> connections;
 	
 	Helper help;
 	
@@ -43,6 +47,7 @@ public class Map {
 	
 	public void DrawEverything(GL2 gl) {
 		
+		help.DrawCircle(0, 0, 10, gl);
 		for (Node i : nodes.values())
 			help.DrawNode(i, gl);
 	}
@@ -59,27 +64,50 @@ public class Map {
 
 	public void SuggestNode(String sip, String dip) {
 		// Suggests the existence of the node in the network to be displayed
+		int x = 0;
+		int y = 0;
 		
 		// Look whether the node already exists
 		Node find = nodes.get(dip);
 		
 		if (find == null)
 		{
-			find = AddNode (0, 0, dip, "server");
-		} else
-		{
-			// Randomized entry
-			//find.AddSatelite (sip, 100, rand.nextDouble()*Math.PI);
-			find.AddSatelite (sip, 100, ii * Math.PI/10);
+			int s = nodes.size() + 1;
+			int innerring = (int) Math.floor(Math.sqrt((s - 1/4.0) / 3.0) - 0.5);
+			int outerring  = innerring + 1;
+			int k = innerring;
+			int shift = s - 3 * (k*k + k) - 1;
 			
-			ii += 1;
-		}
+			// Move to the desired ring
+			x += Math.sqrt(3) * base * outerring * Math.cos(Math.PI/3);
+			y += Math.sqrt(3) * base * outerring * Math.sin(Math.PI/3);
+			
+			// Move the shift times
+			double angle = 0;
+			for (int i=0; i<shift; i++)
+			{
+				if (i % outerring == 0)
+				{
+					angle -= Math.PI/3;
+				}
+				x += Math.sqrt(3) * base * Math.cos(angle);
+				y += Math.sqrt(3) * base * Math.sin(angle);
+
+			}
+
+			find = AddNode (x, y, dip, "server");
+		} 
+		// Randomized entry
+		//find.AddSatelite (sip, 100, rand.nextDouble()*Math.PI);
+		find.AddSatelite (sip, 100, ii * Math.PI/10);
+			
+		ii += 1;
 	}
 
 	private Node AddNode (int x, int y, String name, String textureName) 
 	{
-		Node lemur = new Node(x, y, textures.get(textureName));
-		nodes.put(name, lemur);
+		Node lemur = new Node(x, y, textures.get(textureName), name);
+		nodes.put (name, lemur);
 		
 		return lemur;
 	}

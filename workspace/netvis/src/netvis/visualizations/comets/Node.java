@@ -7,8 +7,8 @@ public class Node {
 
 	HashMap<String, Comet> entities; public Collection<Comet> getEntities() {return entities.values();}
 	
-	double x;
-	double y;
+	double x; public int getx() {return (int) x;};
+	double y; public int gety() {return (int) y;};
 	
 	double scale = 1.0;
 	public double getScale () {return scale;}
@@ -16,8 +16,11 @@ public class Node {
 	
 	Texture tex; public Texture getTexture () {return tex;}
 	
-	public Node (int posx, int posy, Texture tt)
+	String name; public String getName() {return name;};
+	
+	public Node (int posx, int posy, Texture tt, String nn)
 	{
+		name = nn;
 		tex = tt;
 		x = posx;
 		y = posy;

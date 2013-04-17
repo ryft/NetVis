@@ -129,8 +129,6 @@ public class ApplicationFrame extends JFrame {
 		visList.add(new DataflowVisualization(dataController, glPanel, visControlsContainer));
 		visList.add(new TrafficVolumeVisualization(dataController, glPanel, visControlsContainer));
 
-		visList.get(0).activate();
-
 		// Set up filter control panel
 		rightPanel = new RightPanel(visList, dataFeeder, dataController, visControlsContainer);
 		final GridBagConstraints rightConstraints = new GridBagConstraints();
@@ -174,7 +172,13 @@ public class ApplicationFrame extends JFrame {
 		menuBar = createMenuBar();
 		setJMenuBar(menuBar);
 		pack();
-
+		
+		// Focus on the simulation
+		visControlsContainer.setFocusable(true);
+		visControlsContainer.requestFocusInWindow();
+		visList.get(0).activate();
+		visList.get(0).requestFocusInWindow();
+		
 		// Register a nice exception handler
 		if (!DEBUG_MODE)
 			Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(parent));
