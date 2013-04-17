@@ -371,7 +371,7 @@ public class ActivityVisualisation extends Visualization {
 	@Override
 	public void activate ()
 	{
-		currentMap.DiscardTextures();
+		TexturePool.DiscardTextures();
 		
 		super.activate();
 	}

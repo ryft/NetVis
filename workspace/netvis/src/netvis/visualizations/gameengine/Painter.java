@@ -1,12 +1,17 @@
 package netvis.visualizations.gameengine;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.geom.Rectangle2D;
+import java.io.IOException;
 import java.nio.DoubleBuffer;
 import java.util.List;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
-import com.jogamp.opengl.util.gl2.GLUT;
+
+import com.jogamp.opengl.util.awt.TextRenderer;
 
 import netvis.visualizations.comets.ActivityVisualisation;
 import netvis.visualizations.comets.Position;
@@ -22,6 +27,8 @@ public class Painter {
 	Texture hexagon1;
 	Texture hexagon2;
 	
+	Font mainfont;
+	
 	public Painter (int w, int h)
 	{
 		width = w;
@@ -29,6 +36,16 @@ public class Painter {
 		
 		hexagon1 = new Texture (ActivityVisualisation.class.getResource("resources/hex1.png"));
 		hexagon2 = new Texture (ActivityVisualisation.class.getResource("resources/hex2.png"));
+		
+		mainfont = null;
+		try {
+			mainfont = Font.createFont (Font.TRUETYPE_FONT, Painter.class.getResource("cmr10.ttf").openStream());
+			
+			// Scale it up
+			mainfont = mainfont.deriveFont (50.0f);
+		} catch (FontFormatException | IOException e) {
+			mainfont = new Font("SansSerif", Font.BOLD, 50);
+		}
 	}
 	
 	public void SetSize (int w, int h, GL2 gl)
@@ -40,7 +57,9 @@ public class Painter {
 		height = h;
 	}
 
-
+	/*
+	 * Rotation is in degrees
+	 */
 	public void DrawImage (Texture tex, double cx, double cy, double scale, double rot, GL2 gl)
 	{
 		int w = tex.getW();
@@ -55,8 +74,10 @@ public class Painter {
 		gl.glEnable (GL2.GL_TEXTURE_2D_MULTISAMPLE);
 		gl.glPushMatrix();
 			
+			// Translate and rotate (rotation in degrees)
 			gl.glTranslated(cx, cy, 0.0);
 			gl.glRotated (rot, 0.0, 0.0, 1.0);
+			
 			gl.glBegin (GL2.GL_POLYGON);
 				gl.glTexCoord2d (1, 0);
 				gl.glVertex2d (-scale*w/2.0, scale*h/2.0);
@@ -234,19 +255,32 @@ public class Painter {
 		gl.glColor3d (0.0, 0.0, 0.0);
 		//this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
 		
-		// Draw the graphicall hexagon
+		// Draw the graphical hexagon
 		if (lum.getSelected() == true)
-			this.DrawImage (hexagon2, x, y, 800.0/512.0, Math.PI/6, gl);
+			this.DrawImage (hexagon2, x, y, 800.0/512.0, 0, gl);
 		else
-			this.DrawImage (hexagon1, x, y, 800.0/512.0, Math.PI/6, gl);
+			this.DrawImage (hexagon1, x, y, 800.0/512.0, 0, gl);
 		
 		// Draw the server image
 		this.DrawImage (lum.getTexture(), x, y, 1.0, 0.0, gl);
-		
+	
 		// Write the name of the node
+		TextRenderer renderer = new TextRenderer(mainfont);
+		renderer.setSmoothing(true);
+		renderer.begin3DRendering();
+		renderer.setColor (0.2f, 0.2f, 0.2f, 1.0f);
+		Rectangle2D noob = renderer.getBounds(lum.getName());
+		int xx = (int) (x-noob.getWidth()/2);
+		int yy = (int) (y-lum.getTexture().getH()/2-noob.getHeight() - 30);
+		renderer.draw (lum.getName(), xx, yy);
+		renderer.end3DRendering();
+		renderer.flush();
+		
+		/*
 		GLUT glut = new GLUT();
-		gl.glRasterPos2d (x-lum.getTexture().getW()/2, y-lum.getTexture().getH()/2);
+		gl.glRasterPos2d (x-lum.getTexture().getW()/2, y-lum.getTexture().getH()/2 - 30);
 		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, lum.getName());
+		*/
 		
 		// Draw entities
 		for (Comet i : lum.getEntities())
@@ -256,16 +290,5 @@ public class Painter {
 			//if (lum.getSelected())
 			//	this.DrawTrace  (i, lum.getCenter(), gl);
 		}
-	}
-
-
-	public double XX (double x)
-	{
-		return x;//2.0*x/width - 1.0;
-	}
-	
-	public double YY (double y)
-	{
-		return y;//2.0*y/height - 1.0;
 	}
 }

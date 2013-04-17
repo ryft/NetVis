@@ -1,6 +1,5 @@
 package netvis.visualizations.comets;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,7 +15,6 @@ public class Map {
 
 	// IPs mapped to nodes
 	HashMap<String, Node> nodes;
-	HashMap<String, Texture> textures;
 	
 	List<Node> nodesl;
 	
@@ -37,23 +35,10 @@ public class Map {
 		
 		nodes = new HashMap<String, Node> ();
 		nodesl= new ArrayList<Node> ();
-		
-		textures = new HashMap<String, Texture> ();
 
 		// Load all the necessary textures
-		LoadTexture ("server", Map.class.getResource("resources/server.png"));
-	}
-	
-	public void LoadTexture (String name, URL resource) {
-		textures.put(name, new Texture (resource));
-	}
-	
-	public void DiscardTextures ()
-	{
-		for (Texture t : textures.values())
-		{
-			t.Discard();
-		}
+		TexturePool.LoadTexture ("server", 	Map.class.getResource("resources/server.png"));
+		TexturePool.LoadTexture ("basic", 	Map.class.getResource("resources/basic.png"));
 	}
 	
 	public void DrawEverything(GL2 gl) {
@@ -70,11 +55,7 @@ public class Map {
 	public void SetSize(int width, int height, GL2 gl) {
 		help.SetSize(width, height, gl);
 		
-		// Rebind the textures
-		for (Texture t : textures.values())
-		{
-			t.Rebind(gl);
-		}
+		TexturePool.Rebind (gl);
 	}
 
 	public void SuggestNode(String sip, String dip) {
@@ -86,7 +67,7 @@ public class Map {
 		if (find == null)
 		{
 			Position p = FindPosition (nodes.size());
-			find = AddNode (p.x, p.y, dip, "server");
+			find = AddNode (p.x, p.y, dip, "basic");
 		} 
 		
 		// Randomized entry
@@ -150,7 +131,7 @@ public class Map {
 
 	private Node AddNode (int x, int y, String name, String textureName) 
 	{
-		Node lemur = new Node(x, y, textures.get(textureName), name);
+		Node lemur = new Node(x, y, TexturePool.get(textureName), name);
 		nodes.put (name, lemur);
 		nodesl.add (lemur);
 		
