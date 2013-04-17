@@ -17,6 +17,7 @@ import java.util.List;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL4;
+import javax.media.opengl.glu.gl2.GLUgl2;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
@@ -53,19 +54,13 @@ public class Painter {
 		int w = tex.getW();
 		int h = tex.getH();
 		
-		gl.glBindTexture(GL.GL_TEXTURE_2D, 13);
-		gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
-		gl.glTexImage2D (GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, w, h, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, tex.getBB());
+		// Bind to the texture
+		int id = tex.Bind (gl);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, id);
 
 		// Draw the image
 		gl.glEnable (GL2.GL_TEXTURE_2D);
 		gl.glEnable (GL2.GL_TEXTURE_2D_MULTISAMPLE);
-		gl.glBindTexture (GL.GL_TEXTURE_2D, 13);
 		gl.glPushMatrix();
 			
 			gl.glTranslated(cx, cy, 0.0);
@@ -144,9 +139,8 @@ public class Painter {
 		
 	}
 	
-	public void DrawEntity (Comet lum, GL2 gl)
+	public void DrawEntity (Comet lum, Position center, GL2 gl)
 	{
-		Position center = lum.getCenter();
 		
 		double xx = lum.getx() + center.x;
 		double yy = lum.gety() + center.y;
@@ -163,9 +157,8 @@ public class Painter {
 		
 	}
 	
-	public void DrawTail (Comet lum, GL2 gl)
+	public void DrawTail (Comet lum, Position c, GL2 gl)
 	{
-		Position c = lum.getCenter();
 		
 		double suba = 0.9;
 		double subs = 10;
@@ -186,9 +179,9 @@ public class Painter {
 		gl.glPopMatrix();
 	}
 	
-	public void DrawTrace (Comet lum, GL2 gl)
+	public void DrawTrace (Comet lum, Position center, GL2 gl)
 	{
-		Position center = lum.getCenter();
+
 		List<Position> points = lum.getTrace();
 		if (points.size() < 10)
 			return;
@@ -245,31 +238,34 @@ public class Painter {
 	
 	public void DrawNode (Node lum, GL2 gl)
 	{
+		int x = lum.getCenter().x;
+		int y = lum.getCenter().y;
+
 		// Draw the inner part
 		gl.glColor3dv(lum.getBGColor(), 0);
-		this.DrawHexagon (GL2.GL_POLYGON, lum.getx(), lum.gety(), 400, gl);
+		this.DrawHexagon (GL2.GL_POLYGON, x, y, 400, gl);
 		
 		// Draw the usual hexagon
 		gl.glLineWidth (3.0f);
 		gl.glColor3d (0.0, 0.0, 0.0);
-		this.DrawHexagon (GL2.GL_LINE_LOOP, lum.getx(), lum.gety(), 400, gl);
+		this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
 
 		// Draw the server image
-		this.DrawImage (lum.getTexture(), lum.getx(),  lum.gety(), 1.0, 0.0, gl);
+		this.DrawImage (lum.getTexture(), x, y, 1.0, 0.0, gl);
 		
 		// Draw the graphicall hexagon
 		//this.DrawImage (hexagon, lum.getx(), lum.gety(), 800.0/512.0, Math.PI/6, gl);
 		
 		// Write the name of the node
 		GLUT glut = new GLUT();
-		gl.glRasterPos2d (lum.getx()-lum.getTexture().getW()/2, lum.gety()-lum.getTexture().getH()/2);
+		gl.glRasterPos2d (x-lum.getTexture().getW()/2, y-lum.getTexture().getH()/2);
 		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, lum.getName());
 		
 		// Draw entities
 		for (Comet i : lum.getEntities())
 		{
-			this.DrawEntity (i, gl);
-			this.DrawTail   (i, gl);
+			this.DrawEntity (i, lum.getCenter(), gl);
+			this.DrawTail   (i, lum.getCenter(), gl);
 			//this.DrawTrace  (i, gl);
 		}
 	}

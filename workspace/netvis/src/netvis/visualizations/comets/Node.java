@@ -7,13 +7,13 @@ public class Node {
 
 	HashMap<String, Comet> entities; public Collection<Comet> getEntities() {return entities.values();}
 	
-	double x; public int getx() {return (int) x;};
-	double y; public int gety() {return (int) y;};
+	Position center; public Position getCenter() {return center;}; public void setCenter(Position nc) {center = nc;};
 	
 	double scale = 1.0;
 	public double getScale () {return scale;}
 	public void   setScale (double s) {scale = s;}
 	
+	int warning; public int getWarning() {return warning;};
 	double [] bgColor;
 	public double[] getBGColor() {return bgColor;}
 	public void     setBGColor(double r, double g, double b) {bgColor[0] = r; bgColor[1] = g; bgColor[2] = b;}
@@ -26,8 +26,7 @@ public class Node {
 	{
 		name = nn;
 		tex = tt;
-		x = posx;
-		y = posy;
+		center = new Position (posx, posy);
 	
 		entities = new HashMap<String, Comet>();
 		bgColor = new double[3];
@@ -36,10 +35,12 @@ public class Node {
 		bgColor[0] = 0.5;
 		bgColor[1] = 1.0;
 		bgColor[2] = 0.7;
+		warning = 0;
 	}
 	
 	public void IncreaseWarning ()
 	{
+		warning += 1;
 		bgColor[0] *= 1.3;
 		bgColor[1] *= 0.9;
 		bgColor[2] *= 0.9;
@@ -47,6 +48,7 @@ public class Node {
 	
 	public void DecreaseWarning ()
 	{
+		warning -= 1;
 		bgColor[0] /= 1.3;
 		bgColor[1] /= 0.9;
 		bgColor[2] /= 0.9;
@@ -59,7 +61,7 @@ public class Node {
 		
 		if (find == null)
 		{
-			entities.put (sip, new Comet ((int) Math.round(x), (int) Math.round(y), amp, tilt));
+			entities.put (sip, new Comet (amp, tilt));
 			IncreaseWarning();
 		}
 	}

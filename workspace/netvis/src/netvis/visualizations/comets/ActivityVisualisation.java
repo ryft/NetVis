@@ -272,6 +272,7 @@ public class ActivityVisualisation extends Visualization {
 			{
 				System.out.println("IP: " + ip + " which dataflow: " + can.datasize + " added to the simulation");
 				currentMap.SuggestNode (can.sip, can.dip);
+				currentMap.SortNodes();
 			}
 		}
 	}
@@ -293,16 +294,15 @@ public class ActivityVisualisation extends Visualization {
 	}
 
 	@Override
-	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi, int he) {
+	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi, int he) {		
+		GL2 gl = drawable.getGL().getGL2();
+
 		width = wi;
 		height = he;
 		this.setSize(wi, he);
 		this.setPreferredSize(new Dimension(wi,he));
 		
-		currentMap.SetSize (width, height);
-		
-		GL2 gl = drawable.getGL().getGL2();
-		gl.glViewport (0, 0, wi, he);
+		currentMap.SetSize (width, height, gl);
 	}
 
 	@Override

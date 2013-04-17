@@ -13,15 +13,22 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
+import javax.media.opengl.glu.gl2.GLUgl2;
 
 public class Texture {
 
+	int id; public int getId () {return id;};
+	
 	ByteBuffer img;		public ByteBuffer getBB () {return img;}
 	int width;  		public int getW () {return width;}
 	int height; 		public int getH () {return height;}
 	
 	public Texture (URL resource)
 	{
+		id = -1;
+
 		BufferedImage bufferedImage = null;
 		try {
 			bufferedImage = ImageIO.read(resource);
@@ -34,7 +41,39 @@ public class Texture {
 
 	public Texture (BufferedImage bufferedImage)
 	{
+		id = -1;
 		LoadFromBuffered (bufferedImage);
+	}
+	
+	public int Bind (GL2 gl)
+	{
+		if (id != -1)
+			return id;
+
+		int [] arr = new int[1];
+		gl.glGenTextures(1, arr, 0);
+		id = arr[0];
+		
+		GLUgl2 glu = new GLUgl2();
+		
+		gl.glBindTexture(GL.GL_TEXTURE_2D, id);
+		gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
+		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP);
+		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP);
+		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR );
+		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR );
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+		
+		//gl.glTexImage2D  (GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, img);
+		glu.gluBuild2DMipmaps (GL.GL_TEXTURE_2D, GL.GL_RGBA, width, height, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, img);
+		
+		return id;
+	}
+	
+	public int Rebind (GL2 gl)
+	{
+		id = -1;
+		return Bind(gl);
 	}
 	
 	private void LoadFromBuffered(BufferedImage bufferedImage) {

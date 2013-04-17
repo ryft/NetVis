@@ -11,8 +11,6 @@ public class Comet {
 	List<Position> tail ; public List<Position> getTail  () {return tail;}
 	List<Position> trace; public List<Position> getTrace () {return trace;}
 	boolean tracefinished = false;
-
-	Position center; public Position getCenter() {return center;}
 	
 	double posx; public int getx() {return (int) posx;};
 	double posy; public int gety() {return (int) posy;};
@@ -26,14 +24,12 @@ public class Comet {
 	
 	double tilt; public double gettilt() {return tilt;};
 	
-	public Comet (int cx, int cy, int amp, double tt)
+	public Comet (int amp, double tt)
 	{
 		super();
 		
 		tail = new ArrayList<Position> ();
 		trace = new ArrayList<Position> ();
-		
-		center = new Position (cx, cy);
 		
 		Random rand = new Random();
 		double randspeed = rand.nextDouble() * 10 + 10;
