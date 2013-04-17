@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
-import java.awt.event.WindowStateListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
@@ -99,7 +98,7 @@ public class ApplicationFrame extends JFrame {
 		else
 			dataFeeder = new DummyDataFeeder(this);
 		
-		dataController = new DataController(dataFeeder, 100);
+		dataController = new DataController(dataFeeder, 1000);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
 
