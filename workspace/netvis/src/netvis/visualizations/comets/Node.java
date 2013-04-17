@@ -14,6 +14,10 @@ public class Node {
 	public double getScale () {return scale;}
 	public void   setScale (double s) {scale = s;}
 	
+	double [] bgColor;
+	public double[] getBGColor() {return bgColor;}
+	public void     setBGColor(double r, double g, double b) {bgColor[0] = r; bgColor[1] = g; bgColor[2] = b;}
+	
 	Texture tex; public Texture getTexture () {return tex;}
 	
 	String name; public String getName() {return name;};
@@ -26,6 +30,26 @@ public class Node {
 		y = posy;
 	
 		entities = new HashMap<String, Comet>();
+		bgColor = new double[3];
+		
+		// Set the background color
+		bgColor[0] = 0.5;
+		bgColor[1] = 1.0;
+		bgColor[2] = 0.7;
+	}
+	
+	public void IncreaseWarning ()
+	{
+		bgColor[0] *= 1.3;
+		bgColor[1] *= 0.9;
+		bgColor[2] *= 0.9;
+	}
+	
+	public void DecreaseWarning ()
+	{
+		bgColor[0] /= 1.3;
+		bgColor[1] /= 0.9;
+		bgColor[2] /= 0.9;
 	}
 
 	public void AddSatelite(String sip, int amp, double tilt)
@@ -36,6 +60,7 @@ public class Node {
 		if (find == null)
 		{
 			entities.put (sip, new Comet ((int) Math.round(x), (int) Math.round(y), amp, tilt));
+			IncreaseWarning();
 		}
 	}
 	
@@ -46,7 +71,8 @@ public class Node {
 		
 		if (find != null)
 		{
-			
+			entities.remove(sip);
+			DecreaseWarning();
 		}
 	}
 	

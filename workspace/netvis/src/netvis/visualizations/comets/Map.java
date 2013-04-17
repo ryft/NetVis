@@ -6,7 +6,7 @@ import java.util.Random;
 
 import javax.media.opengl.GL2;
 
-import netvis.visualizations.helperlib.Helper;
+import netvis.visualizations.gameengine.Painter;
 
 public class Map {
 
@@ -20,15 +20,13 @@ public class Map {
 	// Connections to be drawn
 	HashMap<String, Connection> connections;
 	
-	Helper help;
+	Painter help;
 	
 	Random rand;
 	
-	int ii = 0;
-	
 	public Map (int width, int height)
 	{
-		help = new Helper (width, height);
+		help = new Painter (width, height);
 		rand = new Random();
 		
 		nodes = new HashMap<String, Node> ();
@@ -97,11 +95,12 @@ public class Map {
 
 			find = AddNode (x, y, dip, "server");
 		} 
+		
 		// Randomized entry
 		//find.AddSatelite (sip, 100, rand.nextDouble()*Math.PI);
-		find.AddSatelite (sip, 100, ii * Math.PI/10);
-			
-		ii += 1;
+		
+		// Make their tilts nicely shifted
+		find.AddSatelite (sip, 100, find.getEntities().size() * Math.PI/10);
 	}
 
 	private Node AddNode (int x, int y, String name, String textureName) 

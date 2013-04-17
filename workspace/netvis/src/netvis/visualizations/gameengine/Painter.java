@@ -1,4 +1,4 @@
-package netvis.visualizations.helperlib;
+package netvis.visualizations.gameengine;
 
 import java.awt.Graphics2D;
 import java.awt.color.ColorSpace;
@@ -26,14 +26,14 @@ import netvis.visualizations.comets.Comet;
 import netvis.visualizations.comets.Node;
 import netvis.visualizations.comets.Texture;
 
-public class Helper {
+public class Painter {
 	
 	int width;
 	int height;
 	
 	Texture hexagon;
 	
-	public Helper (int w, int h)
+	public Painter (int w, int h)
 	{
 		width = w;
 		height = h;
@@ -134,8 +134,8 @@ public class Helper {
 	}
 	
 	
-	private void DrawHexagon (double x, double y, int base, GL2 gl) {
-		gl.glBegin(GL2.GL_LINE_LOOP);
+	private void DrawHexagon (int mode, double x, double y, int base, GL2 gl) {
+		gl.glBegin(mode);
 			for (int i=0; i<6; i++)
 			{
 				gl.glVertex2d (x + base * Math.cos(Math.PI/6 + i*Math.PI/3), y + base * Math.sin(Math.PI/6 + i*Math.PI/3));
@@ -245,13 +245,17 @@ public class Helper {
 	
 	public void DrawNode (Node lum, GL2 gl)
 	{
-		// Draw the server image
-		this.DrawImage (lum.getTexture(), lum.getx(),  lum.gety(), 0.5, 0.0, gl);
+		// Draw the inner part
+		gl.glColor3dv(lum.getBGColor(), 0);
+		this.DrawHexagon (GL2.GL_POLYGON, lum.getx(), lum.gety(), 400, gl);
 		
 		// Draw the usual hexagon
 		gl.glLineWidth (3.0f);
 		gl.glColor3d (0.0, 0.0, 0.0);
-		this.DrawHexagon (lum.getx(), lum.gety(), 400, gl);
+		this.DrawHexagon (GL2.GL_LINE_LOOP, lum.getx(), lum.gety(), 400, gl);
+
+		// Draw the server image
+		this.DrawImage (lum.getTexture(), lum.getx(),  lum.gety(), 1.0, 0.0, gl);
 		
 		// Draw the graphicall hexagon
 		//this.DrawImage (hexagon, lum.getx(), lum.gety(), 800.0/512.0, Math.PI/6, gl);
