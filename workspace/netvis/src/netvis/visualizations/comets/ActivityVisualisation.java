@@ -12,12 +12,14 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseListener;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -35,6 +37,10 @@ public class ActivityVisualisation extends Visualization {
 	Point oldpos = null;
 	Position middle = new Position(0,0);
 	double viewfield = 5.0;
+	
+	Date oldTime;
+	int frameNum;
+	JLabel fps;
 	
 	Timer animator, cleaner;
 	
@@ -64,6 +70,7 @@ public class ActivityVisualisation extends Visualization {
 	}
 	
 	public ActivityVisualisation(DataController dataController, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer) {
+		
 		super(dataController, joglPanel, visControlsContainer);
 
 		
@@ -158,9 +165,22 @@ public class ActivityVisualisation extends Visualization {
 		this.addMouseListener(new MouseListener() {
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void mouseClicked(MouseEvent e) {
+				int x = (int) Math.round (middle.x + (e.getX()-(width/2))*viewfield);
+				int y = (int) Math.round (middle.y - (e.getY()-(height/2))*viewfield);
+				Node n = currentMap.FindClickedNode(x, y);
+			
+				if (n != null)
+				{
+					n.toggleSelected();
+					
+					if (n.getSelected())
+					{
+						// Zoom on the selected node
+						middle = n.getCenter();
+						viewfield = 1.7;
+					}
+				}
 			}
 
 			@Override
@@ -207,6 +227,26 @@ public class ActivityVisualisation extends Visualization {
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		
+		// Count the FPS
+		if (oldTime == null)
+		{
+			frameNum = 0;
+			oldTime = new Date();
+		} else
+		{
+			Date now = new Date();
+			long diff = now.getTime() - oldTime.getTime();
+			if (diff > 2000)
+			{
+				double fpsnum = Math.round (10000.0 * frameNum / (diff)) / 10.0;
+				fps.setText("FPS: " + fpsnum);
+				
+				oldTime = null;
+			}
+		}
+		frameNum++;
+		
 		GL2 gl = drawable.getGL().getGL2();
 
 		// Set the width and height to the actuall width and height in pixels, (0, 0) is in the middle
@@ -270,7 +310,7 @@ public class ActivityVisualisation extends Visualization {
 			//System.out.println("I'm considering IP: " + ip + " which dataflow: " + can.datasize);
 			if (can.datasize >= 2000)
 			{
-				System.out.println("IP: " + ip + " which dataflow: " + can.datasize + " added to the simulation");
+				//System.out.println("IP: " + ip + " which dataflow: " + can.datasize + " added to the simulation");
 				currentMap.SuggestNode (can.sip, can.dip);
 				currentMap.SortNodes();
 			}
@@ -297,24 +337,29 @@ public class ActivityVisualisation extends Visualization {
 	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi, int he) {		
 		GL2 gl = drawable.getGL().getGL2();
 
-		width = wi;
-		height = he;
-		this.setSize(wi, he);
-		this.setPreferredSize(new Dimension(wi,he));
-		
-		currentMap.SetSize (width, height, gl);
+		if (wi != width || he != height)
+		{
+			width = wi;
+			height = he;
+			this.setSize(wi, he);
+			this.setPreferredSize(new Dimension(wi,he));
+			
+			currentMap.SetSize (width, height, gl);
+		}
 	}
 
 	@Override
 	protected JPanel createControls() {
-		// TODO Auto-generated method stub
-		return null;
+		JPanel mypanel = new JPanel();
+		fps = new JLabel ("FPS : 0");
+		
+		mypanel.add(fps);
+		return mypanel;
 	}
 
 	@Override
 	public String name() {
-		// TODO Auto-generated method stub
-		return "One machine activity";
+		return "Heatmap of activity";
 	}
 
 	@Override

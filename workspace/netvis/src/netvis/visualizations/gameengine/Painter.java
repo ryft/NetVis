@@ -1,23 +1,10 @@
 package netvis.visualizations.gameengine;
 
-import java.awt.Graphics2D;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
-import javax.media.opengl.GL4;
-import javax.media.opengl.glu.gl2.GLUgl2;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
@@ -32,18 +19,23 @@ public class Painter {
 	int width;
 	int height;
 	
-	Texture hexagon;
+	Texture hexagon1;
+	Texture hexagon2;
 	
 	public Painter (int w, int h)
 	{
 		width = w;
 		height = h;
 		
-		hexagon = new Texture (ActivityVisualisation.class.getResource("resources/hex.png"));
+		hexagon1 = new Texture (ActivityVisualisation.class.getResource("resources/hex1.png"));
+		hexagon2 = new Texture (ActivityVisualisation.class.getResource("resources/hex2.png"));
 	}
 	
-	public void SetSize (int w, int h)
+	public void SetSize (int w, int h, GL2 gl)
 	{
+		hexagon1.Rebind(gl);
+		hexagon2.Rebind(gl);
+
 		width = w;
 		height = h;
 	}
@@ -145,15 +137,7 @@ public class Painter {
 		double xx = lum.getx() + center.x;
 		double yy = lum.gety() + center.y;
 		
-		gl.glPushMatrix();
-		//double tt = lum.gettilt();
-		//gl.glTranslated(-XX(250), -YY(250), 0.0);
-		//gl.glRotated (tt, 0.0, 0.0, 1.0);
-		//gl.glTranslated(XX(250), YY(250), 0.0);
-		
 		this.DrawCircle(xx, yy, 20, gl);
-
-		gl.glPopMatrix();
 		
 	}
 	
@@ -220,7 +204,7 @@ public class Painter {
         gl.glColor4d (0, 0, 0, 0.4);
         gl.glBegin(GL2.GL_POINTS);
         	for (int i=0; i<points.size(); i++)
-        		gl.glVertex2d (points.get(i).x, points.get(i).y);
+        		gl.glVertex2d (points.get(i).x + center.x, points.get(i).y + center.y);
     	gl.glEnd();
 
     	
@@ -248,13 +232,16 @@ public class Painter {
 		// Draw the usual hexagon
 		gl.glLineWidth (3.0f);
 		gl.glColor3d (0.0, 0.0, 0.0);
-		this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
-
-		// Draw the server image
-		this.DrawImage (lum.getTexture(), x, y, 1.0, 0.0, gl);
+		//this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
 		
 		// Draw the graphicall hexagon
-		//this.DrawImage (hexagon, lum.getx(), lum.gety(), 800.0/512.0, Math.PI/6, gl);
+		if (lum.getSelected() == true)
+			this.DrawImage (hexagon2, x, y, 800.0/512.0, Math.PI/6, gl);
+		else
+			this.DrawImage (hexagon1, x, y, 800.0/512.0, Math.PI/6, gl);
+		
+		// Draw the server image
+		this.DrawImage (lum.getTexture(), x, y, 1.0, 0.0, gl);
 		
 		// Write the name of the node
 		GLUT glut = new GLUT();
@@ -266,7 +253,8 @@ public class Painter {
 		{
 			this.DrawEntity (i, lum.getCenter(), gl);
 			this.DrawTail   (i, lum.getCenter(), gl);
-			//this.DrawTrace  (i, gl);
+			//if (lum.getSelected())
+			//	this.DrawTrace  (i, lum.getCenter(), gl);
 		}
 	}
 

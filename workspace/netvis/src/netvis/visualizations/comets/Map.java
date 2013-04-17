@@ -21,7 +21,7 @@ public class Map {
 	List<Node> nodesl;
 	
 	// Basic size of the node
-	int base = 500;
+	int base = 400;
 	
 	// Connections to be drawn
 	HashMap<String, Connection> connections;
@@ -51,8 +51,6 @@ public class Map {
 
 	
 	public void DrawEverything(GL2 gl) {
-		
-		help.DrawCircle(0, 0, 10, gl);
 		for (Node i : nodes.values())
 			help.DrawNode(i, gl);
 	}
@@ -64,7 +62,7 @@ public class Map {
 	}
 
 	public void SetSize(int width, int height, GL2 gl) {
-		help.SetSize(width, height);
+		help.SetSize(width, height, gl);
 		
 		// Rebind the textures
 		for (Texture t : textures.values())
@@ -151,5 +149,16 @@ public class Map {
 		nodesl.add (lemur);
 		
 		return lemur;
+	}
+	
+	public Node FindClickedNode (int x, int y)
+	{
+		for (Node n : nodes.values())
+		{
+			double distance = Math.sqrt (Math.pow(n.center.x - x, 2) + Math.pow(n.center.y - y, 2));
+			if (distance < base-10)
+				return n;
+		}
+		return null;
 	}
 }

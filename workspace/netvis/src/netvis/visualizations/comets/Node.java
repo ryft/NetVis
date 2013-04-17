@@ -18,12 +18,16 @@ public class Node {
 	public double[] getBGColor() {return bgColor;}
 	public void     setBGColor(double r, double g, double b) {bgColor[0] = r; bgColor[1] = g; bgColor[2] = b;}
 	
+	boolean selected; public boolean getSelected() {return selected;}; public void toggleSelected() {selected = !selected;};
+	
 	Texture tex; public Texture getTexture () {return tex;}
 	
 	String name; public String getName() {return name;};
 	
 	public Node (int posx, int posy, Texture tt, String nn)
 	{
+		selected = false;
+		
 		name = nn;
 		tex = tt;
 		center = new Position (posx, posy);
@@ -83,4 +87,5 @@ public class Node {
 		for (Comet i : entities.values())
 			i.Step();
 	}
+
 }

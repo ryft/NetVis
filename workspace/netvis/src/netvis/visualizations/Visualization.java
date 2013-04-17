@@ -51,7 +51,7 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 		this.visContainer = visControlsContainer;
 		
 		// Create the timer that will keep the FPS - don't start it yet
-		this.fpskeep = new FPSAnimator(this, 60);
+		this.fpskeep = new FPSAnimator(this, 120);
 	}
 	
 	private static GLCapabilitiesImmutable CreateCapabilities ()
