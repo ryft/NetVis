@@ -17,7 +17,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -29,8 +28,8 @@ import javax.swing.table.AbstractTableModel;
 
 import netvis.data.DataControllerListener;
 import netvis.data.model.Packet;
-import netvis.util.Utilities;
 import netvis.util.SpringUtilities;
+import netvis.util.Utilities;
 
 /**
  * This is the cumulative analysis panel shown in the bottom of the GUI. It
@@ -38,7 +37,7 @@ import netvis.util.SpringUtilities;
  * seen so far.
  */
 @SuppressWarnings("serial")
-public class AnalysisPanel extends JSplitPane implements DataControllerListener, ActionListener {
+public class AnalysisPanel extends JTabbedPane implements DataControllerListener, ActionListener {
 
 	/** List of all inputs we've collected */
 	protected Queue<List<Packet>> updateQueue = new LinkedBlockingDeque<List<Packet>>();
@@ -47,9 +46,6 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	/** Flag to block certain events while static analysis jobs are being created.
 	 * 	Any outside modification of this variable is unsafe. */
 	public boolean batchProcessBlock = false;
-
-	/** Context panel to deliver extra data to */
-	protected final ContextPanel contextPanel = new ContextPanel();
 
 	// Declare fields to be updated dynamically
 	protected final JTextField fieldTotals;
@@ -145,24 +141,19 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 	 *            The time interval between control updates, in ms. Needs to be
 	 *            some multiple of the data controller update interval.
 	 */
-	public AnalysisPanel(int controlUpdateInterval) {
-		super(JSplitPane.HORIZONTAL_SPLIT);
-
-		// Set up tab panes to encapsulate cumulative data under separate
-		// categories
-		JTabbedPane tabbedPane = new JTabbedPane();
+	public AnalysisPanel(int controlUpdateInterval, final ContextPanel contextPanel) {
 
 		JPanel panel1 = new JPanel(new SpringLayout());
-		tabbedPane.addTab("Aggregation data", panel1);
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+		this.addTab("Aggregation data", panel1);
+		this.setMnemonicAt(0, KeyEvent.VK_1);
 
 		JPanel panel2 = new JPanel(new SpringLayout());
-		tabbedPane.addTab("Source/Destination info", panel2);
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+		this.addTab("Source/Destination info", panel2);
+		this.setMnemonicAt(1, KeyEvent.VK_2);
 
 		JPanel panel3 = new JPanel(new SpringLayout());
-		tabbedPane.addTab("Packet details", panel3);
-		tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+		this.addTab("Packet details", panel3);
+		this.setMnemonicAt(2, KeyEvent.VK_3);
 
 		// PANEL 1: Add controls to the aggregation data tab
 		panel1.add(new JLabel("Total packets/traffic transmitted: "));
@@ -269,11 +260,6 @@ public class AnalysisPanel extends JSplitPane implements DataControllerListener,
 		panel3.add(fieldPacketLength);
 
 		SpringUtilities.makeCompactGrid(panel3, 3, 2, INITIAL_X, INITIAL_Y, PADDING_X, PADDING_Y);
-
-		// Put together the tab pane and set it up next to the context panel
-		setLeftComponent(tabbedPane);
-		setResizeWeight(0.85);
-		setRightComponent(contextPanel);
 
 		dataUpdateTimer = new Timer(500, new ActionListener() {
 			@Override

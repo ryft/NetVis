@@ -25,6 +25,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -37,6 +38,7 @@ import netvis.data.DummyDataFeeder;
 import netvis.data.filters.PortRangeFilter;
 import netvis.data.filters.ProtocolFilter;
 import netvis.ui.AnalysisPanel;
+import netvis.ui.ContextPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.RightPanel;
 import netvis.ui.VisControlsContainer;
@@ -63,6 +65,7 @@ public class ApplicationFrame extends JFrame {
 	protected final OpenGLPanel glPanel;
 	protected final RightPanel rightPanel;
 	protected final AnalysisPanel analysisPanel;
+	protected final ContextPanel contextPanel;
 	protected final StatusBar statusBar;
 	protected final JMenuBar menuBar;
 
@@ -132,18 +135,24 @@ public class ApplicationFrame extends JFrame {
 		rightConstraints.weighty = 1.0;
 		contentPane.add(rightPanel, rightConstraints);
 
-		// Set up table results panel
-		analysisPanel = new AnalysisPanel(100);
-		final GridBagConstraints tableConstraints = new GridBagConstraints();
-		tableConstraints.anchor = GridBagConstraints.NORTH;
-		tableConstraints.fill = GridBagConstraints.BOTH;
-		tableConstraints.insets = new Insets(5, 10, 0, 10);
-		tableConstraints.gridx = 0;
-		tableConstraints.gridy = 1;
-		tableConstraints.gridwidth = 2;
-		tableConstraints.weightx = 0.0;
-		tableConstraints.weighty = 0.0;
-		contentPane.add(analysisPanel, tableConstraints);
+		// Set up an bottom panel for analysis and context panels
+		JSplitPane bottomPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		contextPanel = new ContextPanel();
+		analysisPanel = new AnalysisPanel(100, contextPanel);
+		bottomPanel.setLeftComponent(analysisPanel);
+		bottomPanel.setRightComponent(contextPanel);
+		bottomPanel.setResizeWeight(0.85);
+
+		final GridBagConstraints bottomConstraints = new GridBagConstraints();
+		bottomConstraints.anchor = GridBagConstraints.NORTH;
+		bottomConstraints.fill = GridBagConstraints.BOTH;
+		bottomConstraints.insets = new Insets(5, 10, 0, 10);
+		bottomConstraints.gridx = 0;
+		bottomConstraints.gridy = 1;
+		bottomConstraints.gridwidth = 2;
+		bottomConstraints.weightx = 0.0;
+		bottomConstraints.weighty = 0.0;
+		contentPane.add(bottomPanel, bottomConstraints);
 
 		// Set up a status bar panel
 		statusBar = new StatusBar();
