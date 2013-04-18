@@ -263,7 +263,10 @@ public class Painter {
 			this.DrawImage (TexturePool.get("hexagon1"), x, y, 800.0/512.0, 0, gl);
 		
 		// Draw the server image
-		this.DrawImage (lum.getTexture(), x, y, 1.0, 0.0, gl);
+		if (lum.getSelected() == true)
+			this.DrawImage (lum.getTexture(), x, y, 1.0, 90.0, gl);
+		else
+			this.DrawImage (lum.getTexture(), x, y, 1.0, 0.0, gl);
 	
 		// Write the name of the node
 
@@ -287,10 +290,28 @@ public class Painter {
 		// Draw entities
 		for (Comet i : lum.getEntities())
 		{
-			this.DrawEntity (i, lum.getCenter(), gl);
-			this.DrawTail   (i, lum.getCenter(), gl);
+			//this.DrawEntity (i, lum.getCenter(), gl);
+			//this.DrawTail   (i, lum.getCenter(), gl);
 			//if (lum.getSelected())
 			//	this.DrawTrace  (i, lum.getCenter(), gl);
+		}
+	}
+	
+	public void DrawGrid (GL2 gl)
+	{
+		int base = 400;
+		// Draw the usual hexagon
+		for (int i=-20; i<20; i++)
+		{
+			for (int j=-20; j<20; j++)
+			{
+				gl.glLineWidth (1.0f);
+				gl.glColor3d (0.8, 0.8, 0.8);
+				double dx = base/2 * Math.sqrt(3);
+				if (j % 2 == 0)
+					dx = 0;
+				this.DrawHexagon (GL2.GL_LINE_LOOP, base*Math.sqrt(3)*i + dx, base*1.5*j, 400, gl);
+			}
 		}
 	}
 }
