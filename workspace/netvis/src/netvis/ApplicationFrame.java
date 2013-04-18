@@ -2,6 +2,7 @@ package netvis;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.EventQueue;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
@@ -28,6 +29,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import netvis.data.DataController;
@@ -390,11 +392,33 @@ public class ApplicationFrame extends JFrame {
 
 	public static void main(String[] args) {
 
+		EventQueue.invokeLater(new Runnable() {
+            public void run() {                             
+                    try 
+                    {
+                    	// Make GUI OS native:
+                    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    }
+                    catch (Exception ex)
+                    {
+                    	ex.printStackTrace();
+                    }
+                    try 
+                    {
+                		ApplicationFrame applicationFrame = new ApplicationFrame();
+                		applicationFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                		applicationFrame.setSize(applicationFrame.getPreferredSize());
+                		applicationFrame.setVisible(true);
+                		applicationFrame.analysisPanel.init();
+                    } 
+                    catch (Exception ex) 
+                    {
+                    	// We have a problem - app can't run
+                    	ex.printStackTrace();
+                    }
+            }
+		});
+		
 
-		ApplicationFrame applicationFrame = new ApplicationFrame();
-		applicationFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		applicationFrame.setSize(applicationFrame.getPreferredSize());
-		applicationFrame.setVisible(true);
-		applicationFrame.analysisPanel.init();
 	}
 }

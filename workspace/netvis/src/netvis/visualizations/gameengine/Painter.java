@@ -290,10 +290,12 @@ public class Painter {
 		// Draw entities
 		for (Comet i : lum.getEntities())
 		{
-			//this.DrawEntity (i, lum.getCenter(), gl);
-			//this.DrawTail   (i, lum.getCenter(), gl);
-			//if (lum.getSelected())
-			//	this.DrawTrace  (i, lum.getCenter(), gl);
+			if (lum.getSelected())
+			{
+				this.DrawEntity (i, lum.getCenter(), gl);
+				this.DrawTail   (i, lum.getCenter(), gl);
+				//this.DrawTrace  (i, lum.getCenter(), gl);
+			}
 		}
 	}
 	
