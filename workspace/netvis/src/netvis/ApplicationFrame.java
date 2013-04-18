@@ -16,8 +16,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -32,10 +30,10 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import netvis.data.CSVDataFeeder;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.DummyDataFeeder;
-import netvis.data.CSVDataFeeder;
 import netvis.data.filters.PortRangeFilter;
 import netvis.data.filters.ProtocolFilter;
 import netvis.ui.AnalysisPanel;
@@ -44,14 +42,7 @@ import netvis.ui.RightPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.util.ExceptionHandler;
 import netvis.util.Utilities;
-import netvis.visualizations.DataflowVisualization;
-import netvis.visualizations.DummyVisualization;
-import netvis.visualizations.MulticubeVisualization;
-import netvis.visualizations.TimePortVisualization;
-import netvis.visualizations.TrafficVolumeVisualization;
-import netvis.visualizations.Visualization;
 import netvis.visualizations.VisualizationsController;
-import netvis.visualizations.comets.ActivityVisualisation;
 
 /**
  * The entry point to the application. Glues the whole GUI together and

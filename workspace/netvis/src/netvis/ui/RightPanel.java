@@ -79,7 +79,7 @@ public class RightPanel extends JPanel {
 		}
 
 		// Add an update button that tells all filters to update
-		JButton updateButton = new JButton("Filter");
+		JButton updateButton = new JButton("Apply filters");
 		it = this.dataController.filterIterator();
 		while (it.hasNext()) {
 			updateButton.addActionListener(it.next());

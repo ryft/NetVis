@@ -1,18 +1,25 @@
 package netvis.visualizations;
 
 import java.awt.Point;
-import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Stack;
 import java.util.TreeMap;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import netvis.data.DataController;
 import netvis.data.model.Packet;
@@ -28,9 +35,10 @@ public class TrafficVolumeVisualization extends Visualization {
 
 	private final GLUT glut = new GLUT();
 
-	private final List<Map<String, Integer>> protocolCountMaps = new ArrayList<Map<String, Integer>>();
+	private final Queue<Map<String, Integer>> protocolCountMaps = new LinkedList<Map<String, Integer>>();
 	private final Map<String, Integer> globalProtocolCount = new HashMap<String, Integer>();
 	private final Map<String, GLColour3d> protocolColours = new HashMap<String, GLColour3d>();
+	private double maxX = 64;
 	private double maxY = 0;
 	
 	// Fields governing the update frequency of the graph
@@ -60,6 +68,24 @@ public class TrafficVolumeVisualization extends Visualization {
 
 	protected JPanel createControls() {
 		JPanel localControls = new JPanel();
+		
+		JLabel labelMaxX = new JLabel("Set x-axis resolution");
+		final JTextField textMaxX = new JTextField();
+		
+		JButton buttonMaxX = new JButton("Apply");
+		buttonMaxX.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int newMaxX = Integer.valueOf(textMaxX.getText());
+					maxX = newMaxX;
+				} catch (NumberFormatException nfe) { }
+			}	
+		});
+		localControls.setLayout(new BoxLayout(localControls, BoxLayout.Y_AXIS));
+		localControls.add(labelMaxX);
+		localControls.add(textMaxX);
+		localControls.add(buttonMaxX);
 
 		return localControls;
 	}
@@ -98,6 +124,8 @@ public class TrafficVolumeVisualization extends Visualization {
 		}
 
 		// Add it to the list of all such maps
+		while (protocolCountMaps.size() >= maxX && protocolCountMaps.size() > 0)
+			protocolCountMaps.remove();
 		protocolCountMaps.add(protocolCount);
 	}
 

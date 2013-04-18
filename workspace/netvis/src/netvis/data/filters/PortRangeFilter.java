@@ -1,6 +1,7 @@
 package netvis.data.filters;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -48,6 +49,19 @@ public class PortRangeFilter implements PacketFilter {
 		box.add(dlbField);
 		box.add(dubField);
 		filterPanel.add(box);
+
+		// Add a button to reset port range
+		JButton resetButton = new JButton("Reset port range");
+		resetButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				slbField.setText(Integer.toString(DataUtilities.MIN_PORT));
+				subField.setText(Integer.toString(DataUtilities.MAX_PORT));
+				dlbField.setText(Integer.toString(DataUtilities.MIN_PORT));
+				dubField.setText(Integer.toString(DataUtilities.MAX_PORT));
+			}
+		});
+		filterPanel.add(resetButton);
 
 		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.PAGE_AXIS));
 		filterPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
