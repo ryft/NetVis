@@ -178,7 +178,7 @@ public class ActivityVisualisation extends Visualization {
 					{
 						// Zoom on the selected node
 						middle = n.getCenter();
-						viewfield = 1.7;
+						viewfield = 1.0;
 					}
 				}
 			}
@@ -209,7 +209,7 @@ public class ActivityVisualisation extends Visualization {
 		});
 		
 		// Add test nodes
-		for (int i=0; i<0; i++)
+		for (int i=0; i<20; i++)
 		{
 			currentMap.SuggestNode ("testk" + i, "test" + i);
 		}
@@ -346,6 +346,8 @@ public class ActivityVisualisation extends Visualization {
 			
 			currentMap.SetSize (width, height, gl);
 		}
+		
+		TexturePool.Rebind(gl);
 	}
 
 	@Override

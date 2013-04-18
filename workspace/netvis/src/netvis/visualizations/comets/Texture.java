@@ -51,7 +51,7 @@ public class Texture {
 			return id;
 
 		int [] arr = new int[1];
-		gl.glGenTextures(1, arr, 0);
+		gl.glGenTextures (1, arr, 0);
 		id = arr[0];
 		
 		GLUgl2 glu = new GLUgl2();

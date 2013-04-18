@@ -54,8 +54,6 @@ public class Map {
 
 	public void SetSize(int width, int height, GL2 gl) {
 		help.SetSize(width, height, gl);
-		
-		TexturePool.Rebind (gl);
 	}
 
 	public void SuggestNode(String sip, String dip) {

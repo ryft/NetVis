@@ -18,43 +18,44 @@ import netvis.visualizations.comets.Position;
 import netvis.visualizations.comets.Comet;
 import netvis.visualizations.comets.Node;
 import netvis.visualizations.comets.Texture;
+import netvis.visualizations.comets.TexturePool;
 
 public class Painter {
 	
 	int width;
 	int height;
 	
-	Texture hexagon1;
-	Texture hexagon2;
-	
 	Font mainfont;
+	TextRenderer renderer;
 	
 	public Painter (int w, int h)
 	{
 		width = w;
 		height = h;
 		
-		hexagon1 = new Texture (ActivityVisualisation.class.getResource("resources/hex1.png"));
-		hexagon2 = new Texture (ActivityVisualisation.class.getResource("resources/hex2.png"));
+		TexturePool.LoadTexture("hexagon1", ActivityVisualisation.class.getResource("resources/hex1.png"));
+		TexturePool.LoadTexture("hexagon2", ActivityVisualisation.class.getResource("resources/hex2.png"));;
 		
 		mainfont = null;
 		try {
-			mainfont = Font.createFont (Font.TRUETYPE_FONT, Painter.class.getResource("cmr10.ttf").openStream());
+			mainfont = Font.createFont (Font.TRUETYPE_FONT, Painter.class.getResource("cmr17.ttf").openStream());
 			
 			// Scale it up
-			mainfont = mainfont.deriveFont (50.0f);
+			mainfont = mainfont.deriveFont (70.0f);
 		} catch (FontFormatException | IOException e) {
-			mainfont = new Font("SansSerif", Font.BOLD, 50);
+			
+			//Failsafe font
+			mainfont = new Font("SansSerif", Font.BOLD, 70);
 		}
+		
+		renderer = new TextRenderer(mainfont, true);
 	}
 	
 	public void SetSize (int w, int h, GL2 gl)
 	{
-		hexagon1.Rebind(gl);
-		hexagon2.Rebind(gl);
-
 		width = w;
 		height = h;
+		renderer = new TextRenderer(mainfont, true);
 	}
 
 	/*
@@ -257,17 +258,18 @@ public class Painter {
 		
 		// Draw the graphical hexagon
 		if (lum.getSelected() == true)
-			this.DrawImage (hexagon2, x, y, 800.0/512.0, 0, gl);
+			this.DrawImage (TexturePool.get("hexagon2"), x, y, 800.0/512.0, 0, gl);
 		else
-			this.DrawImage (hexagon1, x, y, 800.0/512.0, 0, gl);
+			this.DrawImage (TexturePool.get("hexagon1"), x, y, 800.0/512.0, 0, gl);
 		
 		// Draw the server image
 		this.DrawImage (lum.getTexture(), x, y, 1.0, 0.0, gl);
 	
 		// Write the name of the node
-		TextRenderer renderer = new TextRenderer(mainfont);
-		renderer.setSmoothing(true);
+
 		renderer.begin3DRendering();
+		renderer.setSmoothing(true);
+		renderer.setUseVertexArrays(true);
 		renderer.setColor (0.2f, 0.2f, 0.2f, 1.0f);
 		Rectangle2D noob = renderer.getBounds(lum.getName());
 		int xx = (int) (x-noob.getWidth()/2);
