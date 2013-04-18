@@ -63,7 +63,7 @@ public class CSVDataFeeder implements DataFeeder {
 		
 		timeControlPanel = new TimeControlPanel(this);
 		
-		parent.setTitle("Network Visualizer for noobs — " + fileName);
+		parent.setTitle("NetVis - " + fileName);
 	}
 	
 	public List<Packet> getNewPackets() {

@@ -102,7 +102,7 @@ public class ApplicationFrame extends JFrame {
 		else
 			dataFeeder = new DummyDataFeeder(this);
 		
-		dataController = new DataController(dataFeeder, 100);
+		dataController = new DataController(dataFeeder, 1000);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
 
