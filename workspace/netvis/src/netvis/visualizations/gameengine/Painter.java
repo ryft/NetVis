@@ -281,12 +281,6 @@ public class Painter {
 		renderer.end3DRendering();
 		renderer.flush();
 		
-		/*
-		GLUT glut = new GLUT();
-		gl.glRasterPos2d (x-lum.getTexture().getW()/2, y-lum.getTexture().getH()/2 - 30);
-		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, lum.getName());
-		*/
-		
 		// Draw entities
 		for (Comet i : lum.getEntities())
 		{
@@ -299,9 +293,8 @@ public class Painter {
 		}
 	}
 	
-	public void DrawGrid (GL2 gl)
+	public void DrawGrid (int base, GL2 gl)
 	{
-		int base = 400;
 		// Draw the usual hexagon
 		for (int i=-20; i<20; i++)
 		{

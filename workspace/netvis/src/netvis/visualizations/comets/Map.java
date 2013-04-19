@@ -42,7 +42,7 @@ public class Map {
 	}
 	
 	public void DrawEverything(GL2 gl) {
-		help.DrawGrid(gl);
+		help.DrawGrid (base, gl);
 		for (Node i : nodes.values())
 			help.DrawNode(i, gl);
 	}

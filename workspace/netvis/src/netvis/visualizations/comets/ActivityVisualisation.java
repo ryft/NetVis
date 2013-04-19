@@ -35,8 +35,10 @@ public class ActivityVisualisation extends Visualization {
 	int height;
 	
 	Point oldpos = null;
-	Position middle = new Position(0,0);
-	double viewfield = 5.0;
+	//Position middle = new Position(0,0);
+	ValueAnimator middlex;
+	ValueAnimator middley;
+	ValueAnimator viewfieldanim;
 	
 	Date oldTime;
 	int frameNum;
@@ -73,6 +75,9 @@ public class ActivityVisualisation extends Visualization {
 		
 		super(dataController, joglPanel, visControlsContainer);
 
+		viewfieldanim = new ValueAnimator (5.0);
+		middlex = new ValueAnimator (0.0);
+		middley = new ValueAnimator (0.0);
 		
 		width = joglPanel.getWidth();
 		height = joglPanel.getHeight();
@@ -153,10 +158,13 @@ public class ActivityVisualisation extends Visualization {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
+				double viewfield = viewfieldanim.toDouble();
 				if (oldpos != null)
 				{
-					middle.x -= (e.getX()-oldpos.x)*viewfield;
-					middle.y += (e.getY()-oldpos.y)*viewfield;
+					middlex.MoveTo(middlex.getGoal() - (e.getX()-oldpos.x)*viewfield, 0);
+					middley.MoveTo(middley.getGoal() + (e.getY()-oldpos.y)*viewfield, 0);
+					//middlex -= (e.getX()-oldpos.x)*viewfield;
+					//middley += (e.getY()-oldpos.y)*viewfield;
 				};
 				oldpos = e.getPoint();
 			}
@@ -166,8 +174,9 @@ public class ActivityVisualisation extends Visualization {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int x = (int) Math.round (middle.x + (e.getX()-(width/2))*viewfield);
-				int y = (int) Math.round (middle.y - (e.getY()-(height/2))*viewfield);
+				double viewfield = viewfieldanim.toDouble();
+				int x = (int) Math.round (middlex.toDouble() + (e.getX()-(width/2))*viewfield);
+				int y = (int) Math.round (middley.toDouble() - (e.getY()-(height/2))*viewfield);
 				Node n = currentMap.FindClickedNode(x, y);
 			
 				if (n != null)
@@ -177,8 +186,9 @@ public class ActivityVisualisation extends Visualization {
 					if (n.getSelected())
 					{
 						// Zoom on the selected node
-						middle = n.getCenter();
-						viewfield = 1.0;
+						middlex.MoveTo (n.getCenter().x, 1000);
+						middley.MoveTo (n.getCenter().y, 1000);
+						viewfieldanim.MoveTo (1.0, 1000);
 					}
 				}
 			}
@@ -209,7 +219,7 @@ public class ActivityVisualisation extends Visualization {
 		});
 		
 		// Add test nodes
-		for (int i=0; i<20; i++)
+		for (int i=0; i<0; i++)
 		{
 			currentMap.SuggestNode ("testk" + i, "test" + i);
 		}
@@ -217,16 +227,19 @@ public class ActivityVisualisation extends Visualization {
 	}
 
 	private void ZoomIn() {
-		viewfield *= 0.9;
+		double viewfield = viewfieldanim.getGoal();
+		viewfieldanim.MoveTo (viewfield*0.9, 100);
 	}
 	private void ZoomOut() {
-		viewfield *= 1.1;
+		double viewfield = viewfieldanim.getGoal();
+		viewfieldanim.MoveTo (viewfield*1.1, 100);
 	}
 
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		double viewfield = viewfieldanim.toDouble();
 		
 		// Count the FPS
 		if (oldTime == null)
@@ -253,7 +266,7 @@ public class ActivityVisualisation extends Visualization {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 		
-		gl.glOrtho(middle.x-this.width*viewfield/2, middle.x+this.width*viewfield/2, middle.y-this.height*viewfield/2, middle.y+this.height*viewfield/2, -10, 10);
+		gl.glOrtho(middlex.toDouble()-this.width*viewfield/2, middlex.toDouble()+this.width*viewfield/2, middley.toDouble()-this.height*viewfield/2, middley.toDouble()+this.height*viewfield/2, -10, 10);
 		
 		// Clear the board
 		gl.glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
@@ -343,10 +356,9 @@ public class ActivityVisualisation extends Visualization {
 			height = he;
 			this.setSize(wi, he);
 			this.setPreferredSize(new Dimension(wi,he));
-			
-			currentMap.SetSize (width, height, gl);
 		}
 		
+		currentMap.SetSize (width, height, gl);
 		TexturePool.Rebind(gl);
 	}
 
