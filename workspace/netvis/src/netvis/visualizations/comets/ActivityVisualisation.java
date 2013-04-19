@@ -28,6 +28,8 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualizations.Visualization;
+import netvis.visualizations.gameengine.TexturePool;
+import netvis.visualizations.gameengine.ValueAnimator;
 
 public class ActivityVisualisation extends Visualization {
 

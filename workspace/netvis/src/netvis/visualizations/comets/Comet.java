@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import netvis.visualizations.gameengine.Position;
+
 public class Comet {
 	
 	List<Position> tail ; public List<Position> getTail  () {return tail;}

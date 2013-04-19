@@ -10,6 +10,8 @@ import java.util.Random;
 import javax.media.opengl.GL2;
 
 import netvis.visualizations.gameengine.Painter;
+import netvis.visualizations.gameengine.Position;
+import netvis.visualizations.gameengine.TexturePool;
 
 public class Map {
 

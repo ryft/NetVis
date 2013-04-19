@@ -3,6 +3,9 @@ package netvis.visualizations.comets;
 import java.util.Collection;
 import java.util.HashMap;
 
+import netvis.visualizations.gameengine.Position;
+import netvis.visualizations.gameengine.Texture;
+
 public class Node {
 
 	HashMap<String, Comet> entities; public Collection<Comet> getEntities() {return entities.values();}

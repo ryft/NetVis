@@ -14,11 +14,8 @@ import javax.media.opengl.GL2;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
 import netvis.visualizations.comets.ActivityVisualisation;
-import netvis.visualizations.comets.Position;
 import netvis.visualizations.comets.Comet;
 import netvis.visualizations.comets.Node;
-import netvis.visualizations.comets.Texture;
-import netvis.visualizations.comets.TexturePool;
 
 public class Painter {
 	
