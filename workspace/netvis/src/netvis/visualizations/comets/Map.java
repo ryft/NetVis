@@ -9,6 +9,7 @@ import java.util.Random;
 
 import javax.media.opengl.GL2;
 
+import netvis.visualizations.gameengine.NodePainter;
 import netvis.visualizations.gameengine.Painter;
 import netvis.visualizations.gameengine.Position;
 import netvis.visualizations.gameengine.TexturePool;
@@ -26,13 +27,10 @@ public class Map {
 	// Connections to be drawn
 	HashMap<String, Connection> connections;
 	
-	Painter help;
-	
 	Random rand;
 	
 	public Map (int width, int height)
 	{
-		help = new Painter (width, height);
 		rand = new Random();
 		
 		nodes = new HashMap<String, Node> ();
@@ -44,19 +42,18 @@ public class Map {
 	}
 	
 	public void DrawEverything(GL2 gl) {
-		help.DrawGrid (base, gl);
+		Painter.DrawGrid (base, gl);
 		for (Node i : nodes.values())
-			help.DrawNode(i, gl);
+			NodePainter.DrawNode(i, gl);
 	}
 	
-	public void StepNodes ()
+	public void StepAnimation (long time)
 	{
 		for (Node i : nodes.values())
-			i.StepSatelites();
+			i.StepSatelites(time);
 	}
 
 	public void SetSize(int width, int height, GL2 gl) {
-		help.SetSize(width, height, gl);
 	}
 
 	public void SuggestNode(String sip, String dip) {
@@ -117,7 +114,10 @@ public class Map {
 		
 		// Move the shift times
 		double angle = 0;
-		for (int i=0; i<shift; i++)
+		if (innerring % 2 == 1)
+			x -= Math.sqrt(3) * base;
+
+		for (int i=0 - (innerring % 2); i<shift - (innerring % 2); i++)
 		{
 			if (i % outerring == 0)
 			{

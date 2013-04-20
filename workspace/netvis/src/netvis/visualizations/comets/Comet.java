@@ -26,6 +26,9 @@ public class Comet {
 	
 	double tilt; public double gettilt() {return tilt;};
 	
+	double kx = 0.4;
+	double ky = 0.4;
+	
 	public Comet (int amp, double tt)
 	{
 		super();
@@ -45,7 +48,7 @@ public class Comet {
 		velocityy = Math.cos(tilt + Math.PI/2) * randspeed;
 	}
 	
-	public void Step ()
+	public void Step (long time)
 	{
 		int x = (int) Math.floor(posx);
 		int y = (int) Math.floor(posy);
@@ -55,8 +58,7 @@ public class Comet {
 		// Keep only the last 20
 		tail = tail.subList(Math.max(0, tail.size()-20), tail.size());
 		
-		
-		if (!tracefinished || trace.size() < 200)
+		if (!tracefinished || trace.size() < 100)
 		{
 			trace.add(new Position (x, y));
 			
@@ -97,11 +99,14 @@ public class Comet {
 			}
 		};
 		
+		//System.out.println("Number of tail  elements : " + tail.size());
+		//System.out.println("Number of trace elements : " + trace.size());
+		
 		// Update the position
 		posx += velocityx * 1.0;
 		posy += velocityy * 1.0;
 		
-		ForcesAct();
+		ForcesAct(time);
 	}
 	
 	public double Angle (double posx, double posy)
@@ -109,11 +114,13 @@ public class Comet {
 		return Math.atan2(posy, posx);
 	}
 	
-	public void ForcesAct()
+	public void ForcesAct(long time)
 	{
 		// Harmonic oscillator model
-		velocityx -= (posx) * 0.004;
-		velocityy -= (posy) * 0.004;
+		velocityx -= (posx) * time/1000.0 * kx;
+		velocityy -= (posy) * time/1000.0 * ky;
+		
+		//System.out.println("Time : " + time);
 		
 		// Gravitational model - maybe a better choice? - There is a lot of escaping though
 		// Force is proportional to the 1/distance^2

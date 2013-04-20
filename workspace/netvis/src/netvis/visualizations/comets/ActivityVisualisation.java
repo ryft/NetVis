@@ -28,6 +28,7 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualizations.Visualization;
+import netvis.visualizations.gameengine.TextRendererPool;
 import netvis.visualizations.gameengine.TexturePool;
 import netvis.visualizations.gameengine.ValueAnimator;
 
@@ -89,10 +90,15 @@ public class ActivityVisualisation extends Visualization {
 		currentMap = new Map (width, height);
 		
 		ActionListener animatum = new ActionListener () {
-			@Override
+			long lasttime = (new Date()).getTime();
+			
 			public void actionPerformed (ActionEvent evnt) {
 				// Animate the entities!
-				currentMap.StepNodes();
+				long newtime = (new Date()).getTime();
+				
+				currentMap.StepAnimation(newtime - lasttime);
+				
+				lasttime = newtime;
 			}
 		};
 		
@@ -361,7 +367,9 @@ public class ActivityVisualisation extends Visualization {
 		}
 		
 		currentMap.SetSize (width, height, gl);
+		
 		TexturePool.Rebind(gl);
+		TextRendererPool.Recreate();
 	}
 
 	@Override

@@ -85,10 +85,10 @@ public class Node {
 		}
 	}
 	
-	public void StepSatelites () 
+	public void StepSatelites (long time) 
 	{
 		for (Comet i : entities.values())
-			i.Step();
+			i.Step(time);
 	}
 
 }
