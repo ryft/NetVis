@@ -26,8 +26,8 @@ public class Comet {
 	
 	double tilt; public double gettilt() {return tilt;};
 	
-	double kx = 0.4;
-	double ky = 0.4;
+	double kx = 0.3;
+	double ky = 0.3;
 	
 	public Comet (int amp, double tt)
 	{

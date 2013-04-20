@@ -44,7 +44,7 @@ public class Map {
 	public void DrawEverything(GL2 gl) {
 		Painter.DrawGrid (base, gl);
 		for (Node i : nodes.values())
-			NodePainter.DrawNode(i, gl);
+			Painter.DrawNode (base, i, gl);
 	}
 	
 	public void StepAnimation (long time)

@@ -3,8 +3,10 @@ package netvis.visualizations.comets;
 import java.util.Collection;
 import java.util.HashMap;
 
+import netvis.visualizations.gameengine.NodePainter;
 import netvis.visualizations.gameengine.Position;
 import netvis.visualizations.gameengine.Texture;
+import netvis.visualizations.gameengine.ValueAnimator;
 
 public class Node {
 
@@ -16,12 +18,22 @@ public class Node {
 	public double getScale () {return scale;}
 	public void   setScale (double s) {scale = s;}
 	
+	ValueAnimator rotation;
+	public double getRotation () {return rotation.toDouble();};
+	
 	int warning; public int getWarning() {return warning;};
 	double [] bgColor;
 	public double[] getBGColor() {return bgColor;}
 	public void     setBGColor(double r, double g, double b) {bgColor[0] = r; bgColor[1] = g; bgColor[2] = b;}
 	
-	boolean selected; public boolean getSelected() {return selected;}; public void toggleSelected() {selected = !selected;};
+	boolean selected; public boolean getSelected() {return selected;};
+	public void toggleSelected() {
+		selected = !selected;
+		if (selected)
+			rotation.MoveTo (rotation.getGoal() + 180.0, 1000);
+		else
+			rotation.MoveTo (rotation.getGoal() - 180.0, 1000);
+	};
 	
 	Texture tex; public Texture getTexture () {return tex;}
 	
@@ -34,6 +46,7 @@ public class Node {
 		name = nn;
 		tex = tt;
 		center = new Position (posx, posy);
+		rotation = new ValueAnimator (0.0);
 	
 		entities = new HashMap<String, Comet>();
 		bgColor = new double[3];
@@ -51,6 +64,8 @@ public class Node {
 		bgColor[0] *= 1.3;
 		bgColor[1] *= 0.9;
 		bgColor[2] *= 0.9;
+		
+		//rotation.MoveTo (rotation.getGoal() + 360.0, 1000);
 	}
 	
 	public void DecreaseWarning ()
@@ -59,6 +74,8 @@ public class Node {
 		bgColor[0] /= 1.3;
 		bgColor[1] /= 0.9;
 		bgColor[2] /= 0.9;
+		
+		//rotation.MoveTo (rotation.getGoal() - 360.0, 1000);
 	}
 
 	public void AddSatelite(String sip, int amp, double tilt)
@@ -89,6 +106,17 @@ public class Node {
 	{
 		for (Comet i : entities.values())
 			i.Step(time);
+	}
+	
+	
+	public NodePainter GetFrontPainter ()
+	{
+		return new CometPainter();
+	}
+	
+	public NodePainter GetBackPainter ()
+	{
+		return new GraphPainter();
 	}
 
 }

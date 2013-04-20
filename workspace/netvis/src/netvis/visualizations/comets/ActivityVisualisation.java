@@ -274,17 +274,17 @@ public class ActivityVisualisation extends Visualization {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 		
-		gl.glOrtho(middlex.toDouble()-this.width*viewfield/2, middlex.toDouble()+this.width*viewfield/2, middley.toDouble()-this.height*viewfield/2, middley.toDouble()+this.height*viewfield/2, -10, 10);
+		gl.glOrtho(middlex.toDouble()-this.width*viewfield/2, middlex.toDouble()+this.width*viewfield/2, middley.toDouble()-this.height*viewfield/2, middley.toDouble()+this.height*viewfield/2, 1000, 2000);
 		
 		// Clear the board
 		gl.glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
-		gl.glClearDepth (0.0);
+		gl.glClearDepth (3000.0);
 		gl.glClear (GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 		gl.glShadeModel(GL2.GL_FLAT);
 		
 		// Depth things - probably unnecessary
 		//gl.glEnable(GL.GL_DEPTH_TEST);
-		//gl.glDepthFunc(GL2.GL_ALWAYS);
+		//gl.glDepthFunc(GL2.GL_GEQUAL);
 
 		// Use the typical blending options
 		gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
@@ -300,8 +300,11 @@ public class ActivityVisualisation extends Visualization {
 	    gl.glHint (GL2.GL_LINE_SMOOTH_HINT, GL2.GL_NICEST );
 	    gl.glHint (GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST );
 		
-	    // Make the map draw all of the elements
-		currentMap.DrawEverything(gl);
+	    gl.glPushMatrix();
+	    	gl.glTranslated (0.0, 0.0, -1000.0);
+		    // Make the map draw all of the elements
+			currentMap.DrawEverything(gl);
+		gl.glPopMatrix();
 		
 		gl.glFlush();
 	}
