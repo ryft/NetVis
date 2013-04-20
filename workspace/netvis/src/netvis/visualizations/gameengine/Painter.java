@@ -151,32 +151,13 @@ public class Painter {
 
 		// Think of rounding up the base to the power of two
 
-		
-		int [] texture = new int [1];
-		int [] fbuffer = new int [1];
-		
-		// Generate the texture to render to
-		gl.glGenTextures(1, texture, 0);
-		gl.glBindTexture(GL.GL_TEXTURE_2D, texture[0]);
-		gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR );
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR );
-		
-		// Reserve space for the texture - make its dimensions twice as big as necessary
-		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA8, 4*base, 4*base, 0, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, null);
-		gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
-		
-		// Generate the framebuffer
-		gl.glGenFramebuffers (1, fbuffer, 0);
-		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, fbuffer[0]);
-		
-		// Attach the texture to the framebuffer
-		gl.glFramebufferTexture2D (GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, texture[0], 0);
+		// Get the framebuffer of the specified node
+		Framebuffer fb = lum.GetFramebuffer();
+		int textureid = fb.BindTexture(gl);
+		int bufferid  = fb.BindBuffer(gl);
 		
 		// Switch rendering to the framebuffer
-		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, fbuffer[0]);
+		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, bufferid);
 
 		gl.glPushMatrix();
 			gl.glMatrixMode(GL2.GL_PROJECTION);
@@ -184,7 +165,7 @@ public class Painter {
 			gl.glLoadIdentity();
 			
 			//gl.glViewport(-base, -base, base, base);
-			gl.glViewport(0, 0, 4*base, 4*base);
+			gl.glViewport(0, 0, 2*base, 2*base);
 			gl.glOrtho(-base, base, -base, base, -10, 10);
 			
 			gl.glClearColor (1.0f, 1.0f, 1.0f, 0.0f);
@@ -199,10 +180,10 @@ public class Painter {
 		// and the correct viewport
 		gl.glViewport (viewport[0], viewport[1], viewport[2], viewport[3]);
 		
-		gl.glBindTexture(GL.GL_TEXTURE_2D, texture[0]);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, textureid);
 		gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
 		
-		return new int[]{texture[0], fbuffer[0]};
+		return new int[]{textureid, bufferid};
 	}
 	
 	public static void DrawNode (int base, Node lum, GL2 gl)
@@ -210,9 +191,8 @@ public class Painter {
 		int x = lum.getCenter().x;
 		int y = lum.getCenter().y;
 		
-		// Texture id and Framebufferid
-		int [] texfb1 = DrawNodeToTheTexture (base, lum.GetFrontPainter(), lum, gl);
-		int [] texfb2 = DrawNodeToTheTexture (base, lum.GetBackPainter(),  lum, gl);
+		// Texture id and Framebuffer id
+
 		
 		double rotation = lum.getRotation();
 		//System.out.println(rotation);
@@ -221,10 +201,12 @@ public class Painter {
 		
 		if (rotation > -90.0 && rotation < 90.0)
 		{
+			int [] texfb = DrawNodeToTheTexture (base, lum.GetFrontPainter(), lum, gl);
+
 			// Now display the front texture
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb1[0]);
+			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
 			gl.glPushMatrix();
-				gl.glTranslated (lum.getCenter().x, lum.getCenter().y, -500.0);
+				gl.glTranslated (x, y, -500.0);
 				gl.glRotated (rotation, 1.0, 0.0, 0.0);
 	
 				// Draw the background
@@ -241,11 +223,13 @@ public class Painter {
 			gl.glPopMatrix();
 		} else
 		{
+			int [] texfb = DrawNodeToTheTexture (base, lum.GetBackPainter(),  lum, gl);
+			
 			// And the back texture
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb2[0]);
+			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
 			gl.glPushMatrix();
-				gl.glTranslated (lum.getCenter().x, lum.getCenter().y, -505.0);
-				gl.glRotated (rotation, 1.0, 0.0, 0.0);
+				gl.glTranslated (x, y, -505.0);
+				gl.glRotated (rotation + 180.0, 1.0, 0.0, 0.0);
 				
 				// Draw the background
 				gl.glPushMatrix();
@@ -258,11 +242,5 @@ public class Painter {
 				
 			gl.glPopMatrix();
 		};
-		
-		// Cleanup
-		gl.glDeleteTextures (1, texfb1, 0);
-		gl.glDeleteTextures (1, texfb2, 0);
-		gl.glDeleteFramebuffers (1, texfb1, 1);
-		gl.glDeleteFramebuffers (1, texfb2, 1);
 	}
 }

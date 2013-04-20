@@ -3,6 +3,8 @@ package netvis.visualizations.comets;
 import java.util.Collection;
 import java.util.HashMap;
 
+import netvis.visualizations.gameengine.Framebuffer;
+import netvis.visualizations.gameengine.FramebufferPool;
 import netvis.visualizations.gameengine.NodePainter;
 import netvis.visualizations.gameengine.Position;
 import netvis.visualizations.gameengine.Texture;
@@ -39,8 +41,13 @@ public class Node {
 	
 	String name; public String getName() {return name;};
 	
+	int framebufferid;
+	public Framebuffer GetFramebuffer() {return FramebufferPool.get(framebufferid);}
+	
 	public Node (int posx, int posy, Texture tt, String nn)
 	{
+		framebufferid = FramebufferPool.Generate ();
+		
 		selected = false;
 		
 		name = nn;
