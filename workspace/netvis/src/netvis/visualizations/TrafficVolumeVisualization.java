@@ -38,7 +38,7 @@ public class TrafficVolumeVisualization extends Visualization {
 	private final Queue<Map<String, Integer>> protocolCountMaps = new LinkedList<Map<String, Integer>>();
 	private final Map<String, Integer> globalProtocolCount = new HashMap<String, Integer>();
 	private final Map<String, GLColour3d> protocolColours = new HashMap<String, GLColour3d>();
-	private double maxX = 64;
+	private int maxX = 64;
 	private double maxY = 0;
 	
 	// Fields governing the update frequency of the graph
@@ -71,6 +71,7 @@ public class TrafficVolumeVisualization extends Visualization {
 		
 		JLabel labelMaxX = new JLabel("Set x-axis resolution");
 		final JTextField textMaxX = new JTextField();
+		textMaxX.setText("64");
 		
 		JButton buttonMaxX = new JButton("Apply");
 		buttonMaxX.addActionListener(new ActionListener() {
@@ -79,6 +80,7 @@ public class TrafficVolumeVisualization extends Visualization {
 				try {
 					int newMaxX = Integer.valueOf(textMaxX.getText());
 					maxX = newMaxX;
+					textMaxX.setText(String.valueOf(maxX));
 				} catch (NumberFormatException nfe) { }
 			}	
 		});

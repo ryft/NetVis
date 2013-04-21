@@ -2,6 +2,7 @@ package netvis;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -10,6 +11,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -179,6 +182,11 @@ public class ApplicationFrame extends JFrame {
 		
 		VisualizationsController.GetInstance().ActivateById (0);
 		
+		// Add a resize listener
+		this.addComponentListener(new ResizeListener());
+		this.setPreferredSize(new Dimension(1080, 720));
+		this.setLocationByPlatform(true);
+		
 		// Register a nice exception handler
 		if (!DEBUG_MODE)
 			Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(parent));
@@ -244,7 +252,6 @@ public class ApplicationFrame extends JFrame {
 				{
 					ApplicationFrame.this.toggleFullScreen();
 				}
-				//setSize(990, 730);
 			}
 		});
 
@@ -306,6 +313,8 @@ public class ApplicationFrame extends JFrame {
 				parent.setVisible(true);
 			}
 		
+		componentResized();
+		
 	}
 
 	/**
@@ -335,6 +344,7 @@ public class ApplicationFrame extends JFrame {
 			if (analysisPanel.batchProcessBlock) {
 				label.setForeground(Color.darkGray);
 				label.setText("Processing filtered data...");
+				label.setToolTipText("Click to perform a garbage collection.");
 
 			} else {
 				// Get heap usage stats from the JVM Runtime object
@@ -419,6 +429,27 @@ public class ApplicationFrame extends JFrame {
             }
 		});
 		
-
+	}
+	
+	protected void componentResized() {
+		glPanel.resizeVisualisation();
+	}
+	
+	protected class ResizeListener implements ComponentListener {
+	
+		@Override
+		public void componentHidden(ComponentEvent arg0) {
+		}
+		@Override
+		public void componentMoved(ComponentEvent arg0) {
+		}
+		@Override
+		public void componentShown(ComponentEvent arg0) {
+		}
+	
+		@Override
+		public void componentResized(ComponentEvent arg0) {
+			ApplicationFrame.this.componentResized();
+		}
 	}
 }
