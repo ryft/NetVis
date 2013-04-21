@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 
+import javax.media.opengl.GL2;
+
 import com.jogamp.opengl.util.awt.TextRenderer;
 
 public class TextRendererPool {
@@ -38,7 +40,7 @@ public class TextRendererPool {
 			font = new Font("SansSerif", Font.BOLD, size);
 		}
 		
-		TextRenderer renderer = new TextRenderer(font, true);
+		TextRenderer renderer = new TextRenderer (font, true, true, new TextRenderer.DefaultRenderDelegate(), true);
 		
 		fonts.put(name, font);
 		renderers.put(name, renderer);
@@ -48,13 +50,28 @@ public class TextRendererPool {
 	{
 		for (String name : renderers.keySet())
 		{
-			TextRenderer renderer = new TextRenderer(fonts.get(name), true);
+			TextRenderer renderer = new TextRenderer (fonts.get(name), true, true, new TextRenderer.DefaultRenderDelegate(), true);
 			renderers.put (name, renderer);
 		}
 	}
 
 	public static TextRenderer get(String fontName) {
 		return renderers.get(fontName);
+	}
+	
+	public static void StartRend (String name, GL2 gl)
+	{
+		TextRenderer renderer = renderers.get(name);
+		renderer.begin3DRendering();
+		renderer.setSmoothing(true);
+		renderer.setUseVertexArrays(true);
+	}
+	
+	public static void FinishRend (String name, GL2 gl)
+	{
+		TextRenderer renderer = renderers.get(name);
+		renderer.end3DRendering();
+		renderer.flush();
 	}
 
 }

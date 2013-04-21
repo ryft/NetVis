@@ -52,7 +52,7 @@ public class Framebuffer {
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR );
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR );
 		
-		// Reserve space for the texture - make its dimensions twice as big as necessary
+		// Reserve space for the texture - (not) make its dimensions twice as big as necessary
 		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA8, 2*base, 2*base, 0, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, null);
 		gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
 		
@@ -75,5 +75,16 @@ public class Framebuffer {
 		
 		textureid = -1;
 		bufferid = -1;
+	}
+	
+	public void SetupView (GL2 gl)
+	{
+		gl.glViewport(0, 0, 2*base, 2*base);
+		gl.glOrtho(-base, base, -base, base, -10, 20);
+		gl.glTranslated(0.0, 0.0, 5.0);
+		
+		gl.glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
+		gl.glClearDepth (0.0);
+		gl.glClear (GL2.GL_COLOR_BUFFER_BIT);
 	}
 }

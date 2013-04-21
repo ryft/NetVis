@@ -161,18 +161,11 @@ public class Painter {
 
 		gl.glPushMatrix();
 			gl.glMatrixMode(GL2.GL_PROJECTION);
-			gl.glPushMatrix();
 			gl.glLoadIdentity();
 			
-			//gl.glViewport(-base, -base, base, base);
-			gl.glViewport(0, 0, 2*base, 2*base);
-			gl.glOrtho(-base, base, -base, base, -10, 10);
-			
-			gl.glClearColor (1.0f, 1.0f, 1.0f, 0.0f);
-			gl.glClearDepth (0.0);
-			gl.glClear (GL2.GL_COLOR_BUFFER_BIT);
+			fb.SetupView(gl);
+
 			painter.DrawNode (base, lum, gl);
-			gl.glPopMatrix();
 		gl.glPopMatrix();
 	
 		// Switch back to the back buffer
@@ -191,9 +184,6 @@ public class Painter {
 		int x = lum.getCenter().x;
 		int y = lum.getCenter().y;
 		
-		// Texture id and Framebuffer id
-
-		
 		double rotation = lum.getRotation();
 		//System.out.println(rotation);
 		
@@ -201,6 +191,7 @@ public class Painter {
 		
 		if (rotation > -90.0 && rotation < 90.0)
 		{
+			// Texture id and Framebuffer id
 			int [] texfb = DrawNodeToTheTexture (base, lum.GetFrontPainter(), lum, gl);
 
 			// Now display the front texture

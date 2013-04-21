@@ -103,7 +103,7 @@ public class ActivityVisualisation extends Visualization {
 			}
 		};
 		
-		animator = new Timer (20, animatum);
+		animator = new Timer (25, animatum);
 		animator.start();
 		
 		ActionListener clearing = new ActionListener () {
