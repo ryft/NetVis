@@ -57,8 +57,8 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 	private static GLCapabilitiesImmutable CreateCapabilities ()
 	{
 		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-		caps.setSampleBuffers (true);
-		caps.setNumSamples (8);
+		//caps.setSampleBuffers (true);
+		//caps.setNumSamples (2);
 		
 		return caps;
 	}
