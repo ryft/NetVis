@@ -30,6 +30,14 @@ public class FramebufferPool {
 		return null;
 	}
 	
+	public static void DiscardAll ()
+	{
+		for (Framebuffer i : buffers)
+		{
+			i.Discard();
+		}
+	}
+	
 	public static void RegenerateAll (GL2 gl)
 	{
 		for (Framebuffer i : buffers)

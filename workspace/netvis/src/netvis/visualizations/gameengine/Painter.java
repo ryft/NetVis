@@ -5,8 +5,6 @@ import java.nio.DoubleBuffer;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
-import netvis.visualizations.comets.Node;
-
 public class Painter {
 	
 	/*
@@ -141,101 +139,5 @@ public class Painter {
 				DrawHexagon (GL2.GL_LINE_LOOP, base*Math.sqrt(3)*i + dx, base*1.5*j, 400, gl);
 			}
 		}
-	}
-	
-	public static int [] DrawNodeToTheTexture (int base, NodePainter painter, Node lum, GL2 gl)
-	{
-		// Find out the viewport size
-		int [] viewport = new int [4];
-		gl.glGetIntegerv(GL.GL_VIEWPORT, viewport, 0);
-
-		// Think of rounding up the base to the power of two
-
-		// Get the framebuffer of the specified node
-		Framebuffer fb = lum.GetFramebuffer();
-		int textureid = fb.BindTexture(gl);
-		int fbufferid  = fb.BindFBuffer(gl);
-		int dbufferid  = fb.BindDBuffer(gl);
-		
-		// Switch rendering to the framebuffer
-		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, fbufferid);
-		gl.glBindRenderbuffer (GL2.GL_RENDERBUFFER, fbufferid);
-
-		gl.glPushMatrix();
-			gl.glMatrixMode(GL2.GL_PROJECTION);
-			gl.glLoadIdentity();
-			
-			fb.SetupView(gl);
-
-			painter.DrawNode (base, lum, gl);
-		gl.glPopMatrix();
-	
-		// Switch back to the back buffer
-		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, 0);
-		gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, 0);
-	
-		// and the correct viewport
-		gl.glViewport (viewport[0], viewport[1], viewport[2], viewport[3]);
-		
-		gl.glBindTexture(GL.GL_TEXTURE_2D, textureid);
-		gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
-		
-		return new int[]{textureid, fbufferid, dbufferid};
-	}
-	
-	public static void DrawNode (int base, Node lum, GL2 gl)
-	{
-		int x = lum.getCenter().x;
-		int y = lum.getCenter().y;
-		
-		double rotation = lum.getRotation();
-		//System.out.println(rotation);
-		
-		while (rotation > 180.0) rotation -= 360.0;
-		
-		if (rotation > -90.0 && rotation < 90.0)
-		{
-			// Texture id and Framebuffer id
-			int [] texfb = DrawNodeToTheTexture (base, lum.GetFrontPainter(), lum, gl);
-
-			// Now display the front texture
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
-			gl.glPushMatrix();
-				gl.glTranslated (x, y, -500.0);
-				gl.glRotated (rotation, 1.0, 0.0, 0.0);
-	
-				// Draw the background
-				gl.glPushMatrix();
-					gl.glTranslated (0.0, 0.0, +1.0);
-					gl.glColor3dv(lum.getBGColor(), 0);
-					Painter.DrawHexagon (GL2.GL_POLYGON, 0, 0, 400, gl);
-				gl.glPopMatrix();
-				
-				
-				DrawSquare (2*base, 2*base, 0, 0, 1.0, 180.0, gl);
-				
-	
-			gl.glPopMatrix();
-		} else
-		{
-			int [] texfb = DrawNodeToTheTexture (base, lum.GetBackPainter(),  lum, gl);
-			
-			// And the back texture
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
-			gl.glPushMatrix();
-				gl.glTranslated (x, y, -505.0);
-				gl.glRotated (rotation + 180.0, 1.0, 0.0, 0.0);
-				
-				// Draw the background
-				gl.glPushMatrix();
-					gl.glTranslated (0.0, 0.0, +1.0);
-					gl.glColor3dv(lum.getBGColor(), 0);
-					Painter.DrawHexagon (GL2.GL_POLYGON, 0, 0, 400, gl);
-				gl.glPopMatrix();
-				
-				DrawSquare (2*base, 2*base, 0, 0, 1.0, 180.0, gl);
-				
-			gl.glPopMatrix();
-		};
 	}
 }

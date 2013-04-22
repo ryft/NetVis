@@ -9,6 +9,7 @@ import java.util.Random;
 
 import javax.media.opengl.GL2;
 
+import netvis.visualizations.gameengine.Node;
 import netvis.visualizations.gameengine.Painter;
 import netvis.visualizations.gameengine.Position;
 import netvis.visualizations.gameengine.TexturePool;
@@ -48,13 +49,21 @@ public class Map {
 	public void DrawEverything(GL2 gl) {
 		Painter.DrawGrid (base, gl);
 		for (Node i : nodes.values())
-			Painter.DrawNode (base, i, gl);
+		{
+			int x = i.getCenter().x;
+			int y = i.getCenter().y;
+	
+			gl.glPushMatrix();
+				gl.glTranslated (x, y, 0.0);
+				i.Draw (base, new MapPainter(), gl);
+			gl.glPopMatrix();
+		}
 	}
 	
 	public void StepAnimation (long time)
 	{
 		for (Node i : nodes.values())
-			i.StepSatelites(time);
+			i.UpdateAnimation(time);
 	}
 
 	public void SetSize(int w, int h, GL2 gl) {
@@ -73,12 +82,8 @@ public class Map {
 			Position p = FindPosition (nodes.size());
 			find = AddNode (p.x, p.y, dip, "basic");
 		} 
-		
-		// Randomized entry
-		//find.AddSatelite (sip, 100, rand.nextDouble()*Math.PI);
-		
-		// Make their tilts nicely shifted
-		find.AddSatelite (sip, 100, find.getEntities().size() * Math.PI/10);
+
+		find.UpdateWithData (sip);
 	}
 	
 	public void SortNodes ()
@@ -87,7 +92,7 @@ public class Map {
 
 			@Override
 			public int compare(Node n1, Node n2) {
-				return n2.getWarning() - n1.getWarning();
+				return n2.Priority() - n1.Priority();
 			}
 			
 		});
@@ -138,7 +143,10 @@ public class Map {
 
 	private Node AddNode (int x, int y, String name, String textureName) 
 	{
-		Node lemur = new Node(x, y, TexturePool.get(textureName), name);
+		CometHeatNode front = new CometHeatNode(x, y, TexturePool.get(textureName), name);
+		GraphNode 	  back  = new GraphNode (name, x, y);
+		
+		FlipNode lemur = new FlipNode (front, back, x, y);
 		nodes.put (name, lemur);
 		nodesl.add (lemur);
 		
@@ -149,7 +157,8 @@ public class Map {
 	{
 		for (Node n : nodes.values())
 		{
-			double distance = Math.sqrt (Math.pow(n.center.x - x, 2) + Math.pow(n.center.y - y, 2));
+			Position pos = n.getCenter();
+			double distance = Math.sqrt (Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2));
 			if (distance < base-10)
 				return n;
 		}

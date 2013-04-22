@@ -99,6 +99,10 @@ public class Framebuffer {
 		gl.glDeleteTextures (1, new int[] {textureid}, 0);
 		gl.glDeleteFramebuffers (1, new int[] {fbufferid}, 1);
 		
+		Discard();
+	}
+
+	public void Discard() {
 		textureid = -1;
 		fbufferid = -1;
 		dbufferid = -1;

@@ -3,25 +3,15 @@ package netvis.visualizations.comets;
 import java.util.Collection;
 import java.util.HashMap;
 
-import netvis.visualizations.gameengine.Framebuffer;
-import netvis.visualizations.gameengine.FramebufferPool;
-import netvis.visualizations.gameengine.NodePainter;
-import netvis.visualizations.gameengine.Position;
-import netvis.visualizations.gameengine.Texture;
-import netvis.visualizations.gameengine.ValueAnimator;
+import javax.media.opengl.GL2;
 
-public class Node {
+import netvis.visualizations.gameengine.Node;
+import netvis.visualizations.gameengine.NodePainter;
+import netvis.visualizations.gameengine.Texture;
+
+public class CometHeatNode extends Node {
 
 	HashMap<String, Comet> entities; public Collection<Comet> getEntities() {return entities.values();}
-	
-	Position center; public Position getCenter() {return center;}; public void setCenter(Position nc) {center = nc;};
-	
-	double scale = 1.0;
-	public double getScale () {return scale;}
-	public void   setScale (double s) {scale = s;}
-	
-	ValueAnimator rotation;
-	public double getRotation () {return rotation.toDouble();};
 	
 	int warning; public int getWarning() {return warning;};
 	double [] bgColor;
@@ -29,31 +19,24 @@ public class Node {
 	public void     setBGColor(double r, double g, double b) {bgColor[0] = r; bgColor[1] = g; bgColor[2] = b;}
 	
 	boolean selected; public boolean getSelected() {return selected;};
-	public void toggleSelected() {
-		selected = !selected;
-		if (selected)
-			rotation.MoveTo (rotation.getGoal() + 180.0, 1000);
-		else
-			rotation.MoveTo (rotation.getGoal() - 180.0, 1000);
-	};
+
+	
+	boolean changed = true;
+	public boolean IsChanged ()	{return changed;}
+	public void    Draw () {changed = false;}
 	
 	Texture tex; public Texture getTexture () {return tex;}
 	
 	String name; public String getName() {return name;};
 	
-	int framebufferid;
-	public Framebuffer GetFramebuffer() {return FramebufferPool.get(framebufferid);}
-	
-	public Node (int posx, int posy, Texture tt, String nn)
+	public CometHeatNode (int posx, int posy, Texture tt, String nn)
 	{
-		framebufferid = FramebufferPool.Generate ();
+		super (posx, posy);
 		
 		selected = false;
 		
 		name = nn;
 		tex = tt;
-		center = new Position (posx, posy);
-		rotation = new ValueAnimator (0.0);
 	
 		entities = new HashMap<String, Comet>();
 		bgColor = new double[3];
@@ -63,6 +46,27 @@ public class Node {
 		bgColor[1] = 1.0;
 		bgColor[2] = 0.7;
 		warning = 0;
+	}
+	
+	public void Draw (int base, NodePainter painter, GL2 gl)
+	{
+		painter.DrawNode(base, this, gl);
+	}
+	
+	public void UpdateWithData (String sip)
+	{
+		// Make their tilts nicely shifted
+		AddSatelite (sip, 100, entities.size() * Math.PI/10);
+	}
+	
+	public void UpdateAnimation (long time)
+	{
+		StepSatelites (time);
+	}
+
+	public int Priority ()
+	{
+		return warning;
 	}
 	
 	public void IncreaseWarning ()
@@ -114,16 +118,11 @@ public class Node {
 		for (Comet i : entities.values())
 			i.Step(time);
 	}
-	
-	
-	public NodePainter GetFrontPainter ()
-	{
-		return new CometPainter();
-	}
-	
-	public NodePainter GetBackPainter ()
-	{
-		return new GraphPainter();
+
+	@Override
+	public void DoubleClick() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

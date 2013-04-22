@@ -29,6 +29,7 @@ import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualizations.Visualization;
 import netvis.visualizations.gameengine.FramebufferPool;
+import netvis.visualizations.gameengine.Node;
 import netvis.visualizations.gameengine.TextRendererPool;
 import netvis.visualizations.gameengine.TexturePool;
 import netvis.visualizations.gameengine.ValueAnimator;
@@ -190,13 +191,18 @@ public class ActivityVisualisation extends Visualization {
 			
 				if (e.getClickCount() == 2)
 				{
+					n.DoubleClick ();
+
+					// Sort the map
+					currentMap.SortNodes();
+
 					// Zoom on the selected node - such that it will fill the screen
 					double goal = currentMap.ZoomOn (n);
 					viewfieldanim.MoveTo (goal, 1000);
-				} else if (n != null)
+				} 
+				
+				if (n != null)
 				{
-					n.toggleSelected();
-					
 					// Move to the selected node
 					middlex.MoveTo (n.getCenter().x, 1000);
 					middley.MoveTo (n.getCenter().y, 1000);
@@ -375,9 +381,11 @@ public class ActivityVisualisation extends Visualization {
 		
 		currentMap.SetSize (width, height, gl);
 		
-		TexturePool.Rebind(gl);
+		//TexturePool.Rebind(gl);
+		TexturePool.DiscardTextures();
 		TextRendererPool.Recreate();
-		FramebufferPool.RegenerateAll(gl);
+		//FramebufferPool.RegenerateAll(gl);
+		FramebufferPool.DiscardAll();
 	}
 
 	@Override
