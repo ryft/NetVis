@@ -16,10 +16,20 @@ import netvis.visualizations.gameengine.TexturePool;
 
 public class Map {
 
+	class NodeWithPosition
+	{
+		public NodeWithPosition (Node a, Position b) {
+			node = a;
+			pos  = b;
+		}
+		public Node node;
+		public Position pos;
+	}
+
 	// IPs mapped to nodes
-	HashMap<String, Node> nodes;
+	HashMap<String, NodeWithPosition> nodes;
 	
-	List<Node> nodesl;
+	List<NodeWithPosition> nodesl;
 	
 	// Basic size of the node
 	int base = 400;
@@ -38,8 +48,8 @@ public class Map {
 		
 		rand = new Random();
 		
-		nodes = new HashMap<String, Node> ();
-		nodesl= new ArrayList<Node> ();
+		nodes = new HashMap<String, NodeWithPosition> ();
+		nodesl= new ArrayList<NodeWithPosition> ();
 
 		// Load all the necessary textures
 		TexturePool.LoadTexture ("server", 	Map.class.getResource("resources/server.png"));
@@ -48,22 +58,22 @@ public class Map {
 	
 	public void DrawEverything(GL2 gl) {
 		Painter.DrawGrid (base, gl);
-		for (Node i : nodes.values())
+		for (NodeWithPosition i : nodes.values())
 		{
-			int x = i.getCenter().x;
-			int y = i.getCenter().y;
+			int x = i.pos.x;
+			int y = i.pos.y;
 	
 			gl.glPushMatrix();
 				gl.glTranslated (x, y, 0.0);
-				i.Draw (base, new MapPainter(), gl);
+				i.node.Draw (base, new MapPainter(), gl);
 			gl.glPopMatrix();
 		}
 	}
 	
 	public void StepAnimation (long time)
 	{
-		for (Node i : nodes.values())
-			i.UpdateAnimation(time);
+		for (NodeWithPosition i : nodes.values())
+			i.node.UpdateAnimation(time);
 	}
 
 	public void SetSize(int w, int h, GL2 gl) {
@@ -75,24 +85,23 @@ public class Map {
 		// Suggests the existence of the node in the network to be displayed
 		
 		// Look whether the node already exists
-		Node find = nodes.get(dip);
+		NodeWithPosition find = nodes.get(dip);
 		
 		if (find == null)
 		{
-			Position p = FindPosition (nodes.size());
-			find = AddNode (p.x, p.y, dip, "basic");
+			find = AddNode (dip, "basic");
 		} 
 
-		find.UpdateWithData (sip);
+		find.node.UpdateWithData (sip);
 	}
 	
 	public void SortNodes ()
 	{
-		Collections.sort (nodesl, new Comparator<Node> () {
+		Collections.sort (nodesl, new Comparator<NodeWithPosition> () {
 
 			@Override
-			public int compare(Node n1, Node n2) {
-				return n2.Priority() - n1.Priority();
+			public int compare(NodeWithPosition n1, NodeWithPosition n2) {
+				return n2.node.Priority() - n1.node.Priority();
 			}
 			
 		});
@@ -100,11 +109,9 @@ public class Map {
 		// Now display them in the order
 		for (int i=0; i<nodesl.size(); i++)
 		{
-			Node n = nodesl.get(i);
+			NodeWithPosition n = nodesl.get(i);
 			
-			Position p = this.FindPosition(i);
-			
-			n.setCenter (p);
+			n.pos = this.FindPosition(i);
 		}
 	}
 	
@@ -141,23 +148,27 @@ public class Map {
 		return new Position (x,y);
 	}
 
-	private Node AddNode (int x, int y, String name, String textureName) 
+	private NodeWithPosition AddNode (String name, String textureName) 
 	{
-		CometHeatNode front = new CometHeatNode(x, y, TexturePool.get(textureName), name);
-		GraphNode 	  back  = new GraphNode (name, x, y);
+		CometHeatNode front = new CometHeatNode (TexturePool.get(textureName), name);
+		GraphNode 	  back  = new GraphNode (name);
 		
-		FlipNode lemur = new FlipNode (front, back, x, y);
-		nodes.put (name, lemur);
-		nodesl.add (lemur);
+		FlipNode lemur = new FlipNode (front, back);
 		
-		return lemur;
+		Position p = FindPosition (nodes.size());
+		NodeWithPosition k = new NodeWithPosition (lemur, p);
+		
+		nodes.put (name, k);
+		nodesl.add (k);
+		
+		return k;
 	}
 	
-	public Node FindClickedNode (int x, int y)
+	public NodeWithPosition FindClickedNode (int x, int y)
 	{
-		for (Node n : nodes.values())
+		for (NodeWithPosition n : nodes.values())
 		{
-			Position pos = n.getCenter();
+			Position pos = n.pos;
 			double distance = Math.sqrt (Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2));
 			if (distance < base-10)
 				return n;
@@ -165,7 +176,7 @@ public class Map {
 		return null;
 	}
 
-	public double ZoomOn(Node n) {
+	public double ZoomOn () {
 		double screenratio = (1.0 * width) / height;
 		if (screenratio < Math.sqrt(3.0))
 		{

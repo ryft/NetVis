@@ -29,9 +29,9 @@ public class CometHeatNode extends Node {
 	
 	String name; public String getName() {return name;};
 	
-	public CometHeatNode (int posx, int posy, Texture tt, String nn)
+	public CometHeatNode (Texture tt, String nn)
 	{
-		super (posx, posy);
+		super ();
 		
 		selected = false;
 		

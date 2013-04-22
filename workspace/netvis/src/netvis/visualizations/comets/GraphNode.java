@@ -10,9 +10,9 @@ public class GraphNode extends Node {
 	String name;
 	public String getName () {return name;}
 	
-	public GraphNode (String n, int posx, int posy)
+	public GraphNode (String n)
 	{
-		super (posx, posy);
+		super ();
 		name = n;
 	}
 	

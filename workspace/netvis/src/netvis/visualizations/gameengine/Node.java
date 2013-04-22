@@ -4,12 +4,7 @@ import javax.media.opengl.GL2;
 
 public abstract class Node {
 
-	Position center; public Position getCenter() {return center;}; public void setCenter(Position nc) {center = nc;};
-	
-	public Node (int posx, int posy)
-	{
-		center = new Position (posx, posy);
-	}
+	public Node ()	{}
 	
 	public void Draw (int base, NodePainter painter, GL2 gl)
 	{

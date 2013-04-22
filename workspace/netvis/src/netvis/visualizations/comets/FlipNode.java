@@ -23,9 +23,9 @@ public class FlipNode extends Node{
 	ValueAnimator rotation;
 	public double getRotation () {return rotation.toDouble();};
 	
-	public FlipNode (Node f, Node b, int posx, int posy)
+	public FlipNode (Node f, Node b)
 	{
-		super (posx, posy);
+		super ();
 
 		framebufferid = FramebufferPool.Generate ();
 		rotation = new ValueAnimator (0.0);
@@ -53,10 +53,8 @@ public class FlipNode extends Node{
 	
 	public int Priority ()
 	{
-		if (frontSeen)
-			return front.Priority();
-
-		return back.Priority();
+		// Return the bigger one of the two
+		return Math.max(front.Priority(), back.Priority());
 	}
 	
 	@Override

@@ -28,6 +28,7 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualizations.Visualization;
+import netvis.visualizations.comets.Map.NodeWithPosition;
 import netvis.visualizations.gameengine.FramebufferPool;
 import netvis.visualizations.gameengine.Node;
 import netvis.visualizations.gameengine.TextRendererPool;
@@ -187,25 +188,25 @@ public class ActivityVisualisation extends Visualization {
 				double viewfield = viewfieldanim.toDouble();
 				int x = (int) Math.round (middlex.toDouble() + (e.getX()-(width/2))*viewfield);
 				int y = (int) Math.round (middley.toDouble() - (e.getY()-(height/2))*viewfield);
-				Node n = currentMap.FindClickedNode(x, y);
+				NodeWithPosition n = currentMap.FindClickedNode(x, y);
 			
 				if (e.getClickCount() == 2)
 				{
-					n.DoubleClick ();
+					n.node.DoubleClick ();
 
 					// Sort the map
 					currentMap.SortNodes();
 
 					// Zoom on the selected node - such that it will fill the screen
-					double goal = currentMap.ZoomOn (n);
+					double goal = currentMap.ZoomOn ();
 					viewfieldanim.MoveTo (goal, 1000);
 				} 
 				
 				if (n != null)
 				{
 					// Move to the selected node
-					middlex.MoveTo (n.getCenter().x, 1000);
-					middley.MoveTo (n.getCenter().y, 1000);
+					middlex.MoveTo (n.pos.x, 1000);
+					middley.MoveTo (n.pos.y, 1000);
 				}
 
 				e.consume();
