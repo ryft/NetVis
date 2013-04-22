@@ -6,26 +6,38 @@ import javax.media.opengl.GL2;
 public class Framebuffer {
 
 	int textureid;
-	int bufferid;
+	int fbufferid;
+	int dbufferid;
 	
 	int base;
 	
 	public Framebuffer (int b)
 	{
 		textureid = -1;
-		bufferid  = -1;
+		fbufferid = -1;
+		dbufferid = -1;
 		
 		base = b;
 	}
 	
-	public int BindBuffer (GL2 gl)
+	public int BindFBuffer (GL2 gl)
 	{
-		if (bufferid != -1)
-			return bufferid;
+		if (fbufferid != -1)
+			return fbufferid;
 		else
 			Create(gl);
 		
-		return bufferid;
+		return fbufferid;
+	}
+	
+	public int BindDBuffer (GL2 gl)
+	{
+		if (dbufferid != -1)
+			return dbufferid;
+		else
+			Create(gl);
+		
+		return dbufferid;
 	}
 	
 	public int BindTexture (GL2 gl)
@@ -42,6 +54,7 @@ public class Framebuffer {
 	{
 		int [] texture = new int [1];
 		int [] fbuffer = new int [1];
+		int [] dbuffer = new int [1];
 		
 		// Generate the texture to render to
 		gl.glGenTextures(1, texture, 0);
@@ -63,18 +76,32 @@ public class Framebuffer {
 		// Attach the texture to the framebuffer
 		gl.glFramebufferTexture2D (GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, texture[0], 0);
 		
+		// Create renderbuffer for the depth testing
+		gl.glGenRenderbuffers(1, dbuffer, 0);
+
+		// Bind renderbuffer
+		gl.glBindRenderbuffer (GL2.GL_RENDERBUFFER, dbuffer[0]);
+
+		// Init as a depth buffer
+		gl.glRenderbufferStorage (GL2.GL_RENDERBUFFER, GL2.GL_DEPTH_COMPONENT24, 2*base, 2*base);
+
+		// Attach to the FBO for depth
+		gl.glFramebufferRenderbuffer (GL2.GL_FRAMEBUFFER, GL2.GL_DEPTH_ATTACHMENT, GL2.GL_RENDERBUFFER, dbuffer[0]); 
+		
 		textureid = texture[0];
-		bufferid  = fbuffer[0];
+		fbufferid = fbuffer[0];
+		dbufferid = dbuffer[0];
 	}
 	
 	public void Delete (GL2 gl)
 	{
 		// Cleanup
 		gl.glDeleteTextures (1, new int[] {textureid}, 0);
-		gl.glDeleteFramebuffers (1, new int[] {bufferid}, 1);
+		gl.glDeleteFramebuffers (1, new int[] {fbufferid}, 1);
 		
 		textureid = -1;
-		bufferid = -1;
+		fbufferid = -1;
+		dbufferid = -1;
 	}
 	
 	public void SetupView (GL2 gl)
@@ -86,5 +113,11 @@ public class Framebuffer {
 		gl.glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glClearDepth (0.0);
 		gl.glClear (GL2.GL_COLOR_BUFFER_BIT);
+		
+		gl.glShadeModel(GL2.GL_FLAT);
+		
+		// Use the typical blending options
+		gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glEnable (GL.GL_BLEND);
 	}
 }

@@ -154,10 +154,12 @@ public class Painter {
 		// Get the framebuffer of the specified node
 		Framebuffer fb = lum.GetFramebuffer();
 		int textureid = fb.BindTexture(gl);
-		int bufferid  = fb.BindBuffer(gl);
+		int fbufferid  = fb.BindFBuffer(gl);
+		int dbufferid  = fb.BindDBuffer(gl);
 		
 		// Switch rendering to the framebuffer
-		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, bufferid);
+		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, fbufferid);
+		gl.glBindRenderbuffer (GL2.GL_RENDERBUFFER, fbufferid);
 
 		gl.glPushMatrix();
 			gl.glMatrixMode(GL2.GL_PROJECTION);
@@ -170,13 +172,15 @@ public class Painter {
 	
 		// Switch back to the back buffer
 		gl.glBindFramebuffer (GL.GL_FRAMEBUFFER, 0);
+		gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, 0);
+	
 		// and the correct viewport
 		gl.glViewport (viewport[0], viewport[1], viewport[2], viewport[3]);
 		
 		gl.glBindTexture(GL.GL_TEXTURE_2D, textureid);
 		gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
 		
-		return new int[]{textureid, bufferid};
+		return new int[]{textureid, fbufferid, dbufferid};
 	}
 	
 	public static void DrawNode (int base, Node lum, GL2 gl)

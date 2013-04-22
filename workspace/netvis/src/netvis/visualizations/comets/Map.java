@@ -9,7 +9,6 @@ import java.util.Random;
 
 import javax.media.opengl.GL2;
 
-import netvis.visualizations.gameengine.NodePainter;
 import netvis.visualizations.gameengine.Painter;
 import netvis.visualizations.gameengine.Position;
 import netvis.visualizations.gameengine.TexturePool;
@@ -23,14 +22,19 @@ public class Map {
 	
 	// Basic size of the node
 	int base = 400;
+	int width;
+	int height;
 	
 	// Connections to be drawn
 	HashMap<String, Connection> connections;
 	
 	Random rand;
 	
-	public Map (int width, int height)
+	public Map (int w, int h)
 	{
+		width = w;
+		height = h;
+		
 		rand = new Random();
 		
 		nodes = new HashMap<String, Node> ();
@@ -53,7 +57,9 @@ public class Map {
 			i.StepSatelites(time);
 	}
 
-	public void SetSize(int width, int height, GL2 gl) {
+	public void SetSize(int w, int h, GL2 gl) {
+		width = w;
+		height = h;
 	}
 
 	public void SuggestNode(String sip, String dip) {
@@ -148,5 +154,14 @@ public class Map {
 				return n;
 		}
 		return null;
+	}
+
+	public double ZoomOn(Node n) {
+		double screenratio = (1.0 * width) / height;
+		if (screenratio < Math.sqrt(3.0))
+		{
+			return (base * Math.sqrt(3.0)) / width;
+		}
+		return (1.0 * base) / height;
 	}
 }

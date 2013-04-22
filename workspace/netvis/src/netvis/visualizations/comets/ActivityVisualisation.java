@@ -188,18 +188,21 @@ public class ActivityVisualisation extends Visualization {
 				int y = (int) Math.round (middley.toDouble() - (e.getY()-(height/2))*viewfield);
 				Node n = currentMap.FindClickedNode(x, y);
 			
-				if (n != null)
+				if (e.getClickCount() == 2)
+				{
+					// Zoom on the selected node - such that it will fill the screen
+					double goal = currentMap.ZoomOn (n);
+					viewfieldanim.MoveTo (goal, 1000);
+				} else if (n != null)
 				{
 					n.toggleSelected();
 					
-					if (n.getSelected())
-					{
-						// Zoom on the selected node
-						middlex.MoveTo (n.getCenter().x, 1000);
-						middley.MoveTo (n.getCenter().y, 1000);
-						viewfieldanim.MoveTo (1.0, 1000);
-					}
+					// Move to the selected node
+					middlex.MoveTo (n.getCenter().x, 1000);
+					middley.MoveTo (n.getCenter().y, 1000);
 				}
+
+				e.consume();
 			}
 
 			@Override
