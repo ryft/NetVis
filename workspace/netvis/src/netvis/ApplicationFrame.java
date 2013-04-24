@@ -82,7 +82,7 @@ public class ApplicationFrame extends JFrame {
 	 */
 	public ApplicationFrame() {
 		super("Network Visualizer by the Clockwork Dragon team");
-		
+
 		this.addWindowListener (new WindowAdapter() {
 			@Override
 		    public void windowClosing(final WindowEvent event) {
@@ -100,7 +100,7 @@ public class ApplicationFrame extends JFrame {
 			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"), this);
 		else
 			dataFeeder = new DummyDataFeeder(this);
-		
+
 		dataController = new DataController(dataFeeder, 1000);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
@@ -122,10 +122,10 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(glPanel, glConstraints);
 
 		visControlsContainer = new VisControlsContainer();
-		
+
 		// Set up all the Visualizations
 		VisualizationsController.GetInstance().InitializeAll (dataController, glPanel, visControlsContainer);
-		
+
 		// Set up filter control panel
 		rightPanel = new RightPanel (dataFeeder, dataController, visControlsContainer);
 		final GridBagConstraints rightConstraints = new GridBagConstraints();
@@ -175,18 +175,18 @@ public class ApplicationFrame extends JFrame {
 		menuBar = createMenuBar();
 		setJMenuBar(menuBar);
 		pack();
-		
+
 		// Focus on the simulation
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
-		
+
 		VisualizationsController.GetInstance().ActivateById (0);
-		
+
 		// Add a resize listener
 		this.addComponentListener(new ResizeListener());
 		this.setPreferredSize(new Dimension(1080, 720));
 		this.setLocationByPlatform(true);
-		
+
 		// Register a nice exception handler
 		if (!DEBUG_MODE)
 			Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(parent));

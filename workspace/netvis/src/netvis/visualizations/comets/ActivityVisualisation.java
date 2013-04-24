@@ -30,7 +30,6 @@ import netvis.ui.VisControlsContainer;
 import netvis.visualizations.Visualization;
 import netvis.visualizations.comets.Map.NodeWithPosition;
 import netvis.visualizations.gameengine.FramebufferPool;
-import netvis.visualizations.gameengine.Node;
 import netvis.visualizations.gameengine.TextRendererPool;
 import netvis.visualizations.gameengine.TexturePool;
 import netvis.visualizations.gameengine.ValueAnimator;

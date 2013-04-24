@@ -1,5 +1,6 @@
 package netvis.visualizations;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,6 +16,7 @@ import java.util.TreeMap;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -38,7 +40,7 @@ public class TrafficVolumeVisualization extends Visualization {
 	private final Queue<Map<String, Integer>> protocolCountMaps = new LinkedList<Map<String, Integer>>();
 	private final Map<String, Integer> globalProtocolCount = new HashMap<String, Integer>();
 	private final Map<String, GLColour3d> protocolColours = new HashMap<String, GLColour3d>();
-	private int maxX = 64;
+	private int maxX = 32;
 	private double maxY = 0;
 	
 	// Fields governing the update frequency of the graph
@@ -69,9 +71,9 @@ public class TrafficVolumeVisualization extends Visualization {
 	protected JPanel createControls() {
 		JPanel localControls = new JPanel();
 		
-		JLabel labelMaxX = new JLabel("Set x-axis resolution");
+		JLabel labelMaxX = new JLabel("Set max x-axis resolution");
 		final JTextField textMaxX = new JTextField();
-		textMaxX.setText("64");
+		textMaxX.setText("32");
 		
 		JButton buttonMaxX = new JButton("Apply");
 		buttonMaxX.addActionListener(new ActionListener() {
@@ -84,10 +86,16 @@ public class TrafficVolumeVisualization extends Visualization {
 				} catch (NumberFormatException nfe) { }
 			}	
 		});
+
+		Box box = Box.createHorizontalBox();
+		box.add(textMaxX);
+		box.add(buttonMaxX);
+
 		localControls.setLayout(new BoxLayout(localControls, BoxLayout.Y_AXIS));
+		labelMaxX.setAlignmentX(Component.LEFT_ALIGNMENT);
 		localControls.add(labelMaxX);
-		localControls.add(textMaxX);
-		localControls.add(buttonMaxX);
+		box.setAlignmentX(Component.LEFT_ALIGNMENT);
+		localControls.add(box);
 
 		return localControls;
 	}

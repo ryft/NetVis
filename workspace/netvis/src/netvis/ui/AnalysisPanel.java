@@ -118,6 +118,13 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 	protected final JLabel labelPacketLength;
 	protected final JButton buttonShowTable;
 
+	// Panel to display when information is available for the user
+	protected final JPanel infoTab;
+	// Stores the tab we were previously viewing
+	protected int prevTabIndex;
+	// Stores whether or not we're now performing batch operations
+	protected boolean batchProcessing = false;
+
 	/** Timer to manage the processing of new data */
 	protected final Timer dataUpdateTimer;
 	/** Timer to manage the update of controls. */
@@ -154,6 +161,11 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 		JPanel panel3 = new JPanel(new SpringLayout());
 		this.addTab("Packet details", panel3);
 		this.setMnemonicAt(2, KeyEvent.VK_3);
+
+		// Set up panel to display when loading data
+		infoTab = new JPanel();
+		infoTab.add(new JLabel("Nothing to report."));
+		this.addTab("Information", infoTab);
 
 		// PANEL 1: Add controls to the aggregation data tab
 		panel1.add(new JLabel("Total packets/traffic transmitted: "));
@@ -276,6 +288,18 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 		controlUpdateTimer.start();
 	}
 
+	protected void dataStateChanged(boolean loading) {
+		infoTab.removeAll();
+		if (loading) {
+			infoTab.add(new JLabel("Analysing new data, please wait..."));
+			prevTabIndex = this.getSelectedIndex();
+			this.setSelectedComponent(infoTab);
+		} else {
+			infoTab.add(new JLabel("Completed analysis. Nothing to report."));
+			this.setSelectedIndex(prevTabIndex);
+		}
+	}
+
 	@Override
 	public void allDataChanged(List<Packet> allPackets, int updateIntervalms, int intervalsComplete) {
 
@@ -378,6 +402,12 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 		// we may break the ordering by processing any new packets.
 		if (batchQueue.size() > 0 || batchProcessBlock) {
 
+			if (!batchProcessing) {
+				// Display a message to the user
+				dataStateChanged(true);
+				batchProcessing = true;
+			}
+
 			// Take a snapshot of the current state of the queue
 			Queue<List<Packet>> batchQueueClone = new LinkedBlockingDeque<List<Packet>>();
 			for (int job = 0; job < batchQueue.size(); job++)
@@ -391,6 +421,12 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 			// Similarly for update jobs
 		} else if (updateQueue.size() > 0) {
 
+			if (batchProcessing) {
+				// Display a message to the user
+				dataStateChanged(false);
+				batchProcessing = false;
+			}
+			
 			Queue<List<Packet>> updateQueueClone = new LinkedBlockingDeque<List<Packet>>();
 			for (int job = 0; job < updateQueue.size(); job++)
 				updateQueueClone.add(updateQueue.remove());
