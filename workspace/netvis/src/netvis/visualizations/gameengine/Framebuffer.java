@@ -20,6 +20,13 @@ public class Framebuffer {
 		base = b;
 	}
 	
+	public void Resize (int nb, GL2 gl)
+	{
+		base = nb;
+		
+		Delete(gl);
+	}
+	
 	public int BindFBuffer (GL2 gl)
 	{
 		if (fbufferid != -1)
@@ -96,8 +103,9 @@ public class Framebuffer {
 	public void Delete (GL2 gl)
 	{
 		// Cleanup
-		gl.glDeleteTextures (1, new int[] {textureid}, 0);
-		gl.glDeleteFramebuffers (1, new int[] {fbufferid}, 1);
+		gl.glDeleteTextures      (1, new int[] {textureid}, 0);
+		gl.glDeleteRenderbuffers (1, new int[] {dbufferid}, 0);
+		gl.glDeleteFramebuffers  (1, new int[] {fbufferid}, 0);
 		
 		Discard();
 	}

@@ -36,6 +36,24 @@ public class FlipNode extends Node{
 	// Visitor double dispatch
 	public void Draw (int base, NodePainter painter, GL2 gl)
 	{
+		double rot = rotation.toDouble();
+		while (rot > 359.0) rot -= 360.0;
+		while (rot < -1.0)   rot += 360.0;
+		
+		// If one side is visible flat - just redirect rendering to this face rendering procedures
+		double epsilon = 0.01;
+		if (rot < 180.0 + epsilon && rot > 180.0 - epsilon)
+		{
+			back.Draw(base, painter, gl);
+			return;
+		}
+		if (rot < 0.0   + epsilon && rot > 0.0   - epsilon)
+		{
+			front.Draw(base, painter, gl);
+			return;
+		}
+			
+		// Otherwise draw the properly transformed face
 		painter.DrawNode(base, this, gl);
 	}
 	
