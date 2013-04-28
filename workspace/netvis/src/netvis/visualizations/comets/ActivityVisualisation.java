@@ -40,7 +40,7 @@ public class ActivityVisualisation extends Visualization {
 	int height;
 	
 	Point oldpos = null;
-	//Position middle = new Position(0,0);
+
 	ValueAnimator middlex;
 	ValueAnimator middley;
 	ValueAnimator viewfieldanim;
@@ -278,6 +278,9 @@ public class ActivityVisualisation extends Visualization {
 		}
 		frameNum++;
 		
+		//if (true)
+		//	return;
+
 		GL2 gl = drawable.getGL().getGL2();
 
 		// Set the width and height to the actuall width and height in pixels, (0, 0) is in the middle
@@ -315,8 +318,6 @@ public class ActivityVisualisation extends Visualization {
 		    // Make the map draw all of the elements
 			currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
-		
-		gl.glFlush();
 	}
 	
 	@Override

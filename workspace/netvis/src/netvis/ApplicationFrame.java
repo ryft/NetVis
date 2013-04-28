@@ -94,12 +94,11 @@ public class ApplicationFrame extends JFrame {
 		        Runtime.getRuntime().exit(0);
 		    }
 		});
-
-		// Setup data feeder and data controller
+		
 		if (DEBUG_MODE)
-			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"), this);
+			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"), ApplicationFrame.this);
 		else
-			dataFeeder = new DummyDataFeeder(this);
+			dataFeeder = new DummyDataFeeder(ApplicationFrame.this);
 
 		dataController = new DataController(dataFeeder, 1000);
 		dataController.addFilter(new ProtocolFilter(dataController));

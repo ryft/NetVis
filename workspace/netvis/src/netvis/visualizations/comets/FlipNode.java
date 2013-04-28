@@ -54,7 +54,7 @@ public class FlipNode extends Node{
 		}
 			
 		// Otherwise draw the properly transformed face
-		painter.DrawNode(base, this, gl);
+		painter.DrawNode (base, this, gl);
 	}
 	
 	public void UpdateWithData (String sip)
