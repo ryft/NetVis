@@ -195,7 +195,7 @@ public class MapPainter implements NodePainter {
 		double subs = 10;
 		gl.glPushMatrix();
 		gl.glBegin(GL2.GL_QUADS);
-			for (Position i : lum.getTail())
+			for (final Position i : lum.getTail())
 			{
 				int size = 15 - (int) Math.round(subs);
 				gl.glColor4d(0.5, 0.0, 0.0, 1.0-suba);

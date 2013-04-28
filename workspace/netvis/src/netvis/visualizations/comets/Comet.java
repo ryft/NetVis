@@ -13,7 +13,7 @@ import netvis.visualizations.gameengine.Position;
 
 public class Comet {
 	
-	Queue<Position> tail ; public Collection<Position> getTail  () {return tail;}
+	Queue<Position> tail ; public final Collection<Position> getTail  () {return tail;}
 	List<Position> trace; public List<Position> getTrace () {return trace;}
 	boolean tracefinished = false;
 	

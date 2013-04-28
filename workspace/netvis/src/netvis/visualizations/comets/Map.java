@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -24,12 +27,14 @@ public class Map {
 
 	class NodeWithPosition
 	{
-		public NodeWithPosition (Node a, Position b) {
+		public NodeWithPosition (Node a, Position c, Position p) {
 			node = a;
-			pos  = b;
+			coo  = c;
+			pos  = p;
 		}
 		public Node node;
 		public Position pos;
+		public Position coo;
 	}
 
 	// IPs mapped to nodes
@@ -47,14 +52,15 @@ public class Map {
 	
 	Random rand;
 	
-	class SimpleThreadFactory implements ThreadFactory {
+	class NamedThreadFactory implements ThreadFactory {
+		int i = 0;
 		public Thread newThread(Runnable r) {
-			return new Thread (r, "Node animating thread");
+			return new Thread (r, "Node animating thread #" + (i++));
 	   }
 	}
 	
 	// Animation of the nodes can be parallelized
-	ExecutorService exe = new ThreadPoolExecutor(4, 8, 5000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new SimpleThreadFactory());
+	ExecutorService exe = new ThreadPoolExecutor(4, 8, 5000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory());
 	
 	public Map (int w, int h)
 	{
@@ -79,21 +85,29 @@ public class Map {
 			int y = i.pos.y;
 	
 			gl.glPushMatrix();
+				// Transpose it to the right spot
 				gl.glTranslated (x, y, 0.0);
+				
+				// Draw it
 				i.node.Draw (base, new MapPainter(), gl);
 			gl.glPopMatrix();
 		}
 	}
 	
-	public void StepAnimation (final long time)
+	public void StepAnimation (final long time) throws InterruptedException, ExecutionException
 	{
+		ArrayList<Future<?>> list = new ArrayList<Future<?>>();
 		for (final NodeWithPosition i : nodes.values())
-			exe.execute(new Runnable () {
+			list.add(exe.submit(new Callable () {
 				@Override
-				public void run() {
+				public Object call() throws Exception {
 					i.node.UpdateAnimation(time);
+					return null;
 				}	
-			});
+			}));
+		
+		for (Future<?> i : list)
+			i.get();
 	}
 
 	public void SetSize(int w, int h, GL2 gl) {
@@ -131,7 +145,11 @@ public class Map {
 		{
 			NodeWithPosition n = nodesl.get(i);
 			
-			n.pos = this.FindPosition(i);
+			Position posit = FindPosition (i);
+			Position coord = CoordinateByPosition (posit);
+	
+			n.pos = posit;
+			n.coo = coord;
 		}
 	}
 	
@@ -145,17 +163,18 @@ public class Map {
 		int outerring  = innerring + 1;
 		int k = innerring;
 		int shift = s - 3 * (k*k + k) - 1;
-		
+
 		// Move to the desired ring
-		x += Math.sqrt(3) * base * outerring * Math.cos(Math.PI/3);
+		if (outerring % 2 == 1)
+			x += Math.sqrt(3) * base / 2.0;
 		y += Math.sqrt(3) * base * outerring * Math.sin(Math.PI/3);
-		
+
 		// Move the shift times
 		double angle = 0;
 		if (innerring % 2 == 1)
 			x -= Math.sqrt(3) * base;
 
-		for (int i=0 - (innerring % 2); i<shift - (innerring % 2); i++)
+		for (int i=0 - (innerring / 2); i<shift - (innerring / 2); i++)
 		{
 			if (i % outerring == 0)
 			{
@@ -164,8 +183,40 @@ public class Map {
 			x += Math.sqrt(3) * base * Math.cos(angle);
 			y += Math.sqrt(3) * base * Math.sin(angle);
 		}
-		
+
 		return new Position (x,y);
+	}
+	
+	private Position PositionByCoordinate (Position coor)
+	{
+		int coorx = coor.x;
+		int coory = coor.y;
+		
+		double r3 = Math.sqrt(3.0);
+		Position p = new Position(r3 * coorx * base, 1.5 * coory * base);
+		
+		// Odd rows are shifted
+		if (coory % 2 != 0)
+			p.x += r3 * base / 2.0;
+		
+		return p;
+	}
+	
+	private Position CoordinateByPosition (Position pos)
+	{
+		int posx = pos.x;
+		int posy = pos.y;
+
+		double r3 = Math.sqrt(3.0);
+		Position p = new Position (0, 0);
+		
+		p.y = (int) Math.round (posy / (base * 1.5));
+		if (p.y % 2 != 0)
+			p.x = (int) Math.round (posy / (base * r3));
+		else
+			p.x = (int) Math.round ((posy - base * r3 / 2.0) / (base * r3));
+		
+		return p;
 	}
 
 	private NodeWithPosition AddNode (String name, String textureName) 
@@ -175,8 +226,11 @@ public class Map {
 		
 		FlipNode lemur = new FlipNode (front, back);
 		
-		Position p = FindPosition (nodes.size());
-		NodeWithPosition k = new NodeWithPosition (lemur, p);
+		Position posit = FindPosition (nodes.size());
+		Position coord = CoordinateByPosition (posit);
+		NodeWithPosition k = new NodeWithPosition (lemur, coord, posit);
+		
+		System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
 		
 		nodes.put (name, k);
 		nodesl.add (k);

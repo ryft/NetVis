@@ -15,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -98,7 +99,15 @@ public class ActivityVisualisation extends Visualization {
 				// Animate the entities!
 				long newtime = (new Date()).getTime();
 				
-				currentMap.StepAnimation(newtime - lasttime);
+				try {
+					currentMap.StepAnimation(newtime - lasttime);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 				lasttime = newtime;
 			}
@@ -237,7 +246,7 @@ public class ActivityVisualisation extends Visualization {
 		});
 		
 		// Add test nodes
-		for (int i=0; i<0; i++)
+		for (int i=0; i<120; i++)
 		{
 			currentMap.SuggestNode ("testk" + i, "test" + i);
 		}
