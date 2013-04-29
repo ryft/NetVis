@@ -12,9 +12,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-
+import javax.swing.JSeparator;
 import netvis.data.DataController;
 import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
@@ -35,8 +36,14 @@ public class ProtocolFilter implements PacketFilter {
 
 		// Create checkboxes for each protocol and add them to nested menus
 		final JPopupMenu rootMenu = new JPopupMenu();
+
+		ListeningJMenuItem selectAll = new ListeningJMenuItem("Select All");
+		ListeningJMenuItem selectNone = new ListeningJMenuItem("Select None");
+		rootMenu.add(selectAll);
+		rootMenu.add(selectNone);
+		rootMenu.add(new JSeparator());
 		
-		addItems(rootMenu,  allItems);
+		addItems(rootMenu,  allItems, selectAll, selectNone);
 
 		filterPanel = new JPanel();
 		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.PAGE_AXIS));
@@ -79,6 +86,17 @@ public class ProtocolFilter implements PacketFilter {
 				"RTMP",
 				"PAP",
 				"ZIP",
+			"<",
+			">", "Fieldbus Protocol Family",
+				"BACnet",
+				"EPL",
+				"Ether-S-Bus",
+				"Ether-S-I/O",
+				"EtherCAT",
+				"KNXnet/IP",
+				"LONTalk",
+				"PROFIBUS",
+				"PROFINET",
 			"<",
 			">", "Finance Industry Family",
 				"ArcaDirect",
@@ -256,6 +274,33 @@ public class ProtocolFilter implements PacketFilter {
 					"TTEthernet",
 					"VLAN",
 				"<",
+			"<",
+			">", "Mobile Telephony Family",
+				">", "GSM Protocol Family",
+					"CAMEL",
+					"GSM A",
+					"GSMMAP",
+					"GSM SMS",
+				"<",
+				">", "LTE Protocol Family",
+					"GTPv2",
+					"LTE RRC",
+					"MAC-LTE",
+					"NAS-EPS",
+					"PDCP-LTE",
+					"RLC-LTE",
+					"S1AP",
+					"X2AP",
+				"<",
+				">", "WAP Family",
+					"MMSE",
+					"WBXML",
+					"WDP",
+					"WSP",
+					"WTLS",
+					"WTP",
+				"<",
+				"UMA",
 			"<",
 			">", "Network Filesystem Family",
 				">", "AFS Family",
@@ -539,24 +584,39 @@ public class ProtocolFilter implements PacketFilter {
 		return items;
 	}
 	
-	private int addItems(JComponent rootMenu, String[] items) {
+	private int addItems(JComponent rootMenu, String[] items, JMenuItem selectAll, JMenuItem selectNone) {
 		int length = 0;
 		int waitFor = 0;
 		for(int i = 0; i < items.length; i++) {
+			// Take the next string as the name of the menu
 			String name = items[i];
+			// Check if the string belongs to a sub-menu
 			if(waitFor != 0) waitFor--;
+			// Check if we need to start a sub-menu
 			else if(name == ">") {
 				JMenu newMenu = new JMenu(items[i+1]);
 				newMenu.setName(items[i+1]);
 				rootMenu.add(newMenu);
+				ListeningJMenuItem newSelectAll = new ListeningJMenuItem("Select All");
+				ListeningJMenuItem newSelectNone = new ListeningJMenuItem("Select None");
+				// Tie the select all/none buttons from this menu to the ones in the new menu
+				selectAll.addActionListener(newSelectAll);
+				selectNone.addActionListener(newSelectNone);
+				newMenu.add(newSelectAll);
+				newMenu.add(newSelectNone);
+				newMenu.add(new JSeparator());
+				// Pass the new menu the relevant bit of the protocol list
 				String[] newArray = new String[items.length - (i+2)];
 				System.arraycopy(items, i+2, newArray, 0, items.length - (i+2));
-				waitFor = addItems(newMenu, newArray) + 2;
+				// Calculate how much of the array we now have to skip
+				waitFor = addItems(newMenu, newArray, newSelectAll, newSelectNone) + 2;
 				length += waitFor + 1;
 			}
+			// Check if we've reached the end of this menu
 			else if(name == "<") {
 				return length;
 			}
+			// If none of the above, it's a protocol name
 			else {
 				ListeningJCheckBoxMenuItem checkBox = new ListeningJCheckBoxMenuItem(name, true);
 				// Check if there's a duplicate somewhere else in the list - if so, make them listen to each other
@@ -568,6 +628,9 @@ public class ProtocolFilter implements PacketFilter {
 						checkBox.addActionListener(next);
 					}
 				}
+				// Tie the button to the relevant select all/none buttons
+				selectAll.addActionListener(checkBox);
+				selectNone.addActionListener(checkBox);
 				checkBoxList.add(checkBox);
 				rootMenu.add(checkBox);
 				length += 1;
@@ -607,18 +670,36 @@ public class ProtocolFilter implements PacketFilter {
 	}
 	
 	@SuppressWarnings("serial")
+	private class ListeningJMenuItem extends JMenuItem implements ActionListener {
+		
+		public ListeningJMenuItem(String name) {
+			super(name);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			this.fireActionPerformed(e);
+		}		
+	}
+	
+	@SuppressWarnings("serial")
 	private class ListeningJCheckBoxMenuItem extends JCheckBoxMenuItem implements ActionListener {
 
 		public ListeningJCheckBoxMenuItem(String name, boolean b) {
 			super(name, b);
 		}
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ListeningJCheckBoxMenuItem source = (ListeningJCheckBoxMenuItem)e.getSource();
-			if(source.isSelected() != isSelected()) setSelected(source.isSelected());
+			JMenuItem source = (JMenuItem)e.getSource();
+			String sourceText = source.getText();
+			Boolean selected = isSelected();
+			// If the source is another button, make sure they're in sync
+			if((sourceText == this.getText()) &&(source.isSelected() != selected)) setSelected(source.isSelected());
+			// If the source is a select all/none button, set appropriately and inform copies
+			else if(sourceText == "Select All" && !selected) doClick();
+			else if(sourceText == "Select None" && selected) doClick();
 		}
-			
 	}
 
 }
