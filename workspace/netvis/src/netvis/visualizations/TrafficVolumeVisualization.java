@@ -6,10 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 import java.util.Stack;
 import java.util.TreeMap;
@@ -37,9 +35,10 @@ public class TrafficVolumeVisualization extends Visualization {
 
 	private final GLUT glut = new GLUT();
 
-	private final Queue<Map<String, Integer>> protocolCountMaps = new LinkedList<Map<String, Integer>>();
+	private final Map<Integer, Map<String, Integer>> protocolCountMaps = new HashMap<Integer, Map<String, Integer>>();
 	private final Map<String, Integer> globalProtocolCount = new HashMap<String, Integer>();
 	private final Map<String, GLColour3d> protocolColours = new HashMap<String, GLColour3d>();
+	private int maxTime = 0;
 	private int maxX = 32;
 	private double maxY = 0;
 	
@@ -99,22 +98,14 @@ public class TrafficVolumeVisualization extends Visualization {
 
 		return localControls;
 	}
-
+	
 	@Override
 	// Change behaviour of packets arriving so we can process them.
 	public void newPacketsArrived(List<Packet> newPackets) {
 		if (joglPanel.getVis() == this) {
-			
-			if (allDataChanged) {
-				globalProtocolCount.clear();
-				protocolCountMaps.clear();
-				protocolColours.clear();
-			}
-			
 			this.newPackets = newPackets;
-			maxY = Math.max(maxY, newPackets.size());
 			processNewPackets(newPackets);
-			
+			// TODO can someone document what this does?
 			if (updateIteration == 0)
 				this.render();
 			updateIteration = (updateIteration + 1) % updateInterval;
@@ -122,21 +113,29 @@ public class TrafficVolumeVisualization extends Visualization {
 	}
 
 	protected void processNewPackets(List<Packet> newPackets) {
-
 		// Get the number of packets using each protocol
-		HashMap<String, Integer> protocolCount = new HashMap<String, Integer>();
 		for (Packet p : newPackets) {
+			int packetTime = (int) Math.round(p.time);
+			// If needed, make new protocol maps
+			if (packetTime >= maxTime) {
+				for(int i = maxTime; i <= packetTime + 1; i++) {
+					protocolCountMaps.put(i, new HashMap<String, Integer>());
+				}
+				maxTime = packetTime + 1;
+			}
 			protocolSeen(p.protocol);
+			// Update protocol map
+			Map<String, Integer> protocolCount = protocolCountMaps.get(packetTime);
 			if (protocolCount.get(p.protocol) == null)
 				protocolCount.put(p.protocol, 1);
 			else
 				protocolCount.put(p.protocol, protocolCount.get(p.protocol) + 1);
 		}
 
-		// Add it to the list of all such maps
-		while (protocolCountMaps.size() >= maxX && protocolCountMaps.size() > 0)
-			protocolCountMaps.remove();
-		protocolCountMaps.add(protocolCount);
+		// Forget data collected far in the past
+		// (keep twice too many should user change maxX)
+		for (int i = 0; i < maxTime - 2 * maxX; i++)
+			protocolCountMaps.remove(i);
 	}
 
 	protected void protocolSeen(String protocol) {
@@ -173,10 +172,28 @@ public class TrafficVolumeVisualization extends Visualization {
 
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
-
-		/*
-		 * Draw the white background
-		 */
+		
+		// go through all packets if we need to
+		if (allDataChanged) {
+			maxTime = 0;
+			protocolCountMaps.clear();
+			globalProtocolCount.clear();
+			processNewPackets(listOfPackets);
+		}
+		
+		// find maximum heights of bars for scale
+		maxY = 0;
+		for (int i = maxTime - maxX; i < maxTime; i++) {
+			Map<String, Integer> currentPackets = protocolCountMaps.get(i);
+			if (currentPackets != null) {
+				int sum = 0;
+				for (int count : currentPackets.values())
+					sum += count;
+				maxY = Math.max(maxY, sum);
+			}
+		}
+		
+		//Draw the white background
 		gl.glBegin(GL2.GL_QUADS);
 		gl.glColor3d(0.95, 0.95, 0.95);
 		gl.glVertex2d(-1, -0.7);
@@ -185,31 +202,35 @@ public class TrafficVolumeVisualization extends Visualization {
 		gl.glVertex2d(1, -0.7);
 		gl.glEnd();
 
-		double intervalWidth = 2.0 / protocolCountMaps.size();
+		double intervalWidth = 2.0 / maxX;
 		double xPos = -1.0;
 
 		// For each vertical strip
-		for (Map<String, Integer> currentPackets : protocolCountMaps) {
+		for (int i = maxTime - maxX; i < maxTime; i++) {
 
-			double yPos = -0.7;
+			if (protocolCountMaps.containsKey(i)) {
 
-			// For each protocol to be drawn in the strip
-			for (String protocol : currentPackets.keySet()) {
+				Map<String, Integer> currentPackets = protocolCountMaps.get(i);
 
-				GLColour3d c = protocolColours.get(protocol);
-				double height = currentPackets.get(protocol) * 1.6 / maxY;
+				double yPos = -0.7;
 
-				gl.glBegin(GL2.GL_QUADS);
-				gl.glColor3d(c.red, c.green, c.blue);
-				gl.glVertex2d(xPos, yPos);
-				gl.glVertex2d(xPos, yPos + height);
-				gl.glVertex2d(xPos + intervalWidth, yPos + height);
-				gl.glVertex2d(xPos + intervalWidth, yPos);
-				gl.glEnd();
+				// For each protocol to be drawn in the strip
+				for (String protocol : currentPackets.keySet()) {
 
-				yPos += height;
+					GLColour3d c = protocolColours.get(protocol);
+					double height = currentPackets.get(protocol) * 1.6 / maxY;
+
+					gl.glBegin(GL2.GL_QUADS);
+					gl.glColor3d(c.red, c.green, c.blue);
+					gl.glVertex2d(xPos, yPos);
+					gl.glVertex2d(xPos, yPos + height);
+					gl.glVertex2d(xPos + intervalWidth, yPos + height);
+					gl.glVertex2d(xPos + intervalWidth, yPos);
+					gl.glEnd();
+
+					yPos += height;
+				}
 			}
-
 			xPos += intervalWidth;
 		}
 		
@@ -262,11 +283,6 @@ public class TrafficVolumeVisualization extends Visualization {
 	}
 
 	@Override
-	public void dispose(GLAutoDrawable arg0) {
-
-	}
-
-	@Override
 	public void init(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL2.GL_BLEND);
@@ -281,9 +297,16 @@ public class TrafficVolumeVisualization extends Visualization {
 	}
 
 	@Override
-	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3,
-			int arg4) {
+	public void dispose(GLAutoDrawable drawable) {
 		// TODO Auto-generated method stub
-
+		
 	}
+
+	@Override
+	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
+			int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
