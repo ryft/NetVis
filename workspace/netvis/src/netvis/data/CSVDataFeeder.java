@@ -25,7 +25,7 @@ public class CSVDataFeeder implements DataFeeder {
 	protected Iterator<String[]> it;
 	protected Timer secondsTimer;
 	protected int seconds;
-	protected JPanel timeControlPanel;
+	protected TimeControlPanel timeControlPanel;
 
 	/**
 	 * @param fileName
@@ -80,10 +80,14 @@ public class CSVDataFeeder implements DataFeeder {
 			return list;
 		}
 	}
-
+	
 	@Override
 	public boolean hasNext() {
 		return it.hasNext();
+	}
+	
+	public int updateInterval() {
+		return secondsTimer.getDelay();
 	}
 	
 	/**
@@ -92,10 +96,19 @@ public class CSVDataFeeder implements DataFeeder {
 	
 	public void play() {
 		secondsTimer.start();
+		timeControlPanel.setPlayStatus(true);
 	}
 	
 	public void pause() {
 		secondsTimer.stop();
+		timeControlPanel.setPlayStatus(false);
+	}
+	
+	public void togglePlay() {
+		if (isPlaying())
+			pause();
+		else
+			play();
 	}
 	
 	public void faster() {
@@ -109,6 +122,7 @@ public class CSVDataFeeder implements DataFeeder {
 	public void skipToEnd() {
 		seconds = 14 * 24 * 60 * 60; // assume CSVs don't capture more than 14 days
 		// TODO this might break some statistics, in particular averages over time
+		timeControlPanel.setPlayStatus(false);
 	}
 	
 	public boolean isPlaying() {

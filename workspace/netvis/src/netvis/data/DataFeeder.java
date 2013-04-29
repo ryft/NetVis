@@ -32,4 +32,9 @@ public interface DataFeeder {
 	 * 			(e.g. Time Controls) or null if not provided.
 	 */
 	public JPanel controlPanel();
+	
+	/**
+	 * @return number of milliseconds between updates of DataFeeder
+	 */
+	public int updateInterval();
 }

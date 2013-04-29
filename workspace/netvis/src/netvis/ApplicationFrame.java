@@ -179,7 +179,7 @@ public class ApplicationFrame extends JFrame {
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
 
-		VisualizationsController.GetInstance().ActivateById (0);
+		VisualizationsController.GetInstance().ActivateById(0);
 
 		// Add a resize listener
 		this.addComponentListener(new ResizeListener());

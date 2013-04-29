@@ -24,6 +24,10 @@ public class DummyDataFeeder implements DataFeeder {
 		return false;
 	}
 	
+	public int updateInterval() {
+		return 1000;
+	}
+	
 	public JPanel controlPanel() {
 		return null;
 	}

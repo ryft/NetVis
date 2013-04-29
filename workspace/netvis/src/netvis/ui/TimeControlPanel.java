@@ -13,31 +13,25 @@ import netvis.data.CSVDataFeeder;
 
 @SuppressWarnings("serial")
 public class TimeControlPanel extends JPanel {
+	
+	private final JButton playButton;
+	final ImageIcon playIcon = new ImageIcon("img/media-playback-start.png");
+	final ImageIcon pauseIcon = new ImageIcon("img/media-playback-pause.png");
 
 	public TimeControlPanel(final CSVDataFeeder dataFeeder) {
-		final JButton playButton = pictureButton("img/media-playback-pause.png");
+		playButton = pictureButton("img/media-playback-pause.png");
 		JButton restartButton = pictureButton("img/media-skip-backward.png");
 		JButton endButton = pictureButton("img/media-skip-forward.png");
 		JButton slowerButton = pictureButton("img/media-seek-backward.png");
 		JButton fasterButton = pictureButton("img/media-seek-forward.png");
 		
-		final ImageIcon playIcon = new ImageIcon("img/media-playback-start.png");
-		final ImageIcon pauseIcon = new ImageIcon("img/media-playback-pause.png");
-		
 		if (!dataFeeder.isPlaying()) {
 			playButton.setIcon(playIcon); // note initialised to pauseIcon
 		}
-		// TODO playButton should listen to the DataFeeder, not pull
 		
 		playButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (dataFeeder.isPlaying()) {
-					dataFeeder.pause();
-					playButton.setIcon(playIcon);
-				} else {
-					dataFeeder.play();
-					playButton.setIcon(pauseIcon);
-				}
+				dataFeeder.togglePlay();
 			}
 		});
 		
@@ -82,6 +76,14 @@ public class TimeControlPanel extends JPanel {
 		button.setIcon(new ImageIcon(imageFile));
 		button.setMargin(new Insets(0, 0, 0, 0));
 		return button;
+	}
+	
+	public void setPlayStatus(boolean status) {
+		if (status) {
+			playButton.setIcon(pauseIcon);
+		} else {
+			playButton.setIcon(playIcon);
+		}
 	}
 	
 }

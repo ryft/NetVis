@@ -88,6 +88,9 @@ public class DataController implements ActionListener {
 				l.newPacketsArrived(newPackets);
 		}
 		
+		// set timer interval to the one suggested by the feeder
+		timer.setDelay(dataFeeder.updateInterval());
+		
 		// If we've reached the end of the capture, stop the timer
 		if (!dataFeeder.hasNext()) timer.stop();
 	}

@@ -109,9 +109,8 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 	
 	 public abstract String name();
 	 
-	 public void everythingEnds () {
+	 public void everythingEnds() {
 		 this.destroy();
 		 this.fpskeep.stop();
-		 System.out.println("Visualization " + this.name() + " finishes receiving data");
 	 }
 }
