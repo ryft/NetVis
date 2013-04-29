@@ -305,8 +305,6 @@ public class TrafficVolumeVisualization extends Visualization {
 		
 	}
 
-<<<<<<< HEAD
-=======
 	@Override
 	public String getName() {
 		return "Traffic Volume";
@@ -322,5 +320,4 @@ public class TrafficVolumeVisualization extends Visualization {
 				"is discarded to allow new data to be shown. The y-axis scales up\n"+
 				"automatically.";
 	}
->>>>>>> 15281154063c8345e0ef029bf772d2c576fca28b
 }
