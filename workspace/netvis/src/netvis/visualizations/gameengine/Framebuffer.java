@@ -119,11 +119,11 @@ public class Framebuffer {
 	public void SetupView (GL2 gl)
 	{
 		gl.glViewport(0, 0, 2*base, 2*base);
-		gl.glOrtho(-base, base, -base, base, -10, 20);
+		gl.glOrtho(-base, base, -base, base, -10, 1000);
 		gl.glTranslated(0.0, 0.0, 5.0);
 		
 		gl.glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
-		gl.glClearDepth (0.0);
+		gl.glClearDepth (1000.0);
 		gl.glClear (GL2.GL_COLOR_BUFFER_BIT);
 		
 		gl.glShadeModel(GL2.GL_FLAT);

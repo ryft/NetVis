@@ -60,6 +60,7 @@ public class CSVDataFeeder implements DataFeeder {
 		};
 		secondsTimer = new Timer(1000, secondCounter);
 		secondsTimer.start();
+
 		
 		timeControlPanel = new TimeControlPanel(this);
 		

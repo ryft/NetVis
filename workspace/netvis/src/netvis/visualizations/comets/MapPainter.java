@@ -31,7 +31,7 @@ public class MapPainter implements NodePainter {
 		gl.glPushMatrix();
 			gl.glTranslated (0.0, 0.0, -1.0);
 			gl.glColor3dv (lum.getBGColor(), 0);
-			Painter.DrawHexagon (GL2.GL_POLYGON, 0, 0, 400, gl);
+			Painter.DrawHexagon (GL2.GL_POLYGON, 0, 0, base, gl);
 		gl.glPopMatrix();
 		
 		// Draw the usual hexagon
@@ -46,23 +46,25 @@ public class MapPainter implements NodePainter {
 			Painter.DrawImage (TexturePool.get("hexagon1"), 0.0, 0.0, 2*base/512.0, 0, gl);
 		
 		// Draw the server image
+		int imageSize = 200;
 		if (lum.getSelected() == true)
-			Painter.DrawImage (lum.getTexture(), 0.0, 0.0, 1.0, 90.0, gl);
+			Painter.DrawImage (lum.getTexture(), 0.0, 0.0, imageSize/512.0, 90.0, gl);
 		else
-			Painter.DrawImage (lum.getTexture(), 0.0, 0.0, 1.0, 0.0, gl);
+			Painter.DrawImage (lum.getTexture(), 0.0, 0.0, imageSize/512.0, 0.0, gl);
 	
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");
 		renderer.begin3DRendering();
-		renderer.setSmoothing(true);
-		renderer.setUseVertexArrays(true);
-		renderer.setColor (0.2f, 0.2f, 0.2f, 1.0f);
-		Rectangle2D noob = renderer.getBounds(lum.getName());
-		int xx = (int) (-noob.getWidth()/2);
-		int yy = (int) (-lum.getTexture().getH()/2-noob.getHeight() - 30);
-		renderer.draw (lum.getName(), xx, yy);
+			renderer.setSmoothing(true);
+			renderer.setUseVertexArrays(true);
+			renderer.setColor (0.2f, 0.2f, 0.2f, 1.0f);
+			Rectangle2D noob = renderer.getBounds(lum.getName());
+			int xx = (int) (-noob.getWidth()/2);
+			int yy = (int) (-imageSize/2-noob.getHeight() - 30);
+			renderer.draw (lum.getName(), xx, yy);
 		renderer.end3DRendering();
-		renderer.flush();
+		// Big slow down if this is uncommented
+		//renderer.flush();
 		
 		// Draw entities
 		for (Comet i : lum.getEntities())
@@ -127,7 +129,7 @@ public class MapPainter implements NodePainter {
 			// And the back texture
 			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
 			gl.glPushMatrix();
-				gl.glTranslated (0.0, 0.0, -505.0);
+				gl.glTranslated (0.0, 0.0, -500.0);
 				gl.glRotated (rotation + 180.0, 1.0, 0.0, 0.0);
 				
 				Painter.DrawSquare (2*base, 2*base, 0, 0, 1.0, 180.0, gl);
@@ -159,6 +161,7 @@ public class MapPainter implements NodePainter {
 			fb.SetupView(gl);
 
 			lum.Draw (base, this, gl);
+			
 		gl.glPopMatrix();
 	
 		// Switch back to the back buffer
@@ -192,7 +195,7 @@ public class MapPainter implements NodePainter {
 		double subs = 10;
 		gl.glPushMatrix();
 		gl.glBegin(GL2.GL_QUADS);
-			for (Position i : lum.getTail())
+			for (final Position i : lum.getTail())
 			{
 				int size = 15 - (int) Math.round(subs);
 				gl.glColor4d(0.5, 0.0, 0.0, 1.0-suba);

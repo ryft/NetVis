@@ -1,5 +1,8 @@
 package netvis.visualizations.comets;
 
+import java.util.Queue;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,7 +13,7 @@ import netvis.visualizations.gameengine.Position;
 
 public class Comet {
 	
-	List<Position> tail ; public List<Position> getTail  () {return tail;}
+	Queue<Position> tail ; public final Collection<Position> getTail  () {return tail;}
 	List<Position> trace; public List<Position> getTrace () {return trace;}
 	boolean tracefinished = false;
 	
@@ -33,7 +36,7 @@ public class Comet {
 	{
 		super();
 		
-		tail = new ArrayList<Position> ();
+		tail = new LinkedList<Position> ();
 		trace = new ArrayList<Position> ();
 		
 		Random rand = new Random();
@@ -55,8 +58,9 @@ public class Comet {
 		
 		// Add an entry to keep track of the tail
 		tail.add(new Position (x, y));
+
 		// Keep only the last 20
-		tail = tail.subList(Math.max(0, tail.size()-20), tail.size());
+		while (tail.size() > 20) tail.poll();
 		
 		if (!tracefinished || trace.size() < 100)
 		{
@@ -103,8 +107,8 @@ public class Comet {
 		//System.out.println("Number of trace elements : " + trace.size());
 		
 		// Update the position
-		posx += velocityx * 1.0;
-		posy += velocityy * 1.0;
+		posx += velocityx * (time / 30.0);
+		posy += velocityy * (time / 30.0);
 		
 		ForcesAct(time);
 	}
@@ -117,8 +121,8 @@ public class Comet {
 	public void ForcesAct(long time)
 	{
 		// Harmonic oscillator model
-		velocityx -= (posx) * time/1000.0 * kx;
-		velocityy -= (posy) * time/1000.0 * ky;
+		velocityx -= (posx) * time/3000.0 * kx;
+		velocityy -= (posy) * time/3000.0 * ky;
 		
 		//System.out.println("Time : " + time);
 		

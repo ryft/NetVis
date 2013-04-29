@@ -13,6 +13,7 @@ import netvis.data.model.Packet;
  * 
  */
 public interface DataFeeder {
+	
 	/**
 	 * 
 	 * @return Packets that have arrived since the last request, or null
