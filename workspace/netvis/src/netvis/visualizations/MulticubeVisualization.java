@@ -123,11 +123,6 @@ public class MulticubeVisualization extends Visualization{
 	}
 
 	@Override
-	public String name() {
-		return "Custom Cube";
-	}
-
-	@Override
 	protected JPanel createControls() {
 		JPanel panel = new JPanel();
 		String[] array = new String[NormalizeFactory.INSTANCE.getAttrs().size()];
@@ -218,4 +213,17 @@ public class MulticubeVisualization extends Visualization{
 	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3,
 			int arg4) {		
 	}
+
+	@Override
+	public String getName() {
+		return "Custom Cube";
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return getName()+"\n\n"+
+				"";
+	}
+
 }

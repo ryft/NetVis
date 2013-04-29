@@ -278,10 +278,6 @@ public class TrafficVolumeVisualization extends Visualization {
 
 	}
 
-	public String name() {
-		return "Traffic Volume";
-	}
-
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
@@ -309,4 +305,22 @@ public class TrafficVolumeVisualization extends Visualization {
 		
 	}
 
+<<<<<<< HEAD
+=======
+	@Override
+	public String getName() {
+		return "Traffic Volume";
+	}
+
+	@Override
+	public String getDescription() {
+		return getName()+"\n\n"+
+				"Each interval of received packets is presented as a column.\n"+
+				"Individual protocols are displayed in a distinct colour to show\n"+
+				"how much traffic arrives over one protocol compared to others.\n"+
+				"Once the maximum x-axis resolution has been reached, old data\n"+
+				"is discarded to allow new data to be shown. The y-axis scales up\n"+
+				"automatically.";
+	}
+>>>>>>> 15281154063c8345e0ef029bf772d2c576fca28b
 }

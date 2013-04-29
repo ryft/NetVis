@@ -88,11 +88,6 @@ public class DummyVisualization extends Visualization {
 	}
 
 	@Override
-	public String name() {
-		return "Dummy Visualization";
-	}
-
-	@Override
 	protected JPanel createControls() {
 		JPanel dummyPanel = new JPanel();
 		dummyPanel.add(new JLabel("Dummy Vis Controls..."));
@@ -121,6 +116,18 @@ public class DummyVisualization extends Visualization {
 	@Override
 	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3,
 			int arg4) {		
+	}
+
+	@Override
+	public String getName() {
+		return "Dummy Visualization";
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return getName()+"\n\n"+
+				"";
 	} 
 
 }

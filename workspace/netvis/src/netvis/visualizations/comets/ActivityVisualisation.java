@@ -408,11 +408,6 @@ public class ActivityVisualisation extends Visualization {
 	}
 
 	@Override
-	public String name() {
-		return "Heatmap of activity";
-	}
-
-	@Override
 	public void everythingEnds() {
 		super.everythingEnds();
 		System.out.println("The only visualization stops, you fools...");		
@@ -424,6 +419,17 @@ public class ActivityVisualisation extends Visualization {
 		TexturePool.DiscardTextures();
 		
 		super.activate();
+	}
+
+	@Override
+	public String getName() {
+		return "Heatmap of activity";
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return "";
 	}
 
 }
