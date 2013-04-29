@@ -34,6 +34,8 @@ public class ContextPanel extends JScrollPane {
 			+"Contextual views don't update automatically for performance\n"
 			+"reasons. They can all be manually refreshed by clicking on\n"
 			+"the relevant control again.");
+	
+	protected Component currentComponent = null;
 	/** Previously-shown component which we can revert to (if non-null) using revert() */
 	protected Component previousComponent = null;
 
@@ -117,7 +119,9 @@ public class ContextPanel extends JScrollPane {
 	 * displays the provided component in the scroll pane
 	 */
 	protected void setComponent(JComponent component) {
-		previousComponent = getComponent(0);
+		
+		previousComponent = currentComponent;
+		currentComponent = component;
 		setViewportView(component);
 	}
 	

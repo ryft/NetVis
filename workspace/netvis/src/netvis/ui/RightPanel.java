@@ -38,8 +38,10 @@ public class RightPanel extends JPanel {
 	 *            Reference to the data controller
 	 * @param visControlContainer
 	 *            Container for the relevant visualisation controls
+	 * @param contextPanel
+	 *            Context panel for displaying each visualisation description
 	 */
-	public RightPanel(DataFeeder dataFeeder, DataController dataController, VisControlsContainer visControlContainer) {
+	public RightPanel(DataFeeder dataFeeder, DataController dataController, VisControlsContainer visControlContainer, final ContextPanel contextPanel) {
 		this.dataController = dataController;
 
 		JLabel visualisationsTitle = new TitleLabel("Visualizations");
@@ -52,7 +54,7 @@ public class RightPanel extends JPanel {
 		
 		visComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				VisualizationsController.GetInstance().ActivateById (visComboBox.getSelectedIndex());
+				VisualizationsController.GetInstance().ActivateById (visComboBox.getSelectedIndex(), contextPanel);
 			}
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
@@ -61,6 +63,17 @@ public class RightPanel extends JPanel {
 		add(visualisationsTitle);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
 		add(visComboBox);
+
+		/** Description button */
+		JButton showDescription = new JButton("Show description");
+		showDescription.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// This line is hilarious. I'm both proud of this and want to shoot myself at the same time.
+				contextPanel.update(VisualizationsController.GetInstance().getVList().get(visComboBox.getSelectedIndex()).getDescription());
+			}
+		});
+		add(showDescription);
 
 		/** Visualisation controls */
 		add(visContainerTitle);

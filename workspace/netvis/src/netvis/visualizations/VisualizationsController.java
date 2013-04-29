@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import netvis.data.DataController;
+import netvis.ui.ContextPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualizations.comets.ActivityVisualisation;
@@ -41,16 +42,18 @@ public class VisualizationsController {
 		oldVisId = -1;
 		
 		for (int i = 0; i < visList.size(); i++)
-			visNameList.add (visList.get(i).name());
+			visNameList.add (visList.get(i).getName());
 	}
 	
-	public void ActivateById (int selectedIndex) {
+	public void ActivateById (int selectedIndex, ContextPanel descriptionContainer) {
 		// If we are switching away from the visualizaton - deactivate it
 		if (oldVisId != -1)
 			visList.get (oldVisId).deactivate();
 		oldVisId = selectedIndex;
-		
-		visList.get(selectedIndex).activate();
-		visList.get(selectedIndex).requestFocusInWindow();
+
+		Visualization newVis = visList.get(selectedIndex);
+		descriptionContainer.update(newVis.getDescription());
+		newVis.activate();
+		newVis.requestFocusInWindow();
 	};
 };

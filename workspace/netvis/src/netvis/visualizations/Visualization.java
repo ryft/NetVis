@@ -19,29 +19,32 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 
-public abstract class Visualization extends GLJPanel implements DataControllerListener, GLEventListener{
+public abstract class Visualization extends GLJPanel implements
+		DataControllerListener, GLEventListener {
 
 	private static final long serialVersionUID = 1L;
 	final List<Packet> listOfPackets;
 	List<Packet> newPackets;
 	final OpenGLPanel joglPanel;
 	final DataController dataController;
-	
+
 	FPSAnimator fpskeep;
 
 	boolean allDataChanged;
 	JPanel visControls;
 	final VisControlsContainer visContainer;
-	public Visualization(DataController dataController, OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
+
+	public Visualization(DataController dataController, OpenGLPanel joglPanel,
+			VisControlsContainer visControlsContainer) {
 
 		super(CreateCapabilities());
-		
+
 		this.setPreferredSize(new Dimension(800, 500));
 		this.setSize(800, 500);
 		this.setFocusable(true);
-		
+
 		this.addGLEventListener(this);
-		
+
 		dataController.addListener(this);
 		this.listOfPackets = dataController.getPackets();
 		this.newPackets = new ArrayList<Packet>();
@@ -49,25 +52,25 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 		this.joglPanel = joglPanel;
 		this.visControls = this.createControls();
 		this.visContainer = visControlsContainer;
-		
+
 		// Create the timer that will keep the FPS - don't start it yet
 		this.fpskeep = new FPSAnimator(this, 120);
 	}
-	
-	private static GLCapabilitiesImmutable CreateCapabilities ()
-	{
+
+	private static GLCapabilitiesImmutable CreateCapabilities() {
 		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-		//caps.setSampleBuffers (true);
-		//caps.setNumSamples (2);
-		
+		// caps.setSampleBuffers (true);
+		// caps.setNumSamples (2);
+
 		return caps;
 	}
-	
+
 	protected abstract JPanel createControls();
-	
+
 	@Override
-	public void allDataChanged(List<Packet> allPackets, int updateInterval, int intervalsComplete) {
-		if (joglPanel.getVis() == this){
+	public void allDataChanged(List<Packet> allPackets, int updateInterval,
+			int intervalsComplete) {
+		if (joglPanel.getVis() == this) {
 			this.newPackets = allPackets;
 			this.allDataChanged = true;
 			this.display();
@@ -76,42 +79,45 @@ public abstract class Visualization extends GLJPanel implements DataControllerLi
 
 	@Override
 	public void newPacketsArrived(List<Packet> newPackets) {
-		if (joglPanel.getVis() == this){
+		if (joglPanel.getVis() == this) {
 			this.newPackets = newPackets;
 			this.render();
 		}
 	}
 
-	public void activate(){
+	public void activate() {
 		joglPanel.setVis(this);
 		visContainer.setVisControl(visControls);
 		this.newPackets = this.listOfPackets;
 		allDataChanged = true;
-		
+
 		// Start the FPSAnimator to keep the framerate around 120
 		System.setProperty("sun.awt.noerasebackground", "true");
-		
-		//this.fpskeep.add(this);
+
+		// this.fpskeep.add(this);
 		this.fpskeep.start();
 
 		// No need to render straight away - timer will take care of that
-		//this.render();
+		// this.render();
 	}
-	
+
 	public void deactivate() {
-		this.fpskeep.stop();	
+		this.fpskeep.stop();
 	}
-	
-	protected void render(){
+
+	protected void render() {
 		this.display();
 		allDataChanged = false;
 	}
-	
-	 public abstract String name();
-	 
-	 public void everythingEnds () {
-		 this.destroy();
-		 this.fpskeep.stop();
-		 System.out.println("Visualization " + this.name() + " finishes receiving data");
-	 }
+
+	public abstract String getName();
+
+	public abstract String getDescription();
+
+	public void everythingEnds() {
+		this.destroy();
+		this.fpskeep.stop();
+		System.out.println("Visualization " + this.getName()
+				+ " finishes receiving data");
+	}
 }

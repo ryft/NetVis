@@ -126,11 +126,6 @@ public class TimePortVisualization extends Visualization {
 		}
 	}
 
-	public String name() {
-		return "Ports";
-	}
-
-
 	@Override
 	public void dispose(GLAutoDrawable arg0) {
 		
@@ -183,5 +178,17 @@ public class TimePortVisualization extends Visualization {
 			int arg4) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public String getName() {
+		return "Ports";
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return getName()+"\n\n"+
+				"";
 	}
 }

@@ -132,10 +132,6 @@ public class DataflowVisualization extends Visualization{
 		return null;
 	}
 
-	@Override
-	public String name() {
-		return "Data Flow";
-	}
 	  private void drawDiamond
 	  ( GL2 gl, float xc, float yc, float radius) 
 	    {
@@ -147,4 +143,21 @@ public class DataflowVisualization extends Visualization{
 			gl.glEnd();
 
 	    }
+
+	@Override
+	public String getName() {
+		return "Data Flow";
+	}
+
+	@Override
+	public String getDescription() {
+		 return getName()+"\n\n"+
+		 		 "Saturation indicates time (the gray lines are past lines) the\n"+
+				 "coloured lines are more recent. All the lines are transparent\n"+
+		 		 "therefore if a line stands out it means lots of packets go through\n"+
+				 "that line. The red triangles show traffic. They shrink with each\n"+
+		 		 "iteration by some percentage and grow linearly with each packet\n"+
+				 "on that interval. They also have an upper limit.";
+	}
+
 }

@@ -126,18 +126,6 @@ public class ApplicationFrame extends JFrame {
 		// Set up all the Visualizations
 		VisualizationsController.GetInstance().InitializeAll (dataController, glPanel, visControlsContainer);
 
-		// Set up filter control panel
-		rightPanel = new RightPanel (dataFeeder, dataController, visControlsContainer);
-		final GridBagConstraints rightConstraints = new GridBagConstraints();
-		rightConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
-		rightConstraints.fill = GridBagConstraints.NONE;
-		rightConstraints.insets = new Insets(10, 5, 0, 10);
-		rightConstraints.gridx = 1;
-		rightConstraints.gridy = 0;
-		rightConstraints.weightx = 0.0;
-		rightConstraints.weighty = 1.0;
-		contentPane.add(rightPanel, rightConstraints);
-
 		// Set up an bottom panel for analysis and context panels
 		JSplitPane bottomPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		contextPanel = new ContextPanel();
@@ -156,6 +144,18 @@ public class ApplicationFrame extends JFrame {
 		bottomConstraints.weightx = 0.0;
 		bottomConstraints.weighty = 0.0;
 		contentPane.add(bottomPanel, bottomConstraints);
+
+		// Set up filter control panel
+		rightPanel = new RightPanel (dataFeeder, dataController, visControlsContainer, contextPanel);
+		final GridBagConstraints rightConstraints = new GridBagConstraints();
+		rightConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		rightConstraints.fill = GridBagConstraints.NONE;
+		rightConstraints.insets = new Insets(10, 5, 0, 10);
+		rightConstraints.gridx = 1;
+		rightConstraints.gridy = 0;
+		rightConstraints.weightx = 0.0;
+		rightConstraints.weighty = 1.0;
+		contentPane.add(rightPanel, rightConstraints);
 
 		// Set up a status bar panel
 		statusBar = new StatusBar();
@@ -180,7 +180,10 @@ public class ApplicationFrame extends JFrame {
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
 
-		VisualizationsController.GetInstance().ActivateById (0);
+		VisualizationsController.GetInstance().ActivateById (0, contextPanel);
+		
+		// Reset the initial message in the context panel
+		contextPanel.revert();
 
 		// Add a resize listener
 		this.addComponentListener(new ResizeListener());
@@ -190,6 +193,7 @@ public class ApplicationFrame extends JFrame {
 		// Register a nice exception handler
 		if (!DEBUG_MODE)
 			Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(parent));
+
 	}
 
 	public JMenuBar createMenuBar() {
