@@ -18,14 +18,14 @@ import javax.swing.SwingConstants;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.model.PacketFilter;
-import netvis.visualizations.VisualizationsController;
+import netvis.visualisations.VisualisationsController;
 
 @SuppressWarnings("serial")
 public class RightPanel extends JPanel {
 
 	protected final DataController dataController;
-	
-	// ID of the previous visualization for the deactivation purpose
+
+	// ID of the previous visualisation for deactivation
 	protected int oldVisId = -1;
 
 	/**
@@ -41,20 +41,23 @@ public class RightPanel extends JPanel {
 	 * @param contextPanel
 	 *            Context panel for displaying each visualisation description
 	 */
-	public RightPanel(DataFeeder dataFeeder, DataController dataController, VisControlsContainer visControlContainer, final ContextPanel contextPanel) {
+	public RightPanel(DataFeeder dataFeeder, DataController dataController,
+			VisControlsContainer visControlContainer, final ContextPanel contextPanel) {
 		this.dataController = dataController;
 
-		JLabel visualisationsTitle = new TitleLabel("Visualizations");
-		JLabel visContainerTitle = new TitleLabel("Visualization Controls");
+		JLabel visualisationsTitle = new TitleLabel("Visualisations");
+		JLabel visContainerTitle = new TitleLabel("Visualisation Controls");
 		JLabel filtersTitle = new TitleLabel("Filters");
 		JLabel dataTitle = new TitleLabel("Data Control");
-		
-		List<String> visNameList = VisualizationsController.GetInstance().getNList();
-		final JComboBox<String> visComboBox = new JComboBox<String> (visNameList.toArray(new String[visNameList.size()]));
-		
+
+		List<String> visNameList = VisualisationsController.GetInstance().getNList();
+		final JComboBox<String> visComboBox = new JComboBox<String>(
+				visNameList.toArray(new String[visNameList.size()]));
+
 		visComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				VisualizationsController.GetInstance().ActivateById (visComboBox.getSelectedIndex(), contextPanel);
+				VisualisationsController.GetInstance().ActivateById(visComboBox.getSelectedIndex(),
+						contextPanel);
 			}
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
@@ -69,8 +72,8 @@ public class RightPanel extends JPanel {
 		showDescription.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// This line is hilarious. I'm both proud of this and want to shoot myself at the same time.
-				contextPanel.update(VisualizationsController.GetInstance().getVList().get(visComboBox.getSelectedIndex()).getDescription());
+				contextPanel.update(VisualisationsController.GetInstance().getVList()
+						.get(visComboBox.getSelectedIndex()).getDescription());
 			}
 		});
 		add(showDescription);
@@ -99,14 +102,13 @@ public class RightPanel extends JPanel {
 		}
 		this.add(updateButton);
 		add(Box.createVerticalStrut(10));
-		
+
 		/** Data controls */
 		if (dataFeeder.controlPanel() != null) {
 			add(dataTitle);
 			add(new JSeparator(SwingConstants.HORIZONTAL));
 			add(dataFeeder.controlPanel());
 		}
-		
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(Box.createVerticalGlue());

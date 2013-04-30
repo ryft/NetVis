@@ -34,10 +34,10 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import netvis.data.CSVDataFeeder;
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.DummyDataFeeder;
+import netvis.data.csv.CSVDataFeeder;
 import netvis.data.filters.PortRangeFilter;
 import netvis.data.filters.ProtocolFilter;
 import netvis.ui.AnalysisPanel;
@@ -47,7 +47,7 @@ import netvis.ui.RightPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.util.ExceptionHandler;
 import netvis.util.Utilities;
-import netvis.visualizations.VisualizationsController;
+import netvis.visualisations.VisualisationsController;
 
 /**
  * The entry point to the application. Glues the whole GUI together and
@@ -57,8 +57,10 @@ import netvis.visualizations.VisualizationsController;
 public class ApplicationFrame extends JFrame {
 
 	// Flags governing the behaviour of the application window
-	/** Debug Mode disables the global exception handler and
-	 *  initialises a CSV data feeder on construction. */
+	/**
+	 * Debug Mode disables the global exception handler and initialises a CSV
+	 * data feeder on construction.
+	 */
 	protected final boolean DEBUG_MODE = true;
 	protected boolean FULL_SCREEN = false;
 
@@ -74,29 +76,30 @@ public class ApplicationFrame extends JFrame {
 
 	protected DataFeeder dataFeeder;
 	protected DataController dataController;
-	
+
 	VisControlsContainer visControlsContainer;
 
 	/**
 	 * Construct a default application frame.
 	 */
 	public ApplicationFrame() {
-		super("Network Visualizer by the Clockwork Dragon team");
+		super("Network Visualiser by the Clockwork Dragon team");
 
-		this.addWindowListener (new WindowAdapter() {
+		this.addWindowListener(new WindowAdapter() {
 			@Override
-		    public void windowClosing(final WindowEvent event) {
-		        System.out.println(event);
-		        
-		        // Do whatever you can to stop everything
-		        dataController.FinishEverything();
-		        System.exit(0);
-		        Runtime.getRuntime().exit(0);
-		    }
+			public void windowClosing(final WindowEvent event) {
+				// System.out.println(event);
+
+				// Do whatever you can to stop everything
+				dataController.FinishEverything();
+				System.exit(0);
+				Runtime.getRuntime().exit(0);
+			}
 		});
-		
+
 		if (DEBUG_MODE)
-			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"), ApplicationFrame.this);
+			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"),
+					ApplicationFrame.this);
 		else
 			dataFeeder = new DummyDataFeeder(ApplicationFrame.this);
 
@@ -122,8 +125,9 @@ public class ApplicationFrame extends JFrame {
 
 		visControlsContainer = new VisControlsContainer();
 
-		// Set up all the Visualizations
-		VisualizationsController.GetInstance().InitializeAll (dataController, glPanel, visControlsContainer);
+		// Set up all the visualisations
+		VisualisationsController.GetInstance().InitializeAll(dataController, glPanel,
+				visControlsContainer);
 
 		// Set up an bottom panel for analysis and context panels
 		JSplitPane bottomPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -145,7 +149,7 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(bottomPanel, bottomConstraints);
 
 		// Set up filter control panel
-		rightPanel = new RightPanel (dataFeeder, dataController, visControlsContainer, contextPanel);
+		rightPanel = new RightPanel(dataFeeder, dataController, visControlsContainer, contextPanel);
 		final GridBagConstraints rightConstraints = new GridBagConstraints();
 		rightConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		rightConstraints.fill = GridBagConstraints.NONE;
@@ -179,8 +183,8 @@ public class ApplicationFrame extends JFrame {
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
 
-		VisualizationsController.GetInstance().ActivateById (0, contextPanel);
-		
+		VisualisationsController.GetInstance().ActivateById(0, contextPanel);
+
 		// Reset the initial message in the context panel
 		contextPanel.revert();
 
@@ -245,14 +249,14 @@ public class ApplicationFrame extends JFrame {
 		// Reset the application size
 		JMenuItem resetViewItem = new JMenuItem("Reset Size", KeyEvent.VK_R);
 		resetViewItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
-		resetViewItem.getAccessibleContext().setAccessibleDescription("Reset the size of the application window");
-		
+		resetViewItem.getAccessibleContext().setAccessibleDescription(
+				"Reset the size of the application window");
+
 		// Listen for reset events
 		resetViewItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (FULL_SCREEN)
-				{
+				if (FULL_SCREEN) {
 					ApplicationFrame.this.toggleFullScreen();
 				}
 			}
@@ -262,7 +266,7 @@ public class ApplicationFrame extends JFrame {
 		JMenuItem fullScreenItem = new JMenuItem("Full Screen", KeyEvent.VK_F);
 		fullScreenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
 		fullScreenItem.getAccessibleContext().setAccessibleDescription("Toggle full-screen window");
-		
+
 		// Listen for full-screen events
 		fullScreenItem.addActionListener(new ActionListener() {
 			@Override
@@ -283,41 +287,42 @@ public class ApplicationFrame extends JFrame {
 
 		return menuBar;
 	}
-	
+
 	protected void toggleFullScreen() {
 
 		// Get references to required system resources
-        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice device = env.getDefaultScreenDevice();
-		
-		if (FULL_SCREEN)	// Attempt to go full-screen
+
+		if (FULL_SCREEN) // Attempt to go full-screen
 			try {
 				parent.dispose();
 				parent.setUndecorated(false);
 				parent.setResizable(true);
-	            device.setFullScreenWindow(null);
-			    parent.setExtendedState(JFrame.NORMAL);
-	            parent.setVisible(true);
-	            FULL_SCREEN = false;
+				device.setFullScreenWindow(null);
+				parent.setExtendedState(JFrame.NORMAL);
+				parent.setVisible(true);
+				FULL_SCREEN = false;
 			} catch (Exception ex) {
 				parent.setVisible(true);
 			}
-		
-		else				// Attempt to revert to normal window
+
+		else
+			// Attempt to revert to normal window
 			try {
 				parent.dispose();
 				parent.setUndecorated(true);
 				parent.setResizable(false);
-	            device.setFullScreenWindow(parent);
-			    parent.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	            parent.validate();
-	            FULL_SCREEN = true;
+				device.setFullScreenWindow(parent);
+				parent.setExtendedState(JFrame.MAXIMIZED_BOTH);
+				parent.validate();
+				FULL_SCREEN = true;
 			} catch (Exception ex) {
 				parent.setVisible(true);
 			}
-		
+
 		componentResized();
-		
+
 	}
 
 	/**
@@ -343,7 +348,7 @@ public class ApplicationFrame extends JFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			
+
 			if (analysisPanel.batchProcessBlock) {
 				label.setForeground(Color.darkGray);
 				label.setText("Processing filtered data...");
@@ -355,8 +360,9 @@ public class ApplicationFrame extends JFrame {
 				Long totalMemory = runtime.totalMemory();
 				Long usedMemory = totalMemory - freeMemory;
 				Long percentageUsed = Math.round(usedMemory * 100.0 / totalMemory);
-	
-				// Display the usage stats in increasingly bright red text as usage
+
+				// Display the usage stats in increasingly bright red text as
+				// usage
 				// approaches 100%
 				if (percentageUsed >= 80)
 					if (percentageUsed < 90)
@@ -365,15 +371,16 @@ public class ApplicationFrame extends JFrame {
 						label.setForeground(Color.red);
 				else
 					label.setForeground(Color.darkGray);
-	
-				// Show green text briefly after a garbage collection (usage drops)
+
+				// Show green text briefly after a garbage collection (usage
+				// drops)
 				if (usedMemory < prevUsage)
 					label.setForeground(Color.green.darker().darker());
-	
+
 				label.setText("JVM memory usage statistics: " + Utilities.parseBytes(usedMemory)
 						+ " / " + Utilities.parseBytes(totalMemory) + " (" + percentageUsed
 						+ "%) in use");
-	
+
 				prevUsage = usedMemory;
 			}
 		}
@@ -406,50 +413,46 @@ public class ApplicationFrame extends JFrame {
 	public static void main(String[] args) {
 
 		EventQueue.invokeLater(new Runnable() {
-            public void run() {                             
-                    try 
-                    {
-                    	// Make GUI OS native:
-                    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    }
-                    catch (Exception ex)
-                    {
-                    	ex.printStackTrace();
-                    }
-                    try 
-                    {
-                		ApplicationFrame applicationFrame = new ApplicationFrame();
-                		applicationFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-                		applicationFrame.setSize(applicationFrame.getPreferredSize());
-                		applicationFrame.setVisible(true);
-                		applicationFrame.analysisPanel.init();
-                    } 
-                    catch (Exception ex) 
-                    {
-                    	// We have a problem - app can't run
-                    	ex.printStackTrace();
-                    }
-            }
+			public void run() {
+				try {
+					// Make GUI OS native:
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				try {
+					ApplicationFrame applicationFrame = new ApplicationFrame();
+					applicationFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+					applicationFrame.setSize(applicationFrame.getPreferredSize());
+					applicationFrame.setVisible(true);
+					applicationFrame.analysisPanel.init();
+				} catch (Exception ex) {
+					// We have a problem - app can't run
+					ex.printStackTrace();
+				}
+			}
 		});
-		
+
 	}
-	
+
 	protected void componentResized() {
 		glPanel.resizeVisualisation();
 	}
-	
+
 	protected class ResizeListener implements ComponentListener {
-	
+
 		@Override
 		public void componentHidden(ComponentEvent arg0) {
 		}
+
 		@Override
 		public void componentMoved(ComponentEvent arg0) {
 		}
+
 		@Override
 		public void componentShown(ComponentEvent arg0) {
 		}
-	
+
 		@Override
 		public void componentResized(ComponentEvent arg0) {
 			ApplicationFrame.this.componentResized();

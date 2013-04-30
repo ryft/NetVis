@@ -21,12 +21,13 @@ public class DataController implements ActionListener {
 	final List<Packet> filteredPackets;
 	private int noUpdated = 0;
 	protected int intervalsComplete = 0;
-	
+
 	/**
-	 * @param dataFeeder 
-	 * @param updateInterval The time interval at which the data is updating.
+	 * @param dataFeeder
+	 * @param updateInterval
+	 *            The time interval at which the data is updating.
 	 */
-	public DataController(DataFeeder dataFeeder, int updateInterval){
+	public DataController(DataFeeder dataFeeder, int updateInterval) {
 		this.dataFeeder = dataFeeder;
 		listeners = new ArrayList<DataControllerListener>();
 		filters = new ArrayList<PacketFilter>();
@@ -36,37 +37,39 @@ public class DataController implements ActionListener {
 		timer = new Timer(updateInterval, this);
 		timer.start();
 	}
-	
-	public void FinishEverything () {
+
+	public void FinishEverything() {
 		this.timer.stop();
 		for (DataControllerListener l : listeners)
 			l.everythingEnds();
 	}
-	
-	public void addListener(DataControllerListener listener){
+
+	public void addListener(DataControllerListener listener) {
 		listeners.add(listener);
 	}
-	public void removeListener(DataControllerListener listener){
+
+	public void removeListener(DataControllerListener listener) {
 		listeners.remove(listener);
 	}
-	
-	public void addFilter(PacketFilter packetFilter){
+
+	public void addFilter(PacketFilter packetFilter) {
 		filters.add(packetFilter);
 		allDataChanged();
 	}
-	
-	public void removeFilter(PacketFilter packetFilter){
+
+	public void removeFilter(PacketFilter packetFilter) {
 		filters.remove(packetFilter);
 		allDataChanged();
 	}
-	public Iterator<PacketFilter> filterIterator(){
+
+	public Iterator<PacketFilter> filterIterator() {
 		return filters.iterator();
 	}
-	
+
 	/**
 	 * Returns all the packets with the filters applied
 	 */
-	public List<Packet> getPackets(){
+	public List<Packet> getPackets() {
 		return Collections.unmodifiableList(filteredPackets);
 	}
 
@@ -76,47 +79,50 @@ public class DataController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		List<Packet> newPackets = dataFeeder.getNewPackets();
-		
+
 		if (newPackets != null) {
-			allPackets.addAll(newPackets); // First add the new packets to the controller
+			allPackets.addAll(newPackets); // First add the new packets to the
+											// controller
 			intervalsComplete++;
-			
+
 			applyFilters(newPackets); // Then apply the filters to them
 			filteredPackets.addAll(newPackets);
-	
+
 			for (DataControllerListener l : listeners)
 				l.newPacketsArrived(newPackets);
 		}
-		
+
 		// set timer interval to the one suggested by the feeder
 		timer.setDelay(dataFeeder.updateInterval());
-		
+
 		// If we've reached the end of the capture, stop the timer
-		if (!dataFeeder.hasNext()) timer.stop();
+		if (!dataFeeder.hasNext())
+			timer.stop();
 	}
-	
+
 	// Redraw only when all the filters have applied their changes
-	public void filterUpdated(){
+	public void filterUpdated() {
 		noUpdated++;
-		if(noUpdated == filters.size()){
+		if (noUpdated == filters.size()) {
 			allDataChanged();
 			noUpdated = 0;
 		}
 	}
-	
+
 	/**
 	 * 
-	 * @param list List to be filtered
+	 * @param list
+	 *            List to be filtered
 	 */
-	private void applyFilters(List<Packet> list){
+	private void applyFilters(List<Packet> list) {
 		List<Packet> toBeRemoved = new ArrayList<Packet>();
-		for (PacketFilter f:filters)
-			for(Packet p:list)
+		for (PacketFilter f : filters)
+			for (Packet p : list)
 				if (!f.filter(p))
 					toBeRemoved.add(p);
 		list.removeAll(toBeRemoved);
 	}
-	
+
 	/**
 	 * Informs listeners that all the data has changed.
 	 */
@@ -124,16 +130,19 @@ public class DataController implements ActionListener {
 		filteredPackets.clear();
 		filteredPackets.addAll(allPackets);
 		applyFilters(filteredPackets);
-		
+
 		for (DataControllerListener l : listeners)
 			l.allDataChanged(filteredPackets, timer.getDelay(), intervalsComplete);
-		
+
 		timer.start();
 	}
-	
+
 	/**
-	 * Sets a new data feeder and resets the state of the controller and listeners
-	 * @param newDataFeeder	New data feeder
+	 * Sets a new data feeder and resets the state of the controller and
+	 * listeners
+	 * 
+	 * @param newDataFeeder
+	 *            New data feeder
 	 */
 	public void setDataFeeder(DataFeeder newDataFeeder) {
 		this.dataFeeder = newDataFeeder;

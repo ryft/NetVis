@@ -26,28 +26,37 @@ import netvis.util.Utilities.MapComparator;
  */
 @SuppressWarnings("serial")
 public class ContextPanel extends JScrollPane {
-	
+
 	/** Initial state of the context panel */
 	protected static JComponent initialComponent = new JTextArea(
 			"Click on a button or blue element on the left while data is\n"
-			+"available to see more details.\n\n"
-			+"Contextual views don't update automatically for performance\n"
-			+"reasons. They can all be manually refreshed by clicking on\n"
-			+"the relevant control again.");
-	
+					+ "available to see more details.\n\n"
+					+ "Contextual views don't update automatically for performance\n"
+					+ "reasons. They can all be manually refreshed by clicking on\n"
+					+ "the relevant control again.");
+
 	protected Component currentComponent = null;
-	/** Previously-shown component which we can revert to (if non-null) using revert() */
+	/**
+	 * Previously-shown component which we can revert to (if non-null) using
+	 * revert()
+	 */
 	protected Component previousComponent = null;
 
-	/** Initialise empty context panel, containing only default user instructions */
+	/**
+	 * Initialise empty context panel, containing only default user instructions
+	 */
 	public ContextPanel() {
 		super(initialComponent);
 	}
-	
+
 	/**
-	 * Update the context panel with a simple line graph, with the provided data points plotted
-	 * @param title	graph title, displayed at the top
-	 * @param dataPoints	Uniformly distributed data points to plot on the y-axis
+	 * Update the context panel with a simple line graph, with the provided data
+	 * points plotted
+	 * 
+	 * @param title
+	 *            graph title, displayed at the top
+	 * @param dataPoints
+	 *            Uniformly distributed data points to plot on the y-axis
 	 */
 	public void update(String title, List<Integer> dataPoints) {
 		Box graphWrapper = Box.createVerticalBox();
@@ -57,49 +66,56 @@ public class ContextPanel extends JScrollPane {
 	}
 
 	/**
-	 * Update the context panel to display a comparison between the shortest- and longest-
-	 * length packets received
-	 * @param shortest	The shortest packet received so far
-	 * @param longest	The longest packet received so far
+	 * Update the context panel to display a comparison between the shortest-
+	 * and longest- length packets received
+	 * 
+	 * @param shortest
+	 *            The shortest packet received so far
+	 * @param longest
+	 *            The longest packet received so far
 	 */
 	public void update(Packet shortest, Packet longest) {
-		
-		String description = "Shortest packet: \n" + 
-		"Packet #" + shortest.no + " sent at " + shortest.time + "s over protocol " + shortest.protocol + "\n" +
-		"Sender: " + shortest.sip + " [" + shortest.smac + "] on port " + shortest.sport + "\n" +
-		"Recipient " + shortest.dip + " [" + shortest.dmac + "] on port " + shortest.dport + "\n" +
-		"Packet consisted of " + shortest.length + " bytes" + "\n" +
-		"Detected info: " + shortest.info + "\n\n" +
-		"Longest packet: " + "\n" +
-		"Packet #" + longest.no + " sent at " + longest.time + "s over protocol " + longest.protocol + "\n" +
-		"Sender: " + longest.sip + " [" + longest.smac + "] on port " + longest.sport + "\n" +
-		"Recipient " + longest.dip + " [" + longest.dmac + "] on port " + longest.dport + "\n" +
-		"Packet consisted of " + longest.length + " bytes" + "\n" +
-		"Detected info: " + longest.info;
-		
+
+		String description = "Shortest packet: \n" + "Packet #" + shortest.no + " sent at "
+				+ shortest.time + "s over protocol " + shortest.protocol + "\n" + "Sender: "
+				+ shortest.sip + " [" + shortest.smac + "] on port " + shortest.sport + "\n"
+				+ "Recipient " + shortest.dip + " [" + shortest.dmac + "] on port "
+				+ shortest.dport + "\n" + "Packet consisted of " + shortest.length + " bytes"
+				+ "\n" + "Detected info: " + shortest.info + "\n\n" + "Longest packet: " + "\n"
+				+ "Packet #" + longest.no + " sent at " + longest.time + "s over protocol "
+				+ longest.protocol + "\n" + "Sender: " + longest.sip + " [" + longest.smac
+				+ "] on port " + longest.sport + "\n" + "Recipient " + longest.dip + " ["
+				+ longest.dmac + "] on port " + longest.dport + "\n" + "Packet consisted of "
+				+ longest.length + " bytes" + "\n" + "Detected info: " + longest.info;
+
 		update(description);
 	}
-	
+
 	/**
 	 * Update the context panel with a string which is displayed in a JTextArea
-	 * @param text	String to display
+	 * 
+	 * @param text
+	 *            String to display
 	 */
 	public void update(String text) {
 		JTextArea descriptionBox = new JTextArea(text);
 		setComponent(descriptionBox);
 	}
-	
+
 	/**
 	 * Update the context panel to display a traffic map, sorted by value
-	 * @param title	Title to show above the the sorted results
-	 * @param unsortedMap	Unsorted map of results to display
+	 * 
+	 * @param title
+	 *            Title to show above the the sorted results
+	 * @param unsortedMap
+	 *            Unsorted map of results to display
 	 */
 	public <T> void update(String title, Map<T, Integer> unsortedMap) {
-		
+
 		MapComparator<T> comparator = new MapComparator<T>(unsortedMap);
 		TreeMap<T, Integer> sortedMap = new TreeMap<T, Integer>(comparator);
 		sortedMap.putAll(unsortedMap);
-		
+
 		StringBuilder text = new StringBuilder(title);
 		for (T entry : sortedMap.keySet())
 			text.append("\n" + entry + ": \t" + String.valueOf(unsortedMap.get(entry)));
@@ -108,23 +124,25 @@ public class ContextPanel extends JScrollPane {
 
 	/**
 	 * Update the context panel to simply show a single JComponent
-	 * @param component	The component to display
+	 * 
+	 * @param component
+	 *            The component to display
 	 */
 	public void update(JComponent component) {
 		setComponent(component);
 	}
 
 	/**
-	 * Stores the current state of the context panel so we can revert to it in future, and
-	 * displays the provided component in the scroll pane
+	 * Stores the current state of the context panel so we can revert to it in
+	 * future, and displays the provided component in the scroll pane
 	 */
 	protected void setComponent(JComponent component) {
-		
+
 		previousComponent = currentComponent;
 		currentComponent = component;
 		setViewportView(component);
 	}
-	
+
 	/** Reverts the state of the scroll pane to the previously stored component */
 	public void revert() {
 		if (previousComponent != null)

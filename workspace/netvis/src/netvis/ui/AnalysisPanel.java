@@ -43,8 +43,10 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 	protected Queue<List<Packet>> updateQueue = new LinkedBlockingDeque<List<Packet>>();
 	/** List of updates received while running static analysis */
 	protected Queue<List<Packet>> batchQueue = new LinkedBlockingDeque<List<Packet>>();
-	/** Flag to block certain events while static analysis jobs are being created.
-	 * 	Any outside modification of this variable is unsafe. */
+	/**
+	 * Flag to block certain events while static analysis jobs are being
+	 * created. Any outside modification of this variable is unsafe.
+	 */
 	public boolean batchProcessBlock = false;
 
 	// Declare fields to be updated dynamically
@@ -188,8 +190,8 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (batchQueue.size() == 0 && !batchProcessBlock)
-					contextPanel.update("Bytes transmitted over " + Math.round(totalTimePassed) + "s, "
-							+ "current total: " + Utilities.parseBytes(totalBytes),
+					contextPanel.update("Bytes transmitted over " + Math.round(totalTimePassed)
+							+ "s, " + "current total: " + Utilities.parseBytes(totalBytes),
 							bytesSeenOverTime);
 			}
 		};
@@ -241,7 +243,8 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (batchQueue.size() == 0 && !batchProcessBlock)
-					contextPanel.update("Total traffic, grouped and sorted by port", portTrafficTotals);
+					contextPanel.update("Total traffic, grouped and sorted by port",
+							portTrafficTotals);
 			}
 		};
 		panel3.add(labelMostCommonPort);
@@ -281,7 +284,7 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 		});
 		controlUpdateTimer = new Timer(controlUpdateInterval, this);
 	}
-	
+
 	public void init() {
 
 		dataUpdateTimer.start();
@@ -426,7 +429,7 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 				dataStateChanged(false);
 				batchProcessing = false;
 			}
-			
+
 			Queue<List<Packet>> updateQueueClone = new LinkedBlockingDeque<List<Packet>>();
 			for (int job = 0; job < updateQueue.size(); job++)
 				updateQueueClone.add(updateQueue.remove());
@@ -546,7 +549,8 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 	public void actionPerformed(ActionEvent arg0) {
 
 		// Tell the components to update to reflect the new data
-		if (batchQueue.size() == 0 && !batchProcessBlock) // Suppress output if necessary
+		if (batchQueue.size() == 0 && !batchProcessBlock) // Suppress output if
+															// necessary
 			updateControls();
 	}
 
@@ -559,8 +563,8 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 		// Enable/disable labels as required by the state of the data and put
 		// values into text fields.
 		// PANEL 1
-		fieldTotals.setText(String.valueOf(totalPackets) + " / "
-				+ Utilities.parseBytes(totalBytes));
+		fieldTotals
+				.setText(String.valueOf(totalPackets) + " / " + Utilities.parseBytes(totalBytes));
 
 		labelPacketsPerDelta.setEnabled(packetsSeenOverTime.size() > 0);
 		if (minPacketsPerInterval < 0)
@@ -677,6 +681,15 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 			return ipAddressesSeen.size();
 		}
 
+		@SuppressWarnings("rawtypes")
+		Class[] types = { String.class, Integer.class, Integer.class, Integer.class };
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@Override
+		public Class getColumnClass(int columnIndex) {
+			return this.types[columnIndex];
+		}
+
 		@Override
 		public Object getValueAt(int row, int col) {
 			// Return empty string if we're outside the array bounds
@@ -720,8 +733,6 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 
 	@Override
 	public void everythingEnds() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

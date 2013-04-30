@@ -2,28 +2,33 @@ package netvis.ui;
 
 import javax.swing.JPanel;
 
-import netvis.visualizations.Visualization;
+import netvis.visualisations.Visualisation;
 
 public class OpenGLPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private Visualization currentVis;
+	private Visualisation currentVis;
+
 	public OpenGLPanel() {
 		currentVis = null;
 	}
-	public void redraw(){
+
+	public void redraw() {
 		currentVis.display();
 	}
-	public void setVis(Visualization vis){
+
+	public void setVis(Visualisation vis) {
 		if (currentVis != null)
 			this.remove(currentVis);
 		currentVis = vis;
 		this.add(vis);
 		resizeVisualisation();
 	}
-	public Visualization getVis(){
+
+	public Visualisation getVis() {
 		return currentVis;
 	}
+
 	public void resizeVisualisation() {
 		currentVis.setPreferredSize(getSize());
 		currentVis.setSize(getSize());

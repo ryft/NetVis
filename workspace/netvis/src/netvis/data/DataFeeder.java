@@ -13,11 +13,11 @@ import netvis.data.model.Packet;
  * 
  */
 public interface DataFeeder {
-	
+
 	/**
 	 * 
-	 * @return Packets that have arrived since the last request, or null
-	 * 			if the DataFeeder isn't active
+	 * @return Packets that have arrived since the last request, or null if the
+	 *         DataFeeder isn't active
 	 */
 	public List<Packet> getNewPackets();
 
@@ -26,13 +26,13 @@ public interface DataFeeder {
 	 *         static feed)
 	 */
 	public boolean hasNext();
-	
+
 	/**
-	 * @return A panel with controls for the DataFeeder 
-	 * 			(e.g. Time Controls) or null if not provided.
+	 * @return A panel with controls for the DataFeeder (e.g. Time Controls) or
+	 *         null if not provided.
 	 */
 	public JPanel controlPanel();
-	
+
 	/**
 	 * @return number of milliseconds between updates of DataFeeder
 	 */

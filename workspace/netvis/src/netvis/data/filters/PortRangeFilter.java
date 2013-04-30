@@ -22,12 +22,14 @@ public class PortRangeFilter implements PacketFilter {
 	JComponent filterPanel;
 	JTextField slbField, subField, dlbField, dubField;
 	JButton updateButton;
-	public PortRangeFilter(DataController dataController){
+
+	public PortRangeFilter(DataController dataController) {
 		this.dataController = dataController;
 		source_lower_bound = DataUtilities.MIN_PORT;
-		source_upper_bound = DataUtilities.MAX_PORT;	// Highest possible UDP & TCP port
+		source_upper_bound = DataUtilities.MAX_PORT; // Highest possible UDP &
+														// TCP port
 		dest_lower_bound = DataUtilities.MIN_PORT;
-		dest_upper_bound = DataUtilities.MAX_PORT; 
+		dest_upper_bound = DataUtilities.MAX_PORT;
 		slbField = new JTextField(String.valueOf(source_lower_bound));
 		subField = new JTextField(String.valueOf(source_upper_bound));
 
@@ -42,7 +44,7 @@ public class PortRangeFilter implements PacketFilter {
 		filterPanel.add(stitleLabel);
 		box.add(slbField);
 		box.add(subField);
-		
+
 		filterPanel.add(box);
 		box = Box.createHorizontalBox();
 		filterPanel.add(dtitleLabel);
@@ -66,13 +68,13 @@ public class PortRangeFilter implements PacketFilter {
 		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.PAGE_AXIS));
 		filterPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 	}
-	
+
 	@Override
 	public boolean filter(Packet packet) {
-		if (source_lower_bound > packet.sport || source_upper_bound < packet.sport ||
-			dest_lower_bound > packet.dport || dest_upper_bound < packet.dport)
+		if (source_lower_bound > packet.sport || source_upper_bound < packet.sport
+				|| dest_lower_bound > packet.dport || dest_upper_bound < packet.dport)
 			return false;
-		else 
+		else
 			return true;
 	}
 
