@@ -1,5 +1,6 @@
 package netvis.visualizations;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -8,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Stack;
 import java.util.TreeMap;
 
@@ -25,6 +25,7 @@ import netvis.data.DataController;
 import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
+import netvis.util.ColourPalette;
 import netvis.util.Utilities.MapComparator;
 
 import com.jogamp.opengl.util.gl2.GLUT;
@@ -33,11 +34,18 @@ public class TrafficVolumeVisualization extends Visualization {
 
 	private static final long serialVersionUID = 1L;
 
+	// GLUT object for drawing
 	private final GLUT glut = new GLUT();
 
+	// Fields holding packet data
 	private final Map<Integer, Map<String, Integer>> protocolCountMaps = new HashMap<Integer, Map<String, Integer>>();
 	private final Map<String, Integer> globalProtocolCount = new HashMap<String, Integer>();
-	private final Map<String, GLColour3d> protocolColours = new HashMap<String, GLColour3d>();
+	private final Map<String, Color> protocolColours = new HashMap<String, Color>();
+	
+	// The colour palette
+	protected ColourPalette colourPalette = new ColourPalette(ColourPalette.SCHEME_QUALITATIVE);
+	
+	// Fields governing the appearance of the graph
 	private int maxTime = 0;
 	private int maxX = 32;
 	private double maxY = 0;
@@ -45,20 +53,6 @@ public class TrafficVolumeVisualization extends Visualization {
 	// Fields governing the update frequency of the graph
 	private int updateInterval = 1;
 	private int updateIteration = 0;
-
-	class GLColour3d {
-		double red = 0.0;
-		double green = 0.0;
-		double blue = 0.0;
-		public GLColour3d(double red, double green, double blue) {
-			this.red = red;
-			this.green = green;
-			this.blue = blue;
-		}
-		public void setGLColour(GL2 gl) {
-			gl.glColor3d(red, green, blue);
-		}
-	}
 
 	public TrafficVolumeVisualization(DataController dc,
 			final OpenGLPanel joglPanel,
@@ -105,7 +99,9 @@ public class TrafficVolumeVisualization extends Visualization {
 		if (joglPanel.getVis() == this) {
 			this.newPackets = newPackets;
 			processNewPackets(newPackets);
-			// TODO can someone document what this does?
+			
+			// This allows us to only limit updating the visualisation
+			// to update only after certain intervals. Currently unused.
 			if (updateIteration == 0)
 				this.render();
 			updateIteration = (updateIteration + 1) % updateInterval;
@@ -139,11 +135,9 @@ public class TrafficVolumeVisualization extends Visualization {
 	}
 
 	protected void protocolSeen(String protocol) {
-		
+
 		if (!protocolColours.containsKey(protocol)) {
-			Random r = new Random();
-			GLColour3d c = new GLColour3d(r.nextDouble(), r.nextDouble(), r.nextDouble());
-			protocolColours.put(protocol, c);
+			protocolColours.put(protocol, colourPalette.getNextColour());
 		}
 		
 		if (!globalProtocolCount.containsKey(protocol))
@@ -217,11 +211,11 @@ public class TrafficVolumeVisualization extends Visualization {
 				// For each protocol to be drawn in the strip
 				for (String protocol : currentPackets.keySet()) {
 
-					GLColour3d c = protocolColours.get(protocol);
+					Color c = protocolColours.get(protocol);
 					double height = currentPackets.get(protocol) * 1.6 / maxY;
 
 					gl.glBegin(GL2.GL_QUADS);
-					gl.glColor3d(c.red, c.green, c.blue);
+					colourPalette.setColour(gl, c);
 					gl.glVertex2d(xPos, yPos);
 					gl.glVertex2d(xPos, yPos + height);
 					gl.glVertex2d(xPos + intervalWidth, yPos + height);
@@ -267,8 +261,8 @@ public class TrafficVolumeVisualization extends Visualization {
 			String label = protocol + " (" + globalProtocolCount.get(protocol) + ")";
 			
 			// Set colour and position
-			GLColour3d colour = protocolColours.get(protocol);
-			colour.setGLColour(gl);
+			Color colour = protocolColours.get(protocol);
+			colourPalette.setColour(gl, colour);
 			Point position = keyPositions[i];
 			gl.glRasterPos2d(position.getX()/100, position.getY()/100);
 			
