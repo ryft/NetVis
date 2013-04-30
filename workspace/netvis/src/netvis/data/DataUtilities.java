@@ -11,7 +11,7 @@ public class DataUtilities {
 	/**
 	 * Transforms an IPv4 into a double value in the range [0..1]
 	 */
-	public static double normalizeV4Ip(String ip) {
+	public static double normaliseV4Ip(String ip) {
 		int i = 0;
 		int c = 0;
 		double f = 0;
@@ -34,7 +34,7 @@ public class DataUtilities {
 	/**
 	 * Transforms a port into a double value in the range [0..1]
 	 */
-	public static double normalizePort(int port) {
+	public static double normalisePort(int port) {
 		return (double) port / MAX_PORT;
 	}
 

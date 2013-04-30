@@ -40,10 +40,10 @@ public class DataflowVisualisation extends Visualisation {
 			VisControlsContainer visControlsContainer) {
 		super(dataController, joglPanel, visControlsContainer);
 		normPasses = new ArrayList<Normaliser>();
-		normPasses.add(NormaliseFactory.INSTANCE.getNormalizer(2));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormalizer(0));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormalizer(1));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormalizer(3));
+		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(2));
+		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(0));
+		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(1));
+		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(3));
 
 		trafficMeasure = new float[normPasses.size()][100];
 	}
@@ -73,7 +73,7 @@ public class DataflowVisualisation extends Visualisation {
 		for (int i = 0; i < newPackets.size(); i++) {
 			p = newPackets.get(i);
 			for (int j = 0; j < normPasses.size(); j++) {
-				double normVal = normPasses.get(j).normalize(p);
+				double normVal = normPasses.get(j).normalise(p);
 				trafficMeasure[j][(int) (normVal * 99)] += 0.001;
 			}
 		}
@@ -98,7 +98,7 @@ public class DataflowVisualisation extends Visualisation {
 			gl.glBegin(GL2.GL_LINE_STRIP);
 
 			for (int j = 0; j < normPasses.size(); j++) {
-				double normVal = normPasses.get(j).normalize(p);
+				double normVal = normPasses.get(j).normalise(p);
 				gl.glVertex2d(((double) j) / (normPasses.size() - 1), normVal);
 			}
 

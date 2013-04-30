@@ -32,9 +32,9 @@ public class MulticubeVisualisation extends Visualisation {
 	public MulticubeVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
 		super(dataController, joglPanel, visControlsContainer);
-		xNormalizer = NormaliseFactory.INSTANCE.getNormalizer(0);
-		yNormalizer = NormaliseFactory.INSTANCE.getNormalizer(1);
-		zNormalizer = NormaliseFactory.INSTANCE.getNormalizer(2);
+		xNormalizer = NormaliseFactory.INSTANCE.getNormaliser(0);
+		yNormalizer = NormaliseFactory.INSTANCE.getNormaliser(1);
+		zNormalizer = NormaliseFactory.INSTANCE.getNormaliser(2);
 		yrot = 1f;
 	}
 
@@ -99,9 +99,9 @@ public class MulticubeVisualisation extends Visualisation {
 		for (int i = 0; i < this.listOfPackets.size(); i++) {
 			p = listOfPackets.get(i);
 
-			double x = xNormalizer.normalize(p);
-			double z = yNormalizer.normalize(p);
-			double y = zNormalizer.normalize(p);
+			double x = xNormalizer.normalise(p);
+			double z = yNormalizer.normalise(p);
+			double y = zNormalizer.normalise(p);
 			gl.glColor4d(x, y, z, 0.3);
 			gl.glVertex3d(x, y, z);
 		}
@@ -128,19 +128,19 @@ public class MulticubeVisualisation extends Visualisation {
 		final JComboBox<String> xAxisBox = new JComboBox<String>(array);
 		xAxisBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				xNormalizer = NormaliseFactory.INSTANCE.getNormalizer(xAxisBox.getSelectedIndex());
+				xNormalizer = NormaliseFactory.INSTANCE.getNormaliser(xAxisBox.getSelectedIndex());
 			}
 		});
 		final JComboBox<String> yAxisBox = new JComboBox<String>(array);
 		yAxisBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				yNormalizer = NormaliseFactory.INSTANCE.getNormalizer(yAxisBox.getSelectedIndex());
+				yNormalizer = NormaliseFactory.INSTANCE.getNormaliser(yAxisBox.getSelectedIndex());
 			}
 		});
 		final JComboBox<String> zAxisBox = new JComboBox<String>(array);
 		zAxisBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				zNormalizer = NormaliseFactory.INSTANCE.getNormalizer(zAxisBox.getSelectedIndex());
+				zNormalizer = NormaliseFactory.INSTANCE.getNormaliser(zAxisBox.getSelectedIndex());
 			}
 
 		});

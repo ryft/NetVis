@@ -22,7 +22,7 @@ public class NormaliseFactory {
 		return attrs;
 	}
 
-	public Normaliser getNormalizer(int norm_id) {
+	public Normaliser getNormaliser(int norm_id) {
 		switch (norm_id) {
 		case 0:
 			return new SourcePortNorm();
@@ -39,14 +39,14 @@ public class NormaliseFactory {
 	}
 
 	public interface Normaliser {
-		public double normalize(Packet p);
+		public double normalise(Packet p);
 
 		public String name();
 	}
 
 	private class SourcePortNorm implements Normaliser {
-		public double normalize(Packet p) {
-			return DataUtilities.normalizePort(p.sport);
+		public double normalise(Packet p) {
+			return DataUtilities.normalisePort(p.sport);
 		}
 
 		public String name() {
@@ -55,8 +55,8 @@ public class NormaliseFactory {
 	}
 
 	private class DestinationPortNorm implements Normaliser {
-		public double normalize(Packet p) {
-			return DataUtilities.normalizePort(p.dport);
+		public double normalise(Packet p) {
+			return DataUtilities.normalisePort(p.dport);
 		}
 
 		public String name() {
@@ -65,8 +65,8 @@ public class NormaliseFactory {
 	}
 
 	private class SourceIPNorm implements Normaliser {
-		public double normalize(Packet p) {
-			return DataUtilities.normalizeV4Ip(p.sip);
+		public double normalise(Packet p) {
+			return DataUtilities.normaliseV4Ip(p.sip);
 		}
 
 		public String name() {
@@ -75,8 +75,8 @@ public class NormaliseFactory {
 	}
 
 	private class DestinationIPNorm implements Normaliser {
-		public double normalize(Packet p) {
-			return DataUtilities.normalizeV4Ip(p.dip);
+		public double normalise(Packet p) {
+			return DataUtilities.normaliseV4Ip(p.dip);
 		}
 
 		public String name() {
