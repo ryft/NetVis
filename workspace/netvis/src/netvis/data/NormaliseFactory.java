@@ -15,7 +15,7 @@ public class NormaliseFactory {
 	List<String> attrs;
 
 	private NormaliseFactory() {
-		attrs = Arrays.asList("Source Port", "Destination Port", "Source IP", "Destination IP");
+		attrs = Arrays.asList("Source Port", "Destination Port", "Source IP", "Destination IP", "Source MAC", "Destination MAC");
 	}
 
 	public List<String> getAttrs() {
@@ -32,6 +32,10 @@ public class NormaliseFactory {
 			return new SourceIPNorm();
 		case 3:
 			return new DestinationIPNorm();
+		case 4:
+			return new SourceMACNorm();
+		case 5:
+			return new DestinationMACNorm();
 		default:
 			return null;
 		}
@@ -81,6 +85,26 @@ public class NormaliseFactory {
 
 		public String name() {
 			return attrs.get(3);
+		}
+	}
+	
+	private class SourceMACNorm implements Normaliser {
+		public double normalise(Packet p) {
+			return DataUtilities.normaliseMAC(p.smac);
+		}
+
+		public String name() {
+			return attrs.get(4);
+		}
+	}
+	
+	private class DestinationMACNorm implements Normaliser {
+		public double normalise(Packet p) {
+			return DataUtilities.normaliseMAC(p.dmac);
+		}
+
+		public String name() {
+			return attrs.get(5);
 		}
 	}
 

@@ -1,5 +1,8 @@
 package netvis.data;
 
+import java.util.HashMap;
+import java.util.Random;
+
 /**
  * Contains some static utilities to be used with data
  * 
@@ -7,6 +10,8 @@ package netvis.data;
 public class DataUtilities {
 	public static final int MIN_PORT = 0;
 	public static final int MAX_PORT = 65535;
+	private static HashMap<String, Double> macMap = new HashMap<String, Double>();
+	private static Random doubleGen = new Random();
 
 	/**
 	 * Transforms an IPv4 into a double value in the range [0..1]
@@ -36,6 +41,18 @@ public class DataUtilities {
 	 */
 	public static double normalisePort(int port) {
 		return (double) port / MAX_PORT;
+	}
+	
+	public static double normaliseMAC(String address) {
+		if (macMap.containsKey(address))
+			return macMap.get(address);
+		else {
+			double value = 0.5;
+			while (macMap.containsValue(value))
+				value = doubleGen.nextDouble();
+			macMap.put(address, value);
+			return value;
+		}
 	}
 
 }
