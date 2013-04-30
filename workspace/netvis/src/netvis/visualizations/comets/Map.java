@@ -40,6 +40,8 @@ public class Map {
 	// IPs mapped to nodes
 	HashMap<String, NodeWithPosition> nodes;
 	
+	HashMap<Position, NodeWithPosition> nodesByPosition;
+	
 	List<NodeWithPosition> nodesl;
 	
 	// Basic size of the node
@@ -71,6 +73,7 @@ public class Map {
 		
 		nodes = new HashMap<String, NodeWithPosition> ();
 		nodesl= new ArrayList<NodeWithPosition> ();
+		nodesByPosition = new HashMap<Position, NodeWithPosition> ();
 
 		// Load all the necessary textures
 		TexturePool.LoadTexture ("server", 	Map.class.getResource("resources/server.png"));
@@ -167,14 +170,12 @@ public class Map {
 		// Move to the desired ring
 		if (outerring % 2 == 1)
 			x += Math.sqrt(3) * base / 2.0;
-		y += Math.sqrt(3) * base * outerring * Math.sin(Math.PI/3);
+		y += base * outerring * 1.5;
 
 		// Move the shift times
 		double angle = 0;
-		if (innerring % 2 == 1)
-			x -= Math.sqrt(3) * base;
 
-		for (int i=0 - (innerring / 2); i<shift - (innerring / 2); i++)
+		for (int i=0 - (outerring / 2); i<shift - (outerring / 2); i++)
 		{
 			if (i % outerring == 0)
 			{
@@ -183,6 +184,8 @@ public class Map {
 			x += Math.sqrt(3) * base * Math.cos(angle);
 			y += Math.sqrt(3) * base * Math.sin(angle);
 		}
+		
+		System.out.println("Node #" + num + " is on the ring : " + outerring + " with shift " + shift);
 
 		return new Position (x,y);
 	}
@@ -212,9 +215,9 @@ public class Map {
 		
 		p.y = (int) Math.round (posy / (base * 1.5));
 		if (p.y % 2 != 0)
-			p.x = (int) Math.round (posy / (base * r3));
+			p.x = (int) Math.round ((posx - base * r3 / 2.0) / (base * r3));
 		else
-			p.x = (int) Math.round ((posy - base * r3 / 2.0) / (base * r3));
+			p.x = (int) Math.round (posx / (base * r3));
 		
 		return p;
 	}
@@ -234,12 +237,21 @@ public class Map {
 		
 		nodes.put (name, k);
 		nodesl.add (k);
+		nodesByPosition.put(coord, k);
 		
 		return k;
 	}
 	
 	public NodeWithPosition FindClickedNode (int x, int y)
 	{
+		// Optimized version
+		Position p = new Position (x, y);
+		Position c = CoordinateByPosition (p);
+		
+		NodeWithPosition node = nodesByPosition.get(c);
+		return node;
+		
+		/*
 		for (NodeWithPosition n : nodes.values())
 		{
 			Position pos = n.pos;
@@ -248,6 +260,7 @@ public class Map {
 				return n;
 		}
 		return null;
+		*/
 	}
 
 	public double ZoomOn () {

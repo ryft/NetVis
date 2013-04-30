@@ -246,7 +246,7 @@ public class ActivityVisualisation extends Visualization {
 		});
 		
 		// Add test nodes
-		for (int i=0; i<120; i++)
+		for (int i=0; i<0; i++)
 		{
 			currentMap.SuggestNode ("testk" + i, "test" + i);
 		}
@@ -332,6 +332,7 @@ public class ActivityVisualisation extends Visualization {
 	@Override
 	public void newPacketsArrived(List<Packet> newPackets) {
 		// Dispatch the data to the specific points in the Map
+
 		for (Packet i : newPackets)
 		{
 			Candidate dri = candidates.get(i.sip);
