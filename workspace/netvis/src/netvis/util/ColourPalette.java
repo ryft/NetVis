@@ -1,9 +1,6 @@
 package netvis.util;
 
 import java.awt.Color;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 
 import javax.media.opengl.GL2;
 
@@ -15,11 +12,33 @@ public class ColourPalette {
 	public final static int SCHEME_DIVERGENT = 2;
 
 	protected final int SCHEME;
-	protected final Set<Integer> usedIndices = new HashSet<Integer>();
-	protected final Random random = new Random();
+	protected int currentIndex = 0;
+
+	/**
+	 * Calculates the colour which is a mix of the two provided, according to a
+	 * given ratio.
+	 * 
+	 * @param color1
+	 *            This colour will become more apparent with higher ratios
+	 * @param color2
+	 *            This colour will become more apparent with lower ratios
+	 * @param ratio
+	 *            The ratio between components of colours 1 and 2
+	 * @return The mixed colour according to the specified parameters
+	 */
+	public static Color getColourShade(Color color1, Color color2, double ratio) {
+
+		assert (ratio >= 0 && ratio <= 1);
+
+		int red = (int) Math.round(color1.getRed() * ratio + color2.getRed() * (1 - ratio));
+		int green = (int) Math.round(color1.getGreen() * ratio + color2.getGreen() * (1 - ratio));
+		int blue = (int) Math.round(color1.getBlue() * ratio + color2.getBlue() * (1 - ratio));
+
+		return new Color(red, green, blue);
+	}
 
 	// Define colours to be picked from (Qualitative, Sequential, Divergent)
-	protected Color[][] colours = {
+	protected Color[][] colourSchemes = {
 			{ new Color(141, 211, 199), new Color(255, 255, 179), new Color(190, 186, 218),
 					new Color(251, 128, 114), new Color(128, 177, 211), new Color(253, 180, 98),
 					new Color(179, 222, 105), new Color(252, 205, 229), new Color(217, 217, 217),
@@ -44,18 +63,9 @@ public class ColourPalette {
 
 	public Color getNextColour() {
 
-		int colourCount = colours[SCHEME].length;
-		int currentIndex = random.nextInt(colourCount);
-
-		// Reset used indices if all colours have been used
-		if (usedIndices.size() == colourCount)
-			usedIndices.clear();
-
-		// If we've used this colour before, pick another
-		while (usedIndices.contains(currentIndex))
-			currentIndex = random.nextInt(colourCount);
-
-		return colours[SCHEME][currentIndex];
+		Color thisColour = colourSchemes[SCHEME][currentIndex];
+		currentIndex = (currentIndex + 1) % colourSchemes[SCHEME].length;
+		return thisColour;
 	}
 
 	public void setColour(GL2 gl, Color colour) {

@@ -47,7 +47,7 @@ public class TrafficVolumeVisualisation extends Visualisation {
 
 	// Fields governing the appearance of the graph
 	private int maxTime = 0;
-	private int maxX = 64;
+	private int maxX = 128;
 	private double maxY = 0;
 
 	// Fields governing the update frequency of the graph
@@ -65,7 +65,7 @@ public class TrafficVolumeVisualisation extends Visualisation {
 
 		JLabel labelMaxX = new JLabel("Set max x-axis resolution");
 		final JTextField textMaxX = new JTextField();
-		textMaxX.setText("64");
+		textMaxX.setText("128");
 
 		JButton buttonMaxX = new JButton("Apply");
 		buttonMaxX.addActionListener(new ActionListener() {
