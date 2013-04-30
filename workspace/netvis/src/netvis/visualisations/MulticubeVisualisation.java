@@ -98,10 +98,12 @@ public class MulticubeVisualisation extends Visualisation {
 
 		for (int i = 0; i < this.listOfPackets.size(); i++) {
 			p = listOfPackets.get(i);
-
-			double x = xNormalizer.normalise(p);
-			double z = yNormalizer.normalise(p);
-			double y = zNormalizer.normalise(p);
+			//we add entropy to make it more obvious when there
+			// are many requests on a certain port
+			double entropy = (Math.random()- 0.5)/100; 
+			double x = xNormalizer.normalise(p) + entropy;
+			double y = yNormalizer.normalise(p) + entropy;
+			double z = zNormalizer.normalise(p) + entropy;
 			gl.glColor4d(x, y, z, 0.3);
 			gl.glVertex3d(x, y, z);
 		}

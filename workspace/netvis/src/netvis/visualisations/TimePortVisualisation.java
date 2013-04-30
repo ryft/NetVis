@@ -21,6 +21,7 @@ public class TimePortVisualisation extends Visualisation {
 
 	private static final long serialVersionUID = 1L;
 	int noPorts;
+	int logFactor = 6;
 	boolean sourceEnabled, destEnabled;
 	public TimePortVisualisation(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 		super(dc, joglPanel, visControlsContainer);
@@ -60,11 +61,13 @@ public class TimePortVisualisation extends Visualisation {
 	}
 
 	public void display(GLAutoDrawable drawable) {
+		
 	    GL2 gl = drawable.getGL().getGL2();	    
 	  
 	    /*
 	     * Draw the white background
 	     */
+	    
 	    gl.glBegin(GL2.GL_QUADS);
 	    gl.glColor3d(0.95, 0.95, 0.95);
 	    gl.glVertex2d(-1,-0.8);
@@ -84,6 +87,21 @@ public class TimePortVisualisation extends Visualisation {
 	    		sourcePorts[listOfPackets.get(i).sport]++;
 	    		destPorts[listOfPackets.get(i).dport]++;
 		}
+		gl.glLineWidth(1);
+		gl.glColor3d(0.8, 0.8, 0.8);
+	    final GLUT glut = new GLUT();
+	    for (int i = 0; i < 16; i++){
+
+	    	gl.glBegin(GL2.GL_LINES);
+	    	double height = (double)i/10 - 0.8;
+	    	gl.glVertex2d(-1 , height);
+	    	gl.glVertex2d(1, height);
+	    	gl.glEnd();
+	    	
+	    	gl.glRasterPos2d(0, height + 0.02); // set position
+            glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf((int)Math.exp((height+0.8)*logFactor)));
+	    }
+	    
     	gl.glLineWidth(6);
     	if (this.sourceEnabled && this.destEnabled)
 		    for (int i = 0; i < noPorts; i++){
@@ -114,7 +132,7 @@ public class TimePortVisualisation extends Visualisation {
 		    double nedLog = 0;
 			gl.glBegin(GL.GL_LINES);
 	
-	    	nedLog = (Math.log(val)/ Math.log(2)/7);
+	    	nedLog = (Math.log(val)/logFactor);
 	    	if (type == 0)
 	    		gl.glColor4d(nedLog/4+0.4, 0, 0, 0.6);
 	    	else
@@ -134,9 +152,8 @@ public class TimePortVisualisation extends Visualisation {
 	@Override
 	public void init(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
-	    gl.glEnable(GL2.GL_BLEND);
-	    gl.glBlendFunc (GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA );
-	    gl.glBlendFunc (GL2.GL_ONE, GL2.GL_ONE );
+		gl.glEnable(GL2.GL_BLEND);
+		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		gl.glColor3d(0, 0, 0);
 		gl.glRectd(-1, -1, 1, 1);
 		gl.glColor3f(1, 1, 1);
@@ -187,8 +204,10 @@ public class TimePortVisualisation extends Visualisation {
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
 		return getName()+"\n\n"+
-				"";
+				"Shows how much traffic was recorded on a port.\n" +
+				"It is a graded log graph. The red lines show \n" +
+				"traffic on 'destination' ports and the green ones \n" +
+				"show traffic on the 'source' ports. ";
 	}
 }
