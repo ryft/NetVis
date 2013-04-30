@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
@@ -56,6 +57,8 @@ import netvis.visualisations.VisualisationsController;
  */
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
+	
+	protected final String versionNumber = "1.0";
 
 	// Flags governing the behaviour of the application window
 	/**
@@ -276,6 +279,32 @@ public class ApplicationFrame extends JFrame {
 				ApplicationFrame.this.toggleFullScreen();
 			}
 		});
+		
+		// Help menu
+		JMenu helpMenu = new JMenu("Help");
+		helpMenu.setMnemonic(KeyEvent.VK_H);
+		helpMenu.getAccessibleContext().setAccessibleDescription(
+				"Help menu for viewing information about the application");
+		
+		// View the 'about' box
+		JMenuItem aboutItem = new JMenuItem("About...");
+		aboutItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(ApplicationFrame.this,
+					    "Version " + versionNumber + "\n" +
+					    "\n" + "Authors:" +
+					    "\n" + "Thomas Spoor" +
+					    "\n" + "James Nicholls" +
+					    "\n" + "Albert Slawinski" +
+					    "\n" + "Sergiu Vicol" +
+					    "\n" + "Dominik Peters" +
+					    "\n" + "\n" + "Copyright 2013 Clockwork Dragon",
+					    "About",
+					    JOptionPane.INFORMATION_MESSAGE,
+					    new ImageIcon("img/icon.png"));
+			}
+		});
 
 		// Put it together
 		fileMenu.add(openCSVItem);
@@ -286,6 +315,9 @@ public class ApplicationFrame extends JFrame {
 		viewMenu.add(resetViewItem);
 		viewMenu.add(fullScreenItem);
 		menuBar.add(viewMenu);
+		
+		helpMenu.add(aboutItem);
+		menuBar.add(helpMenu);
 
 		return menuBar;
 	}
@@ -460,4 +492,5 @@ public class ApplicationFrame extends JFrame {
 			ApplicationFrame.this.componentResized();
 		}
 	}
+	
 }
