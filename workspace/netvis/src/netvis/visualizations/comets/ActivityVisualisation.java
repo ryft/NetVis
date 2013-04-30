@@ -357,6 +357,7 @@ public class ActivityVisualisation extends Visualization {
 			{
 				//System.out.println("IP: " + ip + " which dataflow: " + can.datasize + " added to the simulation");
 				currentMap.SuggestNode (can.sip, can.dip);
+				currentMap.SuggestNode (can.dip, can.sip);
 				currentMap.SortNodes();
 			}
 		}

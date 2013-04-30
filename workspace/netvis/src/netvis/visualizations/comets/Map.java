@@ -37,8 +37,8 @@ public class Map {
 		public Position coo;
 	}
 
-	// IPs mapped to nodes
-	HashMap<String, NodeWithPosition> nodes;
+	// IPs mapped to nodesByName
+	HashMap<String, NodeWithPosition> nodesByName;
 	
 	HashMap<Position, NodeWithPosition> nodesByPosition;
 	
@@ -61,7 +61,7 @@ public class Map {
 	   }
 	}
 	
-	// Animation of the nodes can be parallelized
+	// Animation of the nodesByName can be parallelized
 	ExecutorService exe = new ThreadPoolExecutor(4, 8, 5000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory());
 	
 	public Map (int w, int h)
@@ -71,9 +71,9 @@ public class Map {
 		
 		rand = new Random();
 		
-		nodes = new HashMap<String, NodeWithPosition> ();
-		nodesl= new ArrayList<NodeWithPosition> ();
+		nodesByName = new HashMap<String, NodeWithPosition> ();
 		nodesByPosition = new HashMap<Position, NodeWithPosition> ();
+		nodesl= new ArrayList<NodeWithPosition> ();
 
 		// Load all the necessary textures
 		TexturePool.LoadTexture ("server", 	Map.class.getResource("resources/server.png"));
@@ -82,7 +82,7 @@ public class Map {
 	
 	public void DrawEverything(GL2 gl) {
 		Painter.DrawGrid (base, gl);
-		for (NodeWithPosition i : nodes.values())
+		for (NodeWithPosition i : nodesByName.values())
 		{
 			int x = i.pos.x;
 			int y = i.pos.y;
@@ -100,7 +100,7 @@ public class Map {
 	public void StepAnimation (final long time) throws InterruptedException, ExecutionException
 	{
 		ArrayList<Future<?>> list = new ArrayList<Future<?>>();
-		for (final NodeWithPosition i : nodes.values())
+		for (final NodeWithPosition i : nodesByName.values())
 			list.add(exe.submit(new Callable () {
 				@Override
 				public Object call() throws Exception {
@@ -122,11 +122,11 @@ public class Map {
 		// Suggests the existence of the node in the network to be displayed
 		
 		// Look whether the node already exists
-		NodeWithPosition find = nodes.get(dip);
+		NodeWithPosition find = nodesByName.get(dip);
 		
 		if (find == null)
 		{
-			find = AddNode (dip, "basic");
+			find = AddNode (sip, dip, "basic");
 		} 
 
 		find.node.UpdateWithData (sip);
@@ -134,6 +134,7 @@ public class Map {
 	
 	public void SortNodes ()
 	{
+		if (true) return;
 		Collections.sort (nodesl, new Comparator<NodeWithPosition> () {
 
 			@Override
@@ -222,20 +223,44 @@ public class Map {
 		return p;
 	}
 
-	private NodeWithPosition AddNode (String name, String textureName) 
+	private NodeWithPosition AddNode (String near, String name, String textureName) 
 	{
 		CometHeatNode front = new CometHeatNode (TexturePool.get(textureName), name);
 		GraphNode 	  back  = new GraphNode (name);
 		
 		FlipNode lemur = new FlipNode (front, back);
 		
-		Position posit = FindPosition (nodes.size());
-		Position coord = CoordinateByPosition (posit);
+		Position posit;
+		Position coord;
+		NodeWithPosition nearnode = nodesByName.get (near);
+		if (nearnode == null)
+		{
+			// Place it in the middle
+			posit = FindPosition (nodesByName.size());
+			coord = CoordinateByPosition (posit);
+		} else
+		{
+			// Place it close to the specified node
+			int current = 0;
+			while (true)
+			{
+				posit = FindPosition (current);
+				coord = CoordinateByPosition (posit);
+				coord.x += nearnode.coo.x;
+				coord.y += nearnode.coo.y;
+				posit = PositionByCoordinate (coord);
+				
+				if (nodesByPosition.get(coord) != null)
+					current++;
+				else
+					break;
+			}
+		}
 		NodeWithPosition k = new NodeWithPosition (lemur, coord, posit);
 		
 		System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
 		
-		nodes.put (name, k);
+		nodesByName.put (name, k);
 		nodesl.add (k);
 		nodesByPosition.put(coord, k);
 		
@@ -252,7 +277,7 @@ public class Map {
 		return node;
 		
 		/*
-		for (NodeWithPosition n : nodes.values())
+		for (NodeWithPosition n : nodesByName.values())
 		{
 			Position pos = n.pos;
 			double distance = Math.sqrt (Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2));
