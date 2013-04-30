@@ -37,8 +37,10 @@ public class Map {
 		public Position coo;
 	}
 
-	// IPs mapped to nodes
-	HashMap<String, NodeWithPosition> nodes;
+	// IPs mapped to nodesByName
+	HashMap<String, NodeWithPosition> nodesByName;
+	
+	HashMap<Position, NodeWithPosition> nodesByPosition;
 	
 	List<NodeWithPosition> nodesl;
 	
@@ -59,7 +61,7 @@ public class Map {
 	   }
 	}
 	
-	// Animation of the nodes can be parallelized
+	// Animation of the nodesByName can be parallelized
 	ExecutorService exe = new ThreadPoolExecutor(4, 8, 5000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory());
 	
 	public Map (int w, int h)
@@ -69,7 +71,8 @@ public class Map {
 		
 		rand = new Random();
 		
-		nodes = new HashMap<String, NodeWithPosition> ();
+		nodesByName = new HashMap<String, NodeWithPosition> ();
+		nodesByPosition = new HashMap<Position, NodeWithPosition> ();
 		nodesl= new ArrayList<NodeWithPosition> ();
 
 		// Load all the necessary textures
@@ -79,7 +82,7 @@ public class Map {
 	
 	public void DrawEverything(GL2 gl) {
 		Painter.DrawGrid (base, gl);
-		for (NodeWithPosition i : nodes.values())
+		for (NodeWithPosition i : nodesByName.values())
 		{
 			int x = i.pos.x;
 			int y = i.pos.y;
@@ -97,7 +100,7 @@ public class Map {
 	public void StepAnimation (final long time) throws InterruptedException, ExecutionException
 	{
 		ArrayList<Future<?>> list = new ArrayList<Future<?>>();
-		for (final NodeWithPosition i : nodes.values())
+		for (final NodeWithPosition i : nodesByName.values())
 			list.add(exe.submit(new Callable () {
 				@Override
 				public Object call() throws Exception {
@@ -119,11 +122,11 @@ public class Map {
 		// Suggests the existence of the node in the network to be displayed
 		
 		// Look whether the node already exists
-		NodeWithPosition find = nodes.get(dip);
+		NodeWithPosition find = nodesByName.get(dip);
 		
 		if (find == null)
 		{
-			find = AddNode (dip, "basic");
+			find = AddNode (sip, dip, "basic");
 		} 
 
 		find.node.UpdateWithData (sip);
@@ -131,6 +134,7 @@ public class Map {
 	
 	public void SortNodes ()
 	{
+		if (true) return;
 		Collections.sort (nodesl, new Comparator<NodeWithPosition> () {
 
 			@Override
@@ -167,14 +171,12 @@ public class Map {
 		// Move to the desired ring
 		if (outerring % 2 == 1)
 			x += Math.sqrt(3) * base / 2.0;
-		y += Math.sqrt(3) * base * outerring * Math.sin(Math.PI/3);
+		y += base * outerring * 1.5;
 
 		// Move the shift times
 		double angle = 0;
-		if (innerring % 2 == 1)
-			x -= Math.sqrt(3) * base;
 
-		for (int i=0 - (innerring / 2); i<shift - (innerring / 2); i++)
+		for (int i=0 - (outerring / 2); i<shift - (outerring / 2); i++)
 		{
 			if (i % outerring == 0)
 			{
@@ -183,6 +185,8 @@ public class Map {
 			x += Math.sqrt(3) * base * Math.cos(angle);
 			y += Math.sqrt(3) * base * Math.sin(angle);
 		}
+		
+		System.out.println("Node #" + num + " is on the ring : " + outerring + " with shift " + shift);
 
 		return new Position (x,y);
 	}
@@ -212,35 +216,68 @@ public class Map {
 		
 		p.y = (int) Math.round (posy / (base * 1.5));
 		if (p.y % 2 != 0)
-			p.x = (int) Math.round (posy / (base * r3));
+			p.x = (int) Math.round ((posx - base * r3 / 2.0) / (base * r3));
 		else
-			p.x = (int) Math.round ((posy - base * r3 / 2.0) / (base * r3));
+			p.x = (int) Math.round (posx / (base * r3));
 		
 		return p;
 	}
 
-	private NodeWithPosition AddNode (String name, String textureName) 
+	private NodeWithPosition AddNode (String near, String name, String textureName) 
 	{
 		CometHeatNode front = new CometHeatNode (TexturePool.get(textureName), name);
 		GraphNode 	  back  = new GraphNode (name);
 		
 		FlipNode lemur = new FlipNode (front, back);
 		
-		Position posit = FindPosition (nodes.size());
-		Position coord = CoordinateByPosition (posit);
+		Position posit;
+		Position coord;
+		NodeWithPosition nearnode = nodesByName.get (near);
+		if (nearnode == null)
+		{
+			// Place it in the middle
+			posit = FindPosition (nodesByName.size());
+			coord = CoordinateByPosition (posit);
+		} else
+		{
+			// Place it close to the specified node
+			int current = 0;
+			while (true)
+			{
+				posit = FindPosition (current);
+				coord = CoordinateByPosition (posit);
+				coord.x += nearnode.coo.x;
+				coord.y += nearnode.coo.y;
+				posit = PositionByCoordinate (coord);
+				
+				if (nodesByPosition.get(coord) != null)
+					current++;
+				else
+					break;
+			}
+		}
 		NodeWithPosition k = new NodeWithPosition (lemur, coord, posit);
 		
 		System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
 		
-		nodes.put (name, k);
+		nodesByName.put (name, k);
 		nodesl.add (k);
+		nodesByPosition.put(coord, k);
 		
 		return k;
 	}
 	
 	public NodeWithPosition FindClickedNode (int x, int y)
 	{
-		for (NodeWithPosition n : nodes.values())
+		// Optimized version
+		Position p = new Position (x, y);
+		Position c = CoordinateByPosition (p);
+		
+		NodeWithPosition node = nodesByPosition.get(c);
+		return node;
+		
+		/*
+		for (NodeWithPosition n : nodesByName.values())
 		{
 			Position pos = n.pos;
 			double distance = Math.sqrt (Math.pow(pos.x - x, 2) + Math.pow(pos.y - y, 2));
@@ -248,6 +285,7 @@ public class Map {
 				return n;
 		}
 		return null;
+		*/
 	}
 
 	public double ZoomOn () {
