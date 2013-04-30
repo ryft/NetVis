@@ -38,6 +38,7 @@ import netvis.data.DataController;
 import netvis.data.DataFeeder;
 import netvis.data.DummyDataFeeder;
 import netvis.data.csv.CSVDataFeeder;
+import netvis.data.filters.AddressFilter;
 import netvis.data.filters.PortRangeFilter;
 import netvis.data.filters.ProtocolFilter;
 import netvis.ui.AnalysisPanel;
@@ -106,6 +107,7 @@ public class ApplicationFrame extends JFrame {
 		dataController = new DataController(dataFeeder, 1000);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
+		dataController.addFilter(new AddressFilter(dataController));
 
 		contentPane = new JPanel(new GridBagLayout());
 
