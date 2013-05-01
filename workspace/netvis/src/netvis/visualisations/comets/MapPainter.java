@@ -113,7 +113,8 @@ public class MapPainter implements NodePainter {
 
 	public void DrawNode(int base, FlipNode lum, GL2 gl) {
 		double rotation = lum.getRotation();
-		System.out.println(rotation);
+
+		// Normalize the rotation
 		while (rotation > 90.0)	rotation -= 180.0;
 		while (rotation <-90.0)	rotation += 180.0;
 

@@ -1,6 +1,7 @@
 package netvis.ui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,9 +11,11 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import netvis.data.model.Packet;
 import netvis.util.Utilities.MapComparator;
+import netvis.visualisations.gameengine.TextRendererPool;
 
 /**
  * Context panel to display data in the bottom-right of the GUI and be updated
@@ -34,6 +37,11 @@ public class ContextPanel extends JScrollPane {
 					+ "Contextual views don't update automatically for performance\n"
 					+ "reasons. They can all be manually refreshed by clicking on\n"
 					+ "the relevant control again.");
+	
+	static {
+		Font f = TextRendererPool.getFont("default");
+		initialComponent.setFont(f);
+	}
 
 	protected Component currentComponent = null;
 	/**
@@ -99,6 +107,10 @@ public class ContextPanel extends JScrollPane {
 	 */
 	public void update(String text) {
 		JTextArea descriptionBox = new JTextArea(text);
+		
+		Font f = TextRendererPool.getFont("default");
+		descriptionBox.setFont(f);
+		
 		setComponent(descriptionBox);
 	}
 

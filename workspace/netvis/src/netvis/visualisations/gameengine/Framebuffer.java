@@ -44,11 +44,10 @@ public class Framebuffer {
 	}
 
 	public int BindTexture(GL2 gl) {
-		if (textureid != -1)
-			return textureid;
-		else
+		if (textureid == -1)
 			Create(gl);
-
+		
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_COMBINE);
 		return textureid;
 	}
 
@@ -118,9 +117,10 @@ public class Framebuffer {
 		gl.glOrtho(-base, base, -base, base, -10, 1000);
 		gl.glTranslated(0.0, 0.0, 5.0);
 
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		gl.glClearDepth(1000.0);
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
+		gl.glClearColor (1.0f, 1.0f, 1.0f, 0.0f);
+		gl.glClearDepth (1000.0);
+		gl.glDepthFunc (GL.GL_GREATER);
+		gl.glClear (GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 
 		gl.glShadeModel(GL2.GL_FLAT);
 

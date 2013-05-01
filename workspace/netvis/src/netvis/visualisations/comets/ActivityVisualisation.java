@@ -194,12 +194,9 @@ public class ActivityVisualisation extends Visualisation {
 				int y = (int) Math.round(middley.toDouble() - (e.getY() - (height / 2)) * viewfield);
 
 				NodeWithPosition n = currentMap.FindClickedNode(x, y);
-				n.node.MouseClick(e);
+				if (n != null) n.node.MouseClick(e);
 
 				if (e.getClickCount() == 2) {
-
-
-
 					// Sort the map
 					currentMap.SortNodes();
 
@@ -423,8 +420,9 @@ public class ActivityVisualisation extends Visualisation {
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return getName() + "\n\n" + "";
+		return getName() + "\n\n" + "A hexagonal grid displaying clients active in the network.\n" +
+				"Color indicated how much data is being transferred.\n" +
+				"Nodes 'heat up' when amount of data goes over specified threshold and 'heat down' in time.";
 	}
 
 }

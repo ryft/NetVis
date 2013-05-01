@@ -62,9 +62,15 @@ public class Texture {
 	}
 
 	public int Bind(GL2 gl) {
-		if (id != -1)
-			return id;
+		if (id == -1)
+			Create (gl);
 
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
+		return id;
+	}
+	
+	public void Create (GL2 gl)
+	{
 		int[] arr = new int[1];
 		gl.glGenTextures(1, arr, 0);
 		id = arr[0];
@@ -92,8 +98,6 @@ public class Texture {
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP);
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-
-		return id;
 	}
 
 	public int Rebind(GL2 gl) {
