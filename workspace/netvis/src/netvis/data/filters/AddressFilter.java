@@ -106,10 +106,18 @@ public class AddressFilter implements PacketFilter {
 		@Override
 		public Object getValueAt(int row, int column) {
 			if (column == 0) {
-				return includeList.get(row);
+				try {
+					return includeList.get(row);
+				} catch(IndexOutOfBoundsException e){
+					return "";
+				}
 			}
 			else
-				return excludeList.get(row);
+				try {
+					return excludeList.get(row);
+				} catch(IndexOutOfBoundsException e){
+					return "";
+				}
 		}
 		
 		@Override
@@ -121,23 +129,35 @@ public class AddressFilter implements PacketFilter {
 		public void setValueAt(Object value, int row, int column) {
 			boolean rowCountChanged = false;
 			String text = (String) value;
-			if (column == 0)
-				includeList.set(row, text);
-			else
-				excludeList.set(row, text);
-			if (row == rowCount - 1 && text != "") {
-				rowCount++;
-				rowCountChanged = true;
-				includeList.add("");
-				excludeList.add("");
-			}
-			if (text == "") {
+			
+			if (text.trim().length() == 0 && row != rowCount - 1) {
+				if (column == 0)
+					includeList.remove(row);
+				else
+					excludeList.remove(row);
 				int newrowCount = Math.max(includeList.size(), excludeList.size());
 				if (newrowCount != rowCount) {
-					rowCount = newrowCount;
+					rowCount = newrowCount +1;
 					rowCountChanged = true;
 				}
 			}
+			else {
+				if (column == 0)
+					if (row >= includeList.size())
+						includeList.add(row, text);
+					else
+						includeList.set(row, text);
+				else{
+					if (row >= excludeList.size())
+						excludeList.add(row, text);
+					else
+						excludeList.set(row, text);
+				}
+				if (row == rowCount - 1) {
+					rowCount++;
+					rowCountChanged = true;
+				}
+			}	
 			if (rowCountChanged)
 				fireTableDataChanged();
 			else
