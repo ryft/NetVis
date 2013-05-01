@@ -19,6 +19,7 @@ import netvis.util.ColourPalette;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 /**
+ * <pre>
  * Data Flow Visualisation
  * 
  * Saturation indicates time (the gray lines are past lines); the coloured lines

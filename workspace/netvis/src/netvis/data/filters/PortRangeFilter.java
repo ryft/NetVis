@@ -16,6 +16,13 @@ import netvis.data.DataUtilities;
 import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
 
+/**
+ * <pre>
+ * Port filter
+ * Allows the user to specify a range of source/destination ports
+ * Packets with source ports outside the source port range will not be shown
+ * Packets with destination ports outside the destination port range will not be shown
+ */
 public class PortRangeFilter implements PacketFilter {
 	int source_lower_bound, source_upper_bound, dest_lower_bound, dest_upper_bound;
 	final DataController dataController;
@@ -26,8 +33,7 @@ public class PortRangeFilter implements PacketFilter {
 	public PortRangeFilter(DataController dataController) {
 		this.dataController = dataController;
 		source_lower_bound = DataUtilities.MIN_PORT;
-		source_upper_bound = DataUtilities.MAX_PORT; // Highest possible UDP &
-														// TCP port
+		source_upper_bound = DataUtilities.MAX_PORT; // Highest possible UDP & TCP port
 		dest_lower_bound = DataUtilities.MIN_PORT;
 		dest_upper_bound = DataUtilities.MAX_PORT;
 		slbField = new JTextField(String.valueOf(source_lower_bound));

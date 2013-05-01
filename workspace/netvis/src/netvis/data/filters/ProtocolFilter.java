@@ -21,6 +21,13 @@ import netvis.data.DataController;
 import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
 
+/**
+ * <pre>
+ * Protocol filter
+ * Allows the user to select which protocols to include
+ * By default, all protocols are selected
+ * If a protocol is unselected, no packets using that protocol will be used
+ */
 public class ProtocolFilter implements PacketFilter {
 
 	final DataController dataController;
@@ -585,6 +592,15 @@ public class ProtocolFilter implements PacketFilter {
 		return items;
 	}
 
+	/**
+	 * Builds the protocol menu from a string (provided by buildItems)
+	 * 
+	 * @param rootMenu - The menu this is a submenu of
+	 * @param items - The list of protocols to be added to this menu
+	 * @param selectAll - The Select All button for this menu
+	 * @param selectNone - The Select None button for this menu
+	 * @return The number of items in this submenu
+	 */
 	private int addItems(JComponent rootMenu, String[] items, JMenuItem selectAll,
 			JMenuItem selectNone) {
 		int length = 0;
@@ -673,7 +689,7 @@ public class ProtocolFilter implements PacketFilter {
 	public JComponent getPanel() {
 		return filterPanel;
 	}
-
+	
 	@SuppressWarnings("serial")
 	private class ListeningJMenuItem extends JMenuItem implements ActionListener {
 

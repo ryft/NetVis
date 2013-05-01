@@ -14,6 +14,13 @@ import netvis.data.DataController;
 import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
 
+/**
+ * <pre>
+ * IP address filter
+ * Allows the user to specify a number of IP addresses to include/exclude
+ * If any 'include' IPs are entered, only packets including at least one of these IPs will be used
+ * If any 'exclude' IPs are entered, only packets including none of these IPs will be used
+ */
 public class AddressFilter implements PacketFilter {
 	
 	final DataController dataController;
