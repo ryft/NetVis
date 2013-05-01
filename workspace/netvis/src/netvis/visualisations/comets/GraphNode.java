@@ -1,5 +1,7 @@
 package netvis.visualisations.comets;
 
+import java.awt.event.MouseEvent;
+
 import javax.media.opengl.GL2;
 
 import netvis.visualisations.gameengine.Node;
@@ -34,8 +36,6 @@ public class GraphNode extends Node {
 	}
 
 	@Override
-	public void DoubleClick() {
-
-	}
+	public void MouseClick (MouseEvent e) {}
 
 }

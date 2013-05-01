@@ -192,11 +192,11 @@ public class ActivityVisualisation extends Visualisation {
 				double viewfield = viewfieldanim.toDouble();
 				int x = (int) Math.round(middlex.toDouble() + (e.getX() - (width / 2)) * viewfield);
 				int y = (int) Math.round(middley.toDouble() - (e.getY() - (height / 2)) * viewfield);
+
 				NodeWithPosition n = currentMap.FindClickedNode(x, y);
+				n.node.MouseClick(e);
 
 				if (e.getClickCount() == 2) {
-					n.node.DoubleClick();
-
 					// Sort the map
 					currentMap.SortNodes();
 

@@ -1,6 +1,11 @@
 package netvis.visualisations.comets;
 
+import java.awt.event.MouseEvent;
+
+import javax.media.opengl.GL2;
+
 import netvis.visualisations.gameengine.Node;
+import netvis.visualisations.gameengine.NodePainter;
 
 public class HeatNode extends Node {
 
@@ -34,6 +39,12 @@ public class HeatNode extends Node {
 		return name;
 	};
 	
+	boolean selected;
+
+	public boolean getSelected() {
+		return selected;
+	};
+	
 	public HeatNode (String tname, String nname)
 	{
 		name = nname;
@@ -46,6 +57,13 @@ public class HeatNode extends Node {
 		bgColor[1] = 1.0;
 		bgColor[2] = 0.7;
 		warning = 0;
+		
+		selected = false;
+	}
+	
+	@Override
+	public void Draw(int base, NodePainter painter, GL2 gl) {
+		painter.DrawNode(base, this, gl);
 	}
 	
 	@Override
@@ -80,9 +98,10 @@ public class HeatNode extends Node {
 	}
 
 	@Override
-	public void DoubleClick() {
-		// TODO Auto-generated method stub
-
+	public void MouseClick (MouseEvent e) {
+		if (e.getClickCount() == 1) {
+			selected = !selected;
+		}
 	}
 
 }

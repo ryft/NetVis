@@ -1,5 +1,7 @@
 package netvis.visualisations.comets;
 
+import java.awt.event.MouseEvent;
+
 import javax.media.opengl.GL2;
 
 import netvis.visualisations.gameengine.Framebuffer;
@@ -43,29 +45,54 @@ public class FlipNode extends Node {
 		front = f;
 		back = b;
 	}
-
-	// Visitor double dispatch
-	public void Draw(int base, NodePainter painter, GL2 gl) {
+	
+	public boolean IsFlat ()
+	{
 		double rot = rotation.toDouble();
 		while (rot > 359.0)
 			rot -= 360.0;
 		while (rot < -1.0)
 			rot += 360.0;
+		
+		double epsilon = 0.01;
+		if (rot < 180.0 + epsilon && rot > 180.0 - epsilon) {
+			return true;
+		}
+		if (rot < 0.0 + epsilon && rot > 0.0 - epsilon) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public Node GetSide ()
+	{
+		double rot = rotation.toDouble();
+		while (rot > 180.0)
+			rot -= 360.0;
+
+		if (rot > -90.0 && rot < 90.0) 
+			return front;
+		else
+			return back;
+		
+	}
+
+	// Visitor double dispatch
+	public void Draw(int base, NodePainter painter, GL2 gl) {
+
 
 		// If one side is visible flat - just redirect rendering to this face
 		// rendering procedures
-		double epsilon = 0.01;
-		if (rot < 180.0 + epsilon && rot > 180.0 - epsilon) {
-			back.Draw(base, painter, gl);
-			return;
-		}
-		if (rot < 0.0 + epsilon && rot > 0.0 - epsilon) {
-			front.Draw(base, painter, gl);
-			return;
+		if (IsFlat())
+		{
+			Node visside = GetSide();
+			visside.Draw(base, painter, gl);
+		} else {
+			// Otherwise draw the properly transformed face
+			painter.DrawNode(base, this, gl);
 		}
 
-		// Otherwise draw the properly transformed face
-		painter.DrawNode(base, this, gl);
 	}
 
 	public void UpdateWithData(String sip) {
@@ -84,8 +111,12 @@ public class FlipNode extends Node {
 	}
 
 	@Override
-	public void DoubleClick() {
-		Flip();
+	public void MouseClick (MouseEvent e) {
+		if (e.getClickCount() == 2) {
+			Flip();
+		} else {
+			GetSide().MouseClick(e);
+		}
 	};
 
 	public void Flip() {
