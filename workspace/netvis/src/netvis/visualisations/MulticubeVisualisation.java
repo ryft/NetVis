@@ -9,6 +9,7 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.glu.GLU;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,6 +26,7 @@ import com.jogamp.opengl.util.gl2.GLUT;
 public class MulticubeVisualisation extends Visualisation {
 	private GLU glu;
 	private GLUT glut;
+	private boolean spin;
 	private float yrot = 0;
 	private Normaliser xNormalizer, yNormalizer, zNormalizer;
 	private static final long serialVersionUID = 1L;
@@ -36,13 +38,15 @@ public class MulticubeVisualisation extends Visualisation {
 		yNormalizer = NormaliseFactory.INSTANCE.getNormaliser(1);
 		zNormalizer = NormaliseFactory.INSTANCE.getNormaliser(2);
 		yrot = 1f;
+		spin = true;
 	}
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glTranslated(0.5, 0, 0.5);
-		gl.glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+		if (spin)
+			gl.glRotatef(yrot, 0.0f, 1.0f, 0.0f);
 		gl.glTranslated(-0.5, 0, -0.5);
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 		gl.glColor3d(0, 1, 0);
@@ -146,6 +150,15 @@ public class MulticubeVisualisation extends Visualisation {
 			}
 
 		});
+		
+		final JButton spinButton = new JButton("Start/Stop Spinning");
+		spinButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				spin = !spin;
+			}
+		});
+		
 		xAxisBox.setSelectedIndex(0);
 		yAxisBox.setSelectedIndex(1);
 		zAxisBox.setSelectedIndex(2);
@@ -165,7 +178,10 @@ public class MulticubeVisualisation extends Visualisation {
 		box.add(new JLabel("z axis:"));
 		box.add(zAxisBox);
 		panel.add(box);
-
+		
+		box = Box.createHorizontalBox();
+		box.add(spinButton);
+		panel.add(box);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
@@ -213,13 +229,17 @@ public class MulticubeVisualisation extends Visualisation {
 
 	@Override
 	public String getName() {
-		return "Custom Cube";
+		return "Spinning Cube";
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return getName() + "\n\n" + "";
+		return getName() + "\n\n" + 
+				"Visualization based on the Spinning cube of\n" +
+				"potential doom. Every dimension can be customised\n" +
+				"depending on the available 'normalisers'. Packets also\n" +
+				"have a little randomness just to make it more evident when\n" +
+				"a line of packets is dense or not.";
 	}
 
 }

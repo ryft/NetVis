@@ -170,12 +170,13 @@ public class DataflowVisualisation extends Visualisation {
 	@Override
 	public String getDescription() {
 		return getName() + "\n\n"
-				+ "Saturation indicates time (the gray lines are past lines) the\n"
-				+ "coloured lines are more recent. All the lines are transparent\n"
-				+ "therefore if a line stands out it means lots of packets go through\n"
-				+ "that line. The red triangles show traffic. They shrink with each\n"
-				+ "iteration by some percentage and grow linearly with each packet\n"
-				+ "on that interval. They also have an upper limit.";
+				+ "Saturation indicates time (the gray lines are \n"
+				+ "past lines) the coloured lines are more recent.\n" +
+				" You can follow a packet by it's colour.\n" +
+				" The red bars show traffic volume.\n" +
+				" They shrink with each iteration by some percentage\n" +
+				" and grow linearly with each packet. They also have\n" +
+				" an upper limit.";
 	}
 
 }
