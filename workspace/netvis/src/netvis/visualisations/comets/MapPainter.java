@@ -19,11 +19,12 @@ import com.jogamp.opengl.util.awt.TextRenderer;
 public class MapPainter implements NodePainter {
 
 	static {
-		TexturePool.LoadTexture("hexagon1",
-				ActivityVisualisation.class.getResource("resources/hex1.png"));
-		TexturePool.LoadTexture("hexagon2",
-				ActivityVisualisation.class.getResource("resources/hex2.png"));
-		;
+		// Load all the necessary textures
+		TexturePool.LoadTexture("hexagon1",	ActivityVisualisation.class.getResource("resources/hex1.png"));
+		TexturePool.LoadTexture("hexagon2",	ActivityVisualisation.class.getResource("resources/hex2.png"));
+		
+		TexturePool.LoadTexture("server", Map.class.getResource("resources/server.png"));
+		TexturePool.LoadTexture("basic", Map.class.getResource("resources/basic.png"));
 	}
 
 	public void DrawNode(int base, CometHeatNode lum, GL2 gl) {
@@ -51,9 +52,9 @@ public class MapPainter implements NodePainter {
 		// Draw the server image
 		int imageSize = 200;
 		if (lum.getSelected() == true)
-			Painter.DrawImage(lum.getTexture(), 0.0, 0.0, imageSize / 512.0, 90.0, gl);
+			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 90.0, gl);
 		else
-			Painter.DrawImage(lum.getTexture(), 0.0, 0.0, imageSize / 512.0, 0.0, gl);
+			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 0.0, gl);
 
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");

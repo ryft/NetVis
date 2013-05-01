@@ -7,7 +7,6 @@ import javax.media.opengl.GL2;
 
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
-import netvis.visualisations.gameengine.Texture;
 
 public class CometHeatNode extends Node {
 
@@ -51,9 +50,9 @@ public class CometHeatNode extends Node {
 		changed = false;
 	}
 
-	Texture tex;
+	String tex;
 
-	public Texture getTexture() {
+	public String getTexture() {
 		return tex;
 	}
 
@@ -63,13 +62,13 @@ public class CometHeatNode extends Node {
 		return name;
 	};
 
-	public CometHeatNode(Texture tt, String nn) {
+	public CometHeatNode(String texturename, String nn) {
 		super();
 
 		selected = false;
 
 		name = nn;
-		tex = tt;
+		tex = texturename;
 
 		entities = new HashMap<String, Comet>();
 		bgColor = new double[3];

@@ -18,7 +18,6 @@ import javax.media.opengl.GL2;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
-import netvis.visualisations.gameengine.TexturePool;
 
 public class Map {
 
@@ -40,6 +39,8 @@ public class Map {
 	HashMap<Position, NodeWithPosition> nodesByPosition;
 
 	List<NodeWithPosition> nodesl;
+	
+	MapPainter painter;
 
 	// Basic size of the node
 	int base = 400;
@@ -72,13 +73,12 @@ public class Map {
 		nodesByName = new HashMap<String, NodeWithPosition>();
 		nodesByPosition = new HashMap<Position, NodeWithPosition>();
 		nodesl = new ArrayList<NodeWithPosition>();
-
-		// Load all the necessary textures
-		TexturePool.LoadTexture("server", Map.class.getResource("resources/server.png"));
-		TexturePool.LoadTexture("basic", Map.class.getResource("resources/basic.png"));
+		
+		painter = new MapPainter();
 	}
 
 	public void DrawEverything(GL2 gl) {
+
 		Painter.DrawGrid(base, gl);
 		for (NodeWithPosition i : nodesByName.values()) {
 			int x = i.pos.x;
@@ -89,7 +89,7 @@ public class Map {
 			gl.glTranslated(x, y, 0.0);
 
 			// Draw it
-			i.node.Draw(base, new MapPainter(), gl);
+			i.node.Draw(base, painter, gl);
 			gl.glPopMatrix();
 		}
 	}
@@ -134,7 +134,7 @@ public class Map {
 
 		/*
 		 * TODO This code is unreachable -- Is it still here so it can be used
-		 * later?
+		 * later? Yes, it most certainly is
 		 * 
 		 * Collections.sort(nodesl, new Comparator<NodeWithPosition>() {
 		 * 
@@ -216,7 +216,7 @@ public class Map {
 	}
 
 	private NodeWithPosition AddNode(String near, String name, String textureName) {
-		CometHeatNode front = new CometHeatNode(TexturePool.get(textureName), name);
+		CometHeatNode front = new CometHeatNode(textureName, name);
 		GraphNode back = new GraphNode(name);
 
 		FlipNode lemur = new FlipNode(front, back);
