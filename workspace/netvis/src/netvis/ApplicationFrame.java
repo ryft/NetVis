@@ -287,16 +287,18 @@ public class ApplicationFrame extends JFrame {
 				"Help menu for viewing information about the application");
 		
 		// View the 'about' box
-		JMenuItem aboutItem = new JMenuItem("About...");
+		JMenuItem aboutItem = new JMenuItem("About...", KeyEvent.VK_A);
+		fullScreenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.CTRL_MASK));
+		fullScreenItem.getAccessibleContext().setAccessibleDescription("View information about the application");
 		aboutItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(ApplicationFrame.this,
-					    "Version " + versionNumber + "\n" +
+					    "NetVis Version " + versionNumber + "\n" +
 					    "\n" + "Authors:" +
 					    "\n" + "Thomas Spoor" +
 					    "\n" + "James Nicholls" +
-					    "\n" + "Albert S�awi�ski" +
+					    "\n" + "Albert Sławiński" +
 					    "\n" + "Sergiu Vicol" +
 					    "\n" + "Dominik Peters" +
 					    "\n" + "\n" + "Copyright 2013 Clockwork Dragon",
