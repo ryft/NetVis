@@ -1,15 +1,17 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage{fullpage}
 \usepackage{parskip}
+\usepackage{url}
+% Define a double-space function
+\newcommand{\dbl}{\\[\baselineskip]}
+
+\author{Clockwork Dragon Group - Group 4}
+\title{Group Report: Computer Security Visualisation}
+\date{\today}
 
 \begin{document}
 	
-	\begin{center}
-		\textbf{Group Report: Computer Security Visualisation}
-		
-		Clockwork Dragon Group - Group 4 - 30 April 2013
-	\end{center}
-	\bigskip
+	\maketitle
 
     \section*{Introduction}
 	Our application consists of a series of five visualisations of network traffic, each of which offers a different representation of the data. These are designed to enable a user to detect a variety of potential cyber-attacks. 
@@ -22,13 +24,17 @@
 			
 			\begin{itemize}
             
-            \item \textbf{Heat Map} A hexagonal grid displaying clients active in the network. Color indicated how much data is being transferred. Nodes "heat up" when amount of data goes over specified threshold and "heat down" in time.
+            \item \textbf{Heat Map} A hexagonal grid displaying clients active in the network. Colour indicates how much data is being transferred. Nodes ``heat up'' when amount of data goes over a specified threshold and ``heat down'' in time.
 
-            \item \textbf{Ports}
+            \item \textbf{Ports} This is a graded log graph showing how much traffic was recorded on a port. Coloured lines distinguish between destination and source ports.
 
-            \item \textbf{Cube}
+            \item \textbf{Cube} Visualisation based on the Spinning Cube of Potential Doom. Every dimension can be customised depending on the available `normalisers' of the data. Packets also have a little randomness just to make it more evident when a line of packets is dense or not.
 
-            \item \textbf{Data Flow} Saturation indicates time (the gray lines are past lines) the coloured lines are more recent. All the lines are transparent therefore if a line stands out it means lots of packets go through that line. The red triangles show traffic. They shrink with each iteration by some percentage and grow linearly with each packet on that interval. They also have an upper limit.
+            \item \textbf{Data Flow} This visualisation draws lines between source nodes and destination nodes to show which connections are used most. Saturation indicates time (gray lines are past lines); coloured lines are more recent. It is possible to follow a packet by its colour. Red bars show traffic volume. They shrink at each iteration by some percentage, but grow linearly with new packets.
+            
+            The red triangles show traffic. They shrink with each iteration by some
+            percentage and grow linearly with each packet on that interval. They also
+            have an upper limit.
 
             \item \textbf{Traffic Volume} A stacked bar chart which displays the volume of data arriving in each interval, with segments proportional to the totals for each protocol. This allows users to see at a glance if a particular protocol is being exploited.
             
@@ -36,7 +42,7 @@
 			
 			If the user wants to analyse only a selection of the data, it is possible to filter the input data by over 400 protocols (such as TCP, HTTP, etc), by port, and by IP address using whitelists and blacklists. The main advantage of the filter system is that it works application-wide and applies to all visualisations.
 			
-			The application in its current state uses packet captures in CSV format\footnote{see appendix for a specification of the file input format}. The data includes IP address, MAC address, and X for both sender and destination, and also information on port and protocol used, and the size of the packet data. The packets listed in the CSV file are then `simulated' to arrive in real-time. The user can choose to slow down or speed up the simulation, to pause it, or to skip to the end of the data capture.
+			The application in its current state uses packet captures in CSV format\footnote{see appendix for a specification of the file input format}. The data includes IP address, MAC address, and port for both source and destination,  information on the protocol used, and the size of the packet data. The packets listed in the CSV file are then `simulated' to arrive in real-time. The user can choose to slow down or speed up the simulation, to pause it, or to skip to the end of the data capture.
 			
 			An Analysis Panel is included to provide real-time aggregate data on the processed data packets. It makes use of a tabbed pane and a context panel for details on demand, to make the best use of the available space. The Analysis Panel makes use of a job queue and runs calculations in a separate thread, detached from the calculations for the visualisations, to keep the GUI responsive when a lot of data is being processed.
 
@@ -57,6 +63,168 @@
 		
         Looking at the application in the state it is now in, we can see a number of ways it could be extended. Live processing of data would obviously increase real-world usability. There are also ways in which the filter system could be made more powerful. Finally, by using more statistical (pre-)processing of the input data it could be possible to render more insightful visualisations.
 	
-        However, we feel we have met all the design goals set out in our initial specification document, and the application is implmeneted to a high standard.
+        However, we feel we have met all the design goals set out in our initial specification document, and the application is implemented to a high standard.
+	
+	\newpage
+	\section*{Appendix: Packet Capture Specification}
+	
+	\textit{Collected by James Nicholls}
+	
+	This document provides a specification and index of the CSV files
+	which are in use as test data for the network visualisation
+	application NetVis.
+	
+	\subsection*{File format specification}
+	All capture files are provided to the application as CSV files
+	with the following headers;
+	
+	\begin{itemize}
+		\setlength{\itemsep}{0pt}
+		\item \verb!No.          ! Packet number
+		\item \verb!Time         ! Time elapsed since first packet (seconds)
+		\item \verb!Source IP    ! Source IPv4/6 address
+		\item \verb!Source HW    ! Source hardware (MAC) address
+		\item \verb!Source Port  ! Source port
+		\item \verb!Dest IP      ! Destination IPv4/6 address
+		\item \verb!Dest HW      ! Destination hardware (MAC) address
+		\item \verb!Dest Port    ! Destination port
+		\item \verb!Protocol     ! Communication protocol
+		\item \verb!Length       ! Packet length (bytes)
+		\item \verb!Info         ! Detected description of packet purpose
+	\end{itemize}
+	
+	\subsection*{Sources}
+	
+	Notable external sources of packet trace (pcap) files.
+	
+	\begin{itemize}
+		\item \url{https://www.evilfingers.com/} \\
+		A community portal for Information Security, who publish
+		internet security papers and keep a public archive of
+		PCAP samples, among other resources.
+		
+		\item \url{http://www.honeynet.org/} \\
+		The Honeynet Project is a leading international 501c3
+		non-profit security research organization, dedicated to
+		investigating the latest attacks and developing open source
+		security tools to improve Internet security.
+	\end{itemize}
+	
+	\pagebreak
+	
+	\subsection*{Capture files}
+	This section comprises a list of CSV files currently in use in
+	application development and testing, as well as a short
+	description of each.
+	
+	\subsubsection*{eduroam.csv}
+	Source: J. Nicholls
+	
+	Original filename: \verb!eduroam.pcap!
+	
+	Size: 85664 packets - 16.4 MB \dbl
+	All traffic seen by an Ubuntu laptop with minimal running
+	services, connected to the Eduroam network on the wlan0
+	interface. Approximately 85000 packets over 35 minutes.
+	
+	\subsubsection*{jre-overflow.csv}
+	Source: \url{https://www.evilfingers.com/}
+	
+	Original filename:
+	
+	\verb!        Sun_jre1.6.0_X_isInstalled.dnsResolve_Function_Overflow_PoC.pcap!
+	
+	Size: 65561 packets - 14.7 MB \dbl
+	Proof-of-concept packet capture of a denial of service
+	attack on JRE 1.6.0 by exploiting the DNS resolution
+	function. A local server is flooded with 65000 packets in
+	11 minutes.
+	
+	\subsubsection*{port-scan.csv}
+	Source: J. Happa
+	
+	Original filename: \verb!portscan.pcap!
+	
+	Size: 1818 packets - 371 kB \dbl
+	A port scan of a Windows Vista PC, originating from an
+	Ubuntu PC, concluding that only port 80 (http) is open.
+	
+	\subsubsection*{remote-execution.csv}
+	Source: \url{http://www.honeynet.org/}
+	
+	Original filename: \verb!attack-trace.pcap_.gz!
+	
+	Size: 348 packets - 53.6 kB\dbl
+	Packet trace of a malware attack which distributes a
+	payload exploiting the Windows Local Security Authority
+	(LSA) Remote Procedure Call (RPC) service of the victim
+	host, compromising the IPC\$ share. Once the share is
+	exploited, a script is invoked, causing a connection to an
+	FTP server named NzmxFtpd and the acquisition of an
+	infected executable, \verb!ssms.exe!.
+	
+	\subsubsection*{skype.csv}
+	Source: J. Nicholls
+	
+	Original filename: \verb|skype.pcap|
+	
+	Size: 418 packets - 73 kB\dbl
+	Packets transferred during the authentication and
+	initialisation of a Skype session.\\ Recorded on an Ubuntu
+	PC with minimal services running.
+	
+	\subsubsection*{ssh-attack.csv}
+	Source: \url{http://www.honeynet.org/}
+	
+	Original filename: \verb|hp_challenge.pcap|
+	
+	Size: 5447 packets - 951.2 kB\dbl
+	Packet trace of an intruder gaining access to a server
+	using a brute-force attack via SSH, before planting malware
+	to download and execute software on the compromised host.
+	
+	\subsubsection*{telnet-freebsd-exploit.csv}
+	Source: \url{http://www.honeynet.org/}
+	
+	Original filename: \verb|fc.pcap|
+	
+	Size: 238 packets - 35.2 kB\dbl
+	Demonstration of a buffer overflow exploit (CVE-2011-4862)
+	that allows arbitrary code execution on a vulnerable
+	FreeBSD server via telnet.
+	
+	\subsubsection*{ubuntu-update.csv}
+	Source: J. Happa
+	
+	Original filename: \verb|ubuntu-update.pcap|
+	
+	Size: 497 packets - 84.6 kB\dbl
+	Packet trace of an Ubuntu PC communicating with a Canonical
+	server to check for software updates. No new updates were
+	found or downloaded.
+	
+	\subsubsection*{nitroba.csv}
+	Source: \url{http://digitalcorpora.org/corpora/scenarios/}
+	
+	\verb!        nitroba-university-harassment-scenario!
+	
+	Original filename: \verb|nitroba.pcap|
+	
+	Size: 95175 packets - 17.2 MB\dbl
+	Digital forensics excercise scenario involving a large
+	packet capture from a shared wireless router, in a case of
+	teacher harassment. See the above URL for details of the
+	exercise.
 	
 \end{document}
+
+...	...	 @@ -22,7 +22,7 @@
+22	22	        
+23	23	        \begin{itemize}
+24	24	              
+25	 	 -            \item \textbf{Heat Map}
+ 	25	 +            \item \textbf{Heat Map} A hexagonal grid displaying clients active in the network. Color indicated how much data is being transferred. Nodes "heat up" when amount of data goes over specified threshold and "heat down" in time.
+26	26	  
+27	27	              \item \textbf{Ports}
+28	28	  
+0 notes on commit b607f80 
