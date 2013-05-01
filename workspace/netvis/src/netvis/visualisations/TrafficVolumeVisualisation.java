@@ -216,6 +216,21 @@ public class TrafficVolumeVisualisation extends Visualisation {
 			xPos += intervalWidth;
 		}
 
+		// Clear the title area
+		gl.glBegin(GL2.GL_QUADS);
+		gl.glColor3d(0, 0, 0);
+		gl.glVertex2d(-1, 1);
+		gl.glVertex2d(1, 1);
+		gl.glVertex2d(1, 0.9);
+		gl.glVertex2d(-1, 0.9);
+		gl.glEnd();
+
+		// Draw title
+		gl.glColor3d(1, 1, 1);
+		gl.glRasterPos2d(-0.9, 0.93);
+		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12,
+				"Traffic Volume Visualisation -- Maximum y-value: " + (int) maxY + " packets");
+
 		// Sort protocols by the most frequently-used first
 		MapComparator<String> comparator = new MapComparator<String>(globalProtocolCount);
 		TreeMap<String, Integer> sortedProtocolMap = new TreeMap<String, Integer>(comparator);

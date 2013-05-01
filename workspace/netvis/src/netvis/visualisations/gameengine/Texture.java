@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
-import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.gl2.GLUgl2;
 
 public class Texture {
@@ -70,23 +69,24 @@ public class Texture {
 		gl.glGenTextures(1, arr, 0);
 		id = arr[0];
 		GLUgl2 glu = new GLUgl2();
-		
+
 		gl.glBindTexture(GL.GL_TEXTURE_2D, id);
 		gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 4);
 		//gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
 		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
 
-		/* New fancy way of doing it - might not work
-		gl.glTexStorage2D(GL.GL_TEXTURE_2D, 10, GL.GL_RGBA, width, height);
-		gl.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, width, height, GL.GL_RGBA,
-				GL.GL_UNSIGNED_BYTE, img);
-		gl.glEnable(GL.GL_TEXTURE_2D);
-			gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
-		gl.glDisable(GL.GL_TEXTURE_2D);
-		*/
-		
+		/*
+		 * New fancy way of doing it - might not work
+		 * gl.glTexStorage2D(GL.GL_TEXTURE_2D, 10, GL.GL_RGBA, width, height);
+		 * gl.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, width, height,
+		 * GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, img); gl.glEnable(GL.GL_TEXTURE_2D);
+		 * gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
+		 * gl.glDisable(GL.GL_TEXTURE_2D);
+		 */
+
 		// Old ugly way of doing it
-		glu.gluBuild2DMipmaps (GL.GL_TEXTURE_2D, GL.GL_RGBA, width, height, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, img);
+		glu.gluBuild2DMipmaps(GL.GL_TEXTURE_2D, GL.GL_RGBA, width, height, GL.GL_RGBA,
+				GL.GL_UNSIGNED_BYTE, img);
 
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP);
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP);
