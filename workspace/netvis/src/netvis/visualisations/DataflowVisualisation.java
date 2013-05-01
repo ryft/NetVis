@@ -1,5 +1,6 @@
 package netvis.visualisations;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import netvis.data.NormaliseFactory.Normaliser;
 import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
+import netvis.util.ColourPalette;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
@@ -35,15 +37,17 @@ public class DataflowVisualisation extends Visualisation {
 	List<Normaliser> normPasses;
 	float[][] trafficMeasure;
 	private GLUT glut;
-
+	
 	public DataflowVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
 		super(dataController, joglPanel, visControlsContainer);
 		normPasses = new ArrayList<Normaliser>();
+		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(4));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(2));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(0));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(1));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(3));
+		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(5));
 
 		trafficMeasure = new float[normPasses.size()][100];
 	}
@@ -62,13 +66,39 @@ public class DataflowVisualisation extends Visualisation {
 			gl.glRectd(((double) j - 1) / (normPasses.size() - 1), 0,
 					((double) j) / (normPasses.size() - 1), 1);
 		}
+		float conditional = 0;
 		for (int i = 0; i < normPasses.size(); i++) {
 			gl.glColor3d(0.2, 0.2, 0.2);
-			gl.glRasterPos3f(((float) i * 1.2f) / normPasses.size(), -0.04f, 0); // set
+			if (i == normPasses.size() - 1)
+				conditional = -0.1f;
+			else 
+				conditional = 0f;
+			gl.glRasterPos3f(((float) i * 1.2f) / normPasses.size() + conditional, -0.04f, 0); // set
 																					// position
 			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, normPasses.get(i).name());
 		}
 		Packet p;
+
+
+		gl.glColor3d(0, 0, 0);
+		for (int i = 0; i < listOfPackets.size(); i++) {
+			p = listOfPackets.get(i);
+			
+			double standout = (double)Math.max(0, i - listOfPackets.size() + 300) / 300; 
+			double entropy = (standout*(Math.random() - 0.5)) / 300;
+			
+			ColourPalette.setColour(gl, ColourPalette.getColourShade( 
+					ColourPalette.getColourShade(
+					Color.blue, Color.green, normPasses.get(0).normalise(p)
+					), Color.LIGHT_GRAY, standout));
+			gl.glBegin(GL2.GL_LINE_STRIP);
+			for (int j = 0; j < normPasses.size(); j++) {
+				double normVal = normPasses.get(j).normalise(p) + entropy;
+				gl.glVertex2d(((double) j) / (normPasses.size() - 1), normVal);
+			}
+			gl.glEnd();
+		}
+		
 
 		for (int i = 0; i < newPackets.size(); i++) {
 			p = newPackets.get(i);
@@ -80,29 +110,15 @@ public class DataflowVisualisation extends Visualisation {
 		for (int i = 0; i < normPasses.size(); i++) {
 			for (int j = 0; j < 100; j++) {
 				if ((int) (trafficMeasure[i][j] * 2048) != 0) {
-					if (trafficMeasure[i][j] > 0.07f)
-						trafficMeasure[i][j] = 0.07f;
-					gl.glColor4f(0.6f + trafficMeasure[i][j] * 4, 0f, 0, trafficMeasure[i][j] * 2);
+					if (trafficMeasure[i][j] > 0.1f)
+						trafficMeasure[i][j] = 0.1f;
+					gl.glColor4f(0.6f + trafficMeasure[i][j] * 4, 0f, 0, trafficMeasure[i][j] * 4);
 
-					drawDiamond(gl, ((float) i) / (normPasses.size() - 1), (float) j / 100,
+					drawDiamond(gl, ((float) i) / (normPasses.size() - 1), (float) j*0.01f,
 							trafficMeasure[i][j] / 2);
 					trafficMeasure[i][j] = trafficMeasure[i][j] * 0.99f;
 				}
 			}
-		}
-
-		gl.glColor3d(0, 0, 0);
-		for (int i = 0; i < listOfPackets.size(); i++) {
-			p = listOfPackets.get(i);
-			gl.glColor4d(0.6, 0.6 + (double) i * 0.4 / listOfPackets.size(), 0.6, 0.06);
-			gl.glBegin(GL2.GL_LINE_STRIP);
-
-			for (int j = 0; j < normPasses.size(); j++) {
-				double normVal = normPasses.get(j).normalise(p);
-				gl.glVertex2d(((double) j) / (normPasses.size() - 1), normVal);
-			}
-
-			gl.glEnd();
 		}
 	}
 
@@ -122,7 +138,7 @@ public class DataflowVisualisation extends Visualisation {
 		gl.glScaled(1.8, 1.8, 1);
 		gl.glTranslated(-0.5, -0.5, 0);
 		gl.glClearColor(0.7f, 0.7f, 0.7f, 1);
-		gl.glLineWidth(2);
+		gl.glLineWidth(1);
 		glut = new GLUT();
 	}
 
@@ -137,10 +153,11 @@ public class DataflowVisualisation extends Visualisation {
 
 	private void drawDiamond(GL2 gl, float xc, float yc, float radius) {
 		gl.glBegin(GL2.GL_POLYGON);
-		gl.glVertex2f(xc, yc - radius);
-		gl.glVertex2f(xc - radius / 4, yc);
-		gl.glVertex2f(xc, yc + radius);
-		gl.glVertex2f(xc + radius / 4, yc);
+		gl.glVertex2f(xc+radius, yc+0.01f);
+		gl.glVertex2f(xc+radius, yc);
+		gl.glVertex2f(xc-radius, yc);
+		gl.glVertex2f(xc-radius, yc+0.01f);
+
 		gl.glEnd();
 
 	}

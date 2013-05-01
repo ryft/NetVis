@@ -68,11 +68,15 @@ public class ColourPalette {
 		return thisColour;
 	}
 
-	public void setColour(GL2 gl, Color colour) {
+	public static void setColour(GL2 gl, Color colour) {
 
 		gl.glColor3d(normalise(colour.getRed()), normalise(colour.getGreen()),
 				normalise(colour.getBlue()));
 
+	}
+	public static void setColour(GL2 gl, Color colour, double transparency){
+		gl.glColor4d(normalise(colour.getRed()), normalise(colour.getGreen()),
+				normalise(colour.getBlue()), transparency);
 	}
 
 	public void setNextColour(GL2 gl) {
@@ -80,7 +84,7 @@ public class ColourPalette {
 
 	}
 
-	protected double normalise(int x) {
+	protected static double normalise(int x) {
 
 		return (x / 256.0);
 	}

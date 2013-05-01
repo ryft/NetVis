@@ -203,7 +203,7 @@ public class TrafficVolumeVisualisation extends Visualisation {
 					double height = currentPackets.get(protocol) * 1.6 / maxY;
 
 					gl.glBegin(GL2.GL_QUADS);
-					colourPalette.setColour(gl, c);
+					ColourPalette.setColour(gl, c);
 					gl.glVertex2d(xPos, yPos);
 					gl.glVertex2d(xPos, yPos + height);
 					gl.glVertex2d(xPos + intervalWidth, yPos + height);
@@ -250,7 +250,7 @@ public class TrafficVolumeVisualisation extends Visualisation {
 
 			// Set colour and position
 			Color colour = protocolColours.get(protocol);
-			colourPalette.setColour(gl, colour);
+			ColourPalette.setColour(gl, colour);
 			Point position = keyPositions[i];
 			gl.glRasterPos2d(position.getX() / 100, position.getY() / 100);
 
