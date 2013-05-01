@@ -5,33 +5,14 @@ import java.util.HashMap;
 
 import javax.media.opengl.GL2;
 
-import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
 
-public class CometHeatNode extends Node {
+public class CometHeatNode extends HeatNode {
 
 	HashMap<String, Comet> entities;
 
 	public Collection<Comet> getEntities() {
 		return entities.values();
-	}
-
-	int warning;
-
-	public int getWarning() {
-		return warning;
-	};
-
-	double[] bgColor;
-
-	public double[] getBGColor() {
-		return bgColor;
-	}
-
-	public void setBGColor(double r, double g, double b) {
-		bgColor[0] = r;
-		bgColor[1] = g;
-		bgColor[2] = b;
 	}
 
 	boolean selected;
@@ -42,77 +23,30 @@ public class CometHeatNode extends Node {
 
 	boolean changed = true;
 
-	public boolean IsChanged() {
-		return changed;
-	}
-
-	public void Draw() {
-		changed = false;
-	}
-
-	String tex;
-
-	public String getTexture() {
-		return tex;
-	}
-
-	String name;
-
-	public String getName() {
-		return name;
-	};
-
-	public CometHeatNode(String texturename, String nn) {
-		super();
+	public CometHeatNode(String texturename, String nodename) {
+		super (texturename, nodename);
 
 		selected = false;
 
-		name = nn;
-		tex = texturename;
-
 		entities = new HashMap<String, Comet>();
-		bgColor = new double[3];
-
-		// Set the background color
-		bgColor[0] = 0.5;
-		bgColor[1] = 1.0;
-		bgColor[2] = 0.7;
-		warning = 0;
 	}
 
 	public void Draw(int base, NodePainter painter, GL2 gl) {
-		painter.DrawNode(base, this, gl);
+		// Draw one on top of the other
+		painter.DrawNode(base, (HeatNode) this, gl);
+		painter.DrawNode(base, (CometHeatNode) this, gl);
 	}
 
 	public void UpdateWithData(String sip) {
 		// Make their tilts nicely shifted
 		AddSatelite(sip, 100, entities.size() * Math.PI / 10);
+		
+		super.UpdateWithData(sip);
 	}
 
 	public void UpdateAnimation(long time) {
-		StepSatelites(time);
-	}
-
-	public int Priority() {
-		return warning;
-	}
-
-	public void IncreaseWarning() {
-		warning += 1;
-		bgColor[0] *= 1.3;
-		bgColor[1] *= 0.9;
-		bgColor[2] *= 0.9;
-
-		// rotation.MoveTo (rotation.getGoal() + 360.0, 1000);
-	}
-
-	public void DecreaseWarning() {
-		warning -= 1;
-		bgColor[0] /= 1.3;
-		bgColor[1] /= 0.9;
-		bgColor[2] /= 0.9;
-
-		// rotation.MoveTo (rotation.getGoal() - 360.0, 1000);
+		for (Comet i : entities.values())
+			i.Step(time);
 	}
 
 	public void AddSatelite(String sip, int amp, double tilt) {
@@ -121,7 +55,6 @@ public class CometHeatNode extends Node {
 
 		if (find == null) {
 			entities.put(sip, new Comet(amp, tilt));
-			IncreaseWarning();
 		}
 	}
 
@@ -133,11 +66,6 @@ public class CometHeatNode extends Node {
 			entities.remove(sip);
 			DecreaseWarning();
 		}
-	}
-
-	public void StepSatelites(long time) {
-		for (Comet i : entities.values())
-			i.Step(time);
 	}
 
 	@Override

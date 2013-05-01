@@ -26,11 +26,8 @@ public class MapPainter implements NodePainter {
 		TexturePool.LoadTexture("server", Map.class.getResource("resources/server.png"));
 		TexturePool.LoadTexture("basic", Map.class.getResource("resources/basic.png"));
 	}
-
-	public void DrawNode(int base, CometHeatNode lum, GL2 gl) {
-		// Draw everything in the centre - this is all drawn to the texture that
-		// is later on clipped onto the hex
-
+	
+	public void DrawNode(int base, HeatNode lum, GL2 gl) {
 		// Draw the background
 		gl.glPushMatrix();
 		gl.glTranslated(0.0, 0.0, -1.0);
@@ -42,6 +39,11 @@ public class MapPainter implements NodePainter {
 		gl.glLineWidth(3.0f);
 		gl.glColor3d(0.0, 0.0, 0.0);
 		// this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
+	}
+
+	public void DrawNode(int base, CometHeatNode lum, GL2 gl) {
+		// Draw everything in the centre - this is all drawn to the texture that
+		// is later on clipped onto the hex
 
 		// Draw the graphical hexagon
 		if (lum.getSelected() == true)

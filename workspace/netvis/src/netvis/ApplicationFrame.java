@@ -296,7 +296,7 @@ public class ApplicationFrame extends JFrame {
 					    "\n" + "Authors:" +
 					    "\n" + "Thomas Spoor" +
 					    "\n" + "James Nicholls" +
-					    "\n" + "Albert Slawinski" +
+					    "\n" + "Albert S³awiñski" +
 					    "\n" + "Sergiu Vicol" +
 					    "\n" + "Dominik Peters" +
 					    "\n" + "\n" + "Copyright 2013 Clockwork Dragon",
