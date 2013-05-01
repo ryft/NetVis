@@ -10,7 +10,7 @@ public class Painter {
 	/*
 	 * Rotation is in degrees
 	 */
-	public static void DrawImage(Texture tex, double cx, double cy, double scale, double rot, GL2 gl) {
+	public static void DrawImage(Texture tex, double cx, double cy, double scale, double rot, double opacity, GL2 gl) {
 		int w = tex.getW();
 		int h = tex.getH();
 
@@ -18,30 +18,32 @@ public class Painter {
 		int id = tex.Bind(gl);
 		gl.glBindTexture(GL.GL_TEXTURE_2D, id);
 
+		// Set the opacity
+		gl.glColor4d(1.0, 1.0, 1.0, opacity);
+		
 		// Draw the image
 		DrawSquare(w, h, cx, cy, scale, rot, gl);
 	}
 
-	public static void DrawSquare(int w, int h, double cx, double cy, double scale, double rot,
-			GL2 gl) {
+	public static void DrawSquare(int w, int h, double cx, double cy, double scale, double rot, GL2 gl) {
 		gl.glEnable(GL2.GL_TEXTURE_2D);
 		gl.glEnable(GL2.GL_TEXTURE_2D_MULTISAMPLE);
 		gl.glPushMatrix();
 
-		// Translate and rotate (rotation in degrees)
-		gl.glTranslated(cx, cy, 0.0);
-		gl.glRotated(rot, 0.0, 0.0, 1.0);
-
-		gl.glBegin(GL2.GL_POLYGON);
-		gl.glTexCoord2d(1, 0);
-		gl.glVertex2d(-scale * w / 2.0, scale * h / 2.0);
-		gl.glTexCoord2d(0, 0);
-		gl.glVertex2d(+scale * w / 2.0, scale * h / 2.0);
-		gl.glTexCoord2d(0, 1);
-		gl.glVertex2d(+scale * w / 2.0, -scale * h / 2.0);
-		gl.glTexCoord2d(1, 1);
-		gl.glVertex2d(-scale * w / 2.0, -scale * h / 2.0);
-		gl.glEnd();
+			// Translate and rotate (rotation in degrees)
+			gl.glTranslated(cx, cy, 0.0);
+			gl.glRotated(rot, 0.0, 0.0, 1.0);
+			
+			gl.glBegin(GL2.GL_POLYGON);
+				gl.glTexCoord2d(1, 0);
+				gl.glVertex2d(-scale * w / 2.0, scale * h / 2.0);
+				gl.glTexCoord2d(0, 0);
+				gl.glVertex2d(+scale * w / 2.0, scale * h / 2.0);
+				gl.glTexCoord2d(0, 1);
+				gl.glVertex2d(+scale * w / 2.0, -scale * h / 2.0);
+				gl.glTexCoord2d(1, 1);
+				gl.glVertex2d(-scale * w / 2.0, -scale * h / 2.0);
+			gl.glEnd();
 
 		gl.glPopMatrix();
 		gl.glDisable(GL2.GL_TEXTURE_2D_MULTISAMPLE);

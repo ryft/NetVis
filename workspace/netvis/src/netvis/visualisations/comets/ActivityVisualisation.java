@@ -197,6 +197,9 @@ public class ActivityVisualisation extends Visualisation {
 				n.node.MouseClick(e);
 
 				if (e.getClickCount() == 2) {
+
+
+
 					// Sort the map
 					currentMap.SortNodes();
 
@@ -229,7 +232,7 @@ public class ActivityVisualisation extends Visualisation {
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
+				// If it is over some node - drag this node - TODO
 
 			}
 

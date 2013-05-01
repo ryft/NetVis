@@ -28,10 +28,14 @@ public class MapPainter implements NodePainter {
 	}
 	
 	public void DrawNode(int base, HeatNode lum, GL2 gl) {
+		
+		double [] color = lum.getBGColor();
+		double opacity = lum.getOpacity();
+
 		// Draw the background
 		gl.glPushMatrix();
 		gl.glTranslated(0.0, 0.0, -1.0);
-		gl.glColor3dv(lum.getBGColor(), 0);
+		gl.glColor4d (color[0], color[1], color[2], opacity);
 		Painter.DrawHexagon(GL2.GL_POLYGON, 0, 0, base, gl);
 		gl.glPopMatrix();
 
@@ -42,23 +46,23 @@ public class MapPainter implements NodePainter {
 		
 		// Draw the graphical hexagon
 		if (lum.getSelected() == true)
-			Painter.DrawImage(TexturePool.get("hexagon2"), 0.0, 0.0, 2 * base / 512.0, 0, gl);
+			Painter.DrawImage(TexturePool.get("hexagon2"), 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
 		else
-			Painter.DrawImage(TexturePool.get("hexagon1"), 0.0, 0.0, 2 * base / 512.0, 0, gl);
+			Painter.DrawImage(TexturePool.get("hexagon1"), 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
 
 		// Draw the server image
 		int imageSize = 200;
 		if (lum.getSelected() == true)
-			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 90.0, gl);
+			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 90.0, opacity, gl);
 		else
-			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 0.0, gl);
+			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 0.0, opacity, gl);
 
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");
 		renderer.begin3DRendering();
 		renderer.setSmoothing(true);
 		renderer.setUseVertexArrays(true);
-		renderer.setColor(0.2f, 0.2f, 0.2f, 1.0f);
+		renderer.setColor (0.2f, 0.2f, 0.2f, (float) opacity);
 		Rectangle2D noob = renderer.getBounds(lum.getName());
 		int xx = (int) (-noob.getWidth() / 2);
 		int yy = (int) (-imageSize / 2 - noob.getHeight() - 30);
@@ -109,9 +113,9 @@ public class MapPainter implements NodePainter {
 
 	public void DrawNode(int base, FlipNode lum, GL2 gl) {
 		double rotation = lum.getRotation();
-		// System.out.println(rotation);
-		while (rotation > 180.0)
-			rotation -= 180.0;
+		System.out.println(rotation);
+		while (rotation > 90.0)	rotation -= 180.0;
+		while (rotation <-90.0)	rotation += 180.0;
 
 		Node todraw = lum.GetSide();
 
