@@ -39,12 +39,7 @@ public class MapPainter implements NodePainter {
 		gl.glLineWidth(3.0f);
 		gl.glColor3d(0.0, 0.0, 0.0);
 		// this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
-	}
-
-	public void DrawNode(int base, CometHeatNode lum, GL2 gl) {
-		// Draw everything in the centre - this is all drawn to the texture that
-		// is later on clipped onto the hex
-
+		
 		// Draw the graphical hexagon
 		if (lum.getSelected() == true)
 			Painter.DrawImage(TexturePool.get("hexagon2"), 0.0, 0.0, 2 * base / 512.0, 0, gl);
@@ -71,6 +66,12 @@ public class MapPainter implements NodePainter {
 		renderer.end3DRendering();
 		// Big slow down if this is uncommented
 		// renderer.flush();
+
+	}
+
+	public void DrawNode(int base, CometHeatNode lum, GL2 gl) {
+		// Draw everything in the centre - this is all drawn to the texture that
+		// is later on clipped onto the hex
 
 		// Draw entities
 		for (Comet i : lum.getEntities()) {
@@ -109,37 +110,23 @@ public class MapPainter implements NodePainter {
 	public void DrawNode(int base, FlipNode lum, GL2 gl) {
 		double rotation = lum.getRotation();
 		// System.out.println(rotation);
-
 		while (rotation > 180.0)
-			rotation -= 360.0;
+			rotation -= 180.0;
 
-		if (rotation > -90.0 && rotation < 90.0) {
-			// Texture id and Framebuffer id
-			int[] texfb = DrawNodeToTheTexture(base, lum.getFrontNode(), lum.GetFramebuffer(), gl);
+		Node todraw = lum.GetSide();
 
-			// Now display the front texture
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
-			gl.glPushMatrix();
-			gl.glTranslated(0.0, 0.0, -500.0);
-			gl.glRotated(rotation, 1.0, 0.0, 0.0);
+		// Texture id and Framebuffer id
+		int[] texfb = DrawNodeToTheTexture(base, todraw, lum.GetFramebuffer(), gl);
 
-			Painter.DrawSquare(2 * base, 2 * base, 0, 0, 1.0, 180.0, gl);
+		// Now display the front texture
+		gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
+		gl.glPushMatrix();
+		gl.glTranslated(0.0, 0.0, -500.0);
+		gl.glRotated(rotation, 1.0, 0.0, 0.0);
 
-			gl.glPopMatrix();
-		} else {
-			int[] texfb = DrawNodeToTheTexture(base, lum.getBackNode(), lum.GetFramebuffer(), gl);
+		Painter.DrawSquare(2 * base, 2 * base, 0, 0, 1.0, 180.0, gl);
 
-			// And the back texture
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
-			gl.glPushMatrix();
-			gl.glTranslated(0.0, 0.0, -500.0);
-			gl.glRotated(rotation + 180.0, 1.0, 0.0, 0.0);
-
-			Painter.DrawSquare(2 * base, 2 * base, 0, 0, 1.0, 180.0, gl);
-
-			gl.glPopMatrix();
-		}
-		;
+		gl.glPopMatrix();
 	}
 
 	public int[] DrawNodeToTheTexture(int base, Node lum, Framebuffer fb, GL2 gl) {

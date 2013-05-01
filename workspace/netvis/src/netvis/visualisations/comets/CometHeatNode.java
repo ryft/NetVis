@@ -1,5 +1,6 @@
 package netvis.visualisations.comets;
 
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -15,18 +16,11 @@ public class CometHeatNode extends HeatNode {
 		return entities.values();
 	}
 
-	boolean selected;
-
-	public boolean getSelected() {
-		return selected;
-	};
 
 	boolean changed = true;
 
 	public CometHeatNode(String texturename, String nodename) {
 		super (texturename, nodename);
-
-		selected = false;
 
 		entities = new HashMap<String, Comet>();
 	}
@@ -69,9 +63,8 @@ public class CometHeatNode extends HeatNode {
 	}
 
 	@Override
-	public void DoubleClick() {
-		// TODO Auto-generated method stub
-
+	public void MouseClick (MouseEvent e) {
+		super.MouseClick (e);
 	}
 
 }

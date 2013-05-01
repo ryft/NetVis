@@ -1,5 +1,7 @@
 package netvis.visualisations.gameengine;
 
+import java.awt.event.MouseEvent;
+
 import javax.media.opengl.GL2;
 
 public abstract class Node {
@@ -17,5 +19,5 @@ public abstract class Node {
 
 	public abstract int Priority();
 
-	public abstract void DoubleClick();
+	public abstract void MouseClick (MouseEvent e);
 }

@@ -216,14 +216,16 @@ public class Map {
 	}
 
 	private NodeWithPosition AddNode(String near, String name, String textureName) {
-		CometHeatNode front = new CometHeatNode(textureName, name);
-		GraphNode back = new GraphNode(name);
+		HeatNode front = new HeatNode  (textureName, name);
+		GraphNode back = new GraphNode (name);
 
-		FlipNode lemur = new FlipNode(front, back);
+		// Make it into the flip node - the node that has two sides
+		FlipNode lemur = new FlipNode (front, back);
 
 		Position posit;
 		Position coord;
 		NodeWithPosition nearnode = nodesByName.get(near);
+		
 		if (nearnode == null) {
 			// Place it in the middle
 			posit = FindPosition(nodesByName.size());
@@ -244,10 +246,10 @@ public class Map {
 					break;
 			}
 		}
+	
 		NodeWithPosition k = new NodeWithPosition(lemur, coord, posit);
 
-		// System.out.println("Node " + name + " placed in coords : " + coord.x
-		// + ", " + coord.y);
+		// System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
 
 		nodesByName.put(name, k);
 		nodesl.add(k);
@@ -264,7 +266,7 @@ public class Map {
 		NodeWithPosition node = nodesByPosition.get(c);
 		return node;
 
-		/*
+		/* Just in case if the previous thing is not working
 		 * for (NodeWithPosition n : nodesByName.values()) { Position pos =
 		 * n.pos; double distance = Math.sqrt (Math.pow(pos.x - x, 2) +
 		 * Math.pow(pos.y - y, 2)); if (distance < base-10) return n; } return
