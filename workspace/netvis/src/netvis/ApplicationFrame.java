@@ -57,7 +57,7 @@ import netvis.visualisations.VisualisationsController;
  */
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
-	
+
 	protected final String versionNumber = "1.0";
 
 	// Flags governing the behaviour of the application window
@@ -247,8 +247,8 @@ public class ApplicationFrame extends JFrame {
 
 		// View menu
 		JMenu viewMenu = new JMenu("View");
-		fileMenu.setMnemonic(KeyEvent.VK_V);
-		fileMenu.getAccessibleContext().setAccessibleDescription(
+		viewMenu.setMnemonic(KeyEvent.VK_V);
+		viewMenu.getAccessibleContext().setAccessibleDescription(
 				"View menu for controlling the view parameters of the application");
 
 		// Reset the application size
@@ -279,32 +279,28 @@ public class ApplicationFrame extends JFrame {
 				ApplicationFrame.this.toggleFullScreen();
 			}
 		});
-		
+
 		// Help menu
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic(KeyEvent.VK_H);
 		helpMenu.getAccessibleContext().setAccessibleDescription(
 				"Help menu for viewing information about the application");
-		
+
 		// View the 'about' box
 		JMenuItem aboutItem = new JMenuItem("About...", KeyEvent.VK_A);
-		fullScreenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.CTRL_MASK));
-		fullScreenItem.getAccessibleContext().setAccessibleDescription("View information about the application");
+		aboutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.CTRL_MASK));
+		aboutItem.getAccessibleContext().setAccessibleDescription(
+				"View information about the application");
 		aboutItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JOptionPane.showMessageDialog(ApplicationFrame.this,
-					    "NetVis Version " + versionNumber + "\n" +
-					    "\n" + "Authors:" +
-					    "\n" + "Thomas Spoor" +
-					    "\n" + "James Nicholls" +
-					    "\n" + "Albert Sławiński" +
-					    "\n" + "Sergiu Vicol" +
-					    "\n" + "Dominik Peters" +
-					    "\n" + "\n" + "Copyright 2013 Clockwork Dragon",
-					    "About",
-					    JOptionPane.INFORMATION_MESSAGE,
-					    new ImageIcon("img/icon.png"));
+						"NetVis Version " + versionNumber + "\n" + "\n" + "Authors:" + "\n"
+								+ "Thomas Spoor" + "\n" + "James Nicholls" + "\n"
+								+ "Albert Sławiński" + "\n" + "Sergiu Vicol" + "\n"
+								+ "Dominik Peters" + "\n" + "\n"
+								+ "Copyright 2013 Clockwork Dragon", "About",
+						JOptionPane.INFORMATION_MESSAGE, new ImageIcon("img/icon.png"));
 			}
 		});
 
@@ -317,7 +313,7 @@ public class ApplicationFrame extends JFrame {
 		viewMenu.add(resetViewItem);
 		viewMenu.add(fullScreenItem);
 		menuBar.add(viewMenu);
-		
+
 		helpMenu.add(aboutItem);
 		menuBar.add(helpMenu);
 
@@ -494,5 +490,5 @@ public class ApplicationFrame extends JFrame {
 			ApplicationFrame.this.componentResized();
 		}
 	}
-	
+
 }

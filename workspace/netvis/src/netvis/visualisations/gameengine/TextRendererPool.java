@@ -22,7 +22,7 @@ public class TextRendererPool {
 		renderers = new HashMap<String, TextRenderer>();
 		fonts = new HashMap<String, Font>();
 
-		LoadFont("default", 15, Painter.class.getResource("cmr17.ttf"));
+		LoadFont("default", 15, Painter.class.getResource("Ubuntu-L.ttf"));
 		LoadFont("basic", 70, Painter.class.getResource("cmr17.ttf"));
 	}
 
@@ -59,8 +59,8 @@ public class TextRendererPool {
 	public static TextRenderer get(String fontName) {
 		return renderers.get(fontName);
 	}
-	
-	public static Font getFont (String fontName) {
+
+	public static Font getFont(String fontName) {
 		return fonts.get(fontName);
 	}
 
