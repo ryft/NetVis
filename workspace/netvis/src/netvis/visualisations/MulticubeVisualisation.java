@@ -128,22 +128,23 @@ public class MulticubeVisualisation extends Visualisation {
 	@Override
 	protected JPanel createControls() {
 		JPanel panel = new JPanel();
-		String[] array = new String[NormaliseFactory.INSTANCE.getAttrs().size()];
-		NormaliseFactory.INSTANCE.getAttrs().toArray(array);
-
-		final JComboBox<String> xAxisBox = new JComboBox<String>(array);
+		String[] normaliserNames = new String[NormaliseFactory.INSTANCE.getNormalisers().size()];
+		for (int i = 0; i < normaliserNames.length; i++){
+			normaliserNames[i] = NormaliseFactory.INSTANCE.getNormaliser(i).name();
+		}
+		final JComboBox<String> xAxisBox = new JComboBox<String>(normaliserNames);
 		xAxisBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				xNormalizer = NormaliseFactory.INSTANCE.getNormaliser(xAxisBox.getSelectedIndex());
 			}
 		});
-		final JComboBox<String> yAxisBox = new JComboBox<String>(array);
+		final JComboBox<String> yAxisBox = new JComboBox<String>(normaliserNames);
 		yAxisBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				yNormalizer = NormaliseFactory.INSTANCE.getNormaliser(yAxisBox.getSelectedIndex());
 			}
 		});
-		final JComboBox<String> zAxisBox = new JComboBox<String>(array);
+		final JComboBox<String> zAxisBox = new JComboBox<String>(normaliserNames);
 		zAxisBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				zNormalizer = NormaliseFactory.INSTANCE.getNormaliser(zAxisBox.getSelectedIndex());

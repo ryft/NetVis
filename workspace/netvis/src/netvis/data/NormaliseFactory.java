@@ -1,6 +1,6 @@
 package netvis.data;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import netvis.data.model.Packet;
@@ -12,34 +12,29 @@ import netvis.data.model.Packet;
 public class NormaliseFactory {
 	public static final NormaliseFactory INSTANCE = new NormaliseFactory();
 
-	List<String> attrs;
+	List<Normaliser> normalisers;
 
 	private NormaliseFactory() {
-		attrs = Arrays.asList("Source Port", "Destination Port", "Source IP", "Destination IP", "Source MAC", "Destination MAC");
+		normalisers = new ArrayList<Normaliser>();
+		normalisers.add(new SourcePortNorm());
+		normalisers.add(new DestinationPortNorm());
+		normalisers.add(new SourceIPNorm());
+		normalisers.add(new DestinationIPNorm());
+		normalisers.add(new SourceMACNorm());
+		normalisers.add(new DestinationMACNorm());
 	}
 
-	public List<String> getAttrs() {
-		return attrs;
+	public List<Normaliser> getNormalisers() {
+		return normalisers;
 	}
-
+	public int getIndex(Normaliser n){
+		return normalisers.lastIndexOf(n);
+	}
 	public Normaliser getNormaliser(int norm_id) {
-		switch (norm_id) {
-		case 0:
-			return new SourcePortNorm();
-		case 1:
-			return new DestinationPortNorm();
-		case 2:
-			return new SourceIPNorm();
-		case 3:
-			return new DestinationIPNorm();
-		case 4:
-			return new SourceMACNorm();
-		case 5:
-			return new DestinationMACNorm();
-		default:
+		if (norm_id < normalisers.size())
+			return normalisers.get(norm_id);
+		else
 			return null;
-		}
-
 	}
 
 	public interface Normaliser {
@@ -54,7 +49,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return attrs.get(0);
+			return "Source Port";
 		}
 	}
 
@@ -64,7 +59,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return attrs.get(1);
+			return "Destination Port";
 		}
 	}
 
@@ -74,7 +69,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return attrs.get(2);
+			return "Source IP";
 		}
 	}
 
@@ -84,7 +79,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return attrs.get(3);
+			return "Destination Port";
 		}
 	}
 	
@@ -94,7 +89,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return attrs.get(4);
+			return "Source MAC Address";
 		}
 	}
 	
@@ -104,7 +99,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return attrs.get(5);
+			return "Destination MAC Adress";
 		}
 	}
 
