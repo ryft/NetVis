@@ -40,7 +40,7 @@ public class VisualisationsController {
 	public void InitializeAll(DataController dataController, OpenGLPanel glPanel,
 			VisControlsContainer visControlsContainer) {
 		visList.add(new ActivityVisualisation(dataController, glPanel, visControlsContainer));
-		visList.add(new TimePortVisualisation(dataController, glPanel, visControlsContainer));
+		visList.add(new DistributionVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new MulticubeVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new DataflowVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new TrafficVolumeVisualisation(dataController, glPanel, visControlsContainer));
