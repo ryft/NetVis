@@ -110,18 +110,14 @@ public class MapExperimental {
 		height = h;
 	}
 
-	public void SuggestNode(String sip, String dip) {
+	public void SuggestNode (String sip, String dip) {
 		// Suggests the existence of the node in the network to be displayed
-		AddNode(sip, dip, "basic");
+		AddNode (dip, sip, "basic");
 	}
 	
 	private Node AddNode(String near, String name, String textureName) {
-		HeatNode front = new HeatNode  (textureName, name);
-		GraphNode back = new GraphNode (name);
 
-		// Make it into the flip node - the node that has two sides
-		FlipNode lemur = new FlipNode (front, back);
-
+		// Look for the wrapping node
 		MultiNode nearnode = nodesByName.get(near);
 		if (nearnode == null)
 		{
@@ -140,12 +136,22 @@ public class MapExperimental {
 		// If the node is not already there - add it
 		Node found = nearnode.GetNode (name);
 		if (found == null)
-			nearnode.AddNode(name, lemur);
+		{
+			// Prepare the new node
+			HeatNode front = new HeatNode  (textureName, name);
+			GraphNode back = new GraphNode (name);
+
+			// Make it into the flip node - the node that has two sides
+			FlipNode newnode = new FlipNode (front, back);
+	
+			nearnode.AddNode(name, newnode);
+			found = newnode;
+		}
 
 		// Update the node with data
-		lemur.UpdateWithData (near);
+		found.UpdateWithData (near);
 
-		return lemur;
+		return found;
 	}
 	
 	public Position FindClickedPosition (int x, int y)

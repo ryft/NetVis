@@ -241,15 +241,15 @@ public class ActivityVisualisation extends Visualisation {
 
 		// Add test nodes
 		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode("testk" + i, "test" + i);
+			currentMap.SuggestNode ("testk" + i, "test" + i);
 		}
 		
 		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode("ServerA", "testa" + i);
+			currentMap.SuggestNode ("testa" + i, "ServerA");
 		}
 
 		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode("ServerB", "testb" + i);
+			currentMap.SuggestNode ("testb0", "ServerB");
 		}
 		
 	}

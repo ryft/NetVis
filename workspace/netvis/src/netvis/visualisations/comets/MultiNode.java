@@ -63,7 +63,7 @@ public class MultiNode extends Node {
 			}
 		}
 			
-		return null;
+		return nn;
 	}
 	
 	public MultiNode(int dimension) {
@@ -138,6 +138,13 @@ public class MultiNode extends Node {
 			// Check that the node size is small enough to be allocated
 			if (reqdim > subdim)
 				return false;
+			
+			// If the node fits perfectly - allocate it straight away
+			if (reqdim == subdim)
+			{
+				AllocateSubnode (name, n);
+				return true;
+			}
 			
 			// Try allocating this node in any of the subnodes
 			for (Node nodum : subnodes.values())
