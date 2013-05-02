@@ -8,6 +8,7 @@ import netvis.ui.ContextPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualisations.comets.ActivityVisualisation;
+import netvis.visualisations.comets.HeatmapVisualisation;
 
 public class VisualisationsController {
 
@@ -40,6 +41,7 @@ public class VisualisationsController {
 
 	public void InitializeAll(DataController dataController, OpenGLPanel glPanel,
 			VisControlsContainer visControlsContainer) {
+		visList.add(new HeatmapVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new ActivityVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new TimePortVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new MulticubeVisualisation(dataController, glPanel, visControlsContainer));

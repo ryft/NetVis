@@ -4,11 +4,14 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
+import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
+import netvis.visualisations.gameengine.Units;
 
 public class MultiNode extends Node {
 
@@ -16,14 +19,11 @@ public class MultiNode extends Node {
 	int dim;
 	// Dimension of the subnode
 	int subdim;
-	
-	// Side of the singular hex
-	int base;
 
 	@Override
 	public int getDimenstion () {return dim;}
 	@Override
-	public int getCapacity   () {return DimToCap (dim);}
+	public int getCapacity   () {return Units.DimToCap (dim);}
 	
 	public int getSubDimension () {return subdim;}
 	public int getFreeSlots ()
@@ -34,31 +34,47 @@ public class MultiNode extends Node {
 
 		// Calculate how many rings can fit in the node
 		int rings = 1;
-		while (DimToCap(rings) * DimToCap(subdim) <= DimToCap(dim))
+		while (Units.DimToCap(rings) * Units.DimToCap(subdim) <= Units.DimToCap(dim))
 		{
 			// While the ring still fits
 			rings += 1;
 		}
 		rings -= 1;
 		
-		return (DimToCap (rings) - subnodes.size());
+		return (Units.DimToCap (rings) - subnodes.size());
  	}
 	
-	public int DimToCap (int dim)
-	{
-		return 3*(dim*dim - dim)+1;
+	HashMap <Position, Node> subnodes;
+	HashMap <String,   Node> subnodesByName;
+	
+	@Override
+	public Node GetNode (String name) {
+		Node nn = subnodesByName.get(name);
+		
+		if (nn == null)
+		{
+			// Look in the subnodes
+			for (Node n : subnodes.values())
+			{
+				nn = n.GetNode (name);
+				// If found return it
+				if (nn != null)
+					return nn;
+			}
+		}
+			
+		return null;
 	}
 	
-	HashMap <Position, Node> subnodes;
-	
-	public MultiNode(int dimension, int tbase) {
+	public MultiNode(int dimension) {
 		super();
 		
 		dim = dimension;
-		base = tbase;
 		subdim = -1;
 		
 		subnodes = new HashMap<Position, Node> ();
+		
+		subnodesByName = new HashMap<String, Node> ();
 	}
 	
 	@Override
@@ -69,7 +85,7 @@ public class MultiNode extends Node {
 			Position coord = en.getKey();
 			Node node = en.getValue();
 			
-			Position pos = PositionByCoordinate (base, coord);
+			Position pos = Units.PositionByCoordinate (base, coord);
 			
 			gl.glPushMatrix();
 				gl.glTranslated(pos.x, pos.y, 0.0);
@@ -78,10 +94,17 @@ public class MultiNode extends Node {
 				
 			gl.glPopMatrix();
 		}
+		
+		// For debug purposes draw a big hexagon around
+		gl.glPushMatrix();
+			gl.glLineWidth (3.0f);
+			gl.glRotated(90.0, 0.0, 0.0, 1.0);
+			Painter.DrawHexagon(GL.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
+		gl.glPopMatrix();
 	}
 	
 	@Override
-	public boolean AddNode (Node n)
+	public boolean AddNode (String name, Node n)
 	{
 		int reqdim = n.getDimenstion();
 		if (subdim == -1)
@@ -96,7 +119,7 @@ public class MultiNode extends Node {
 			} else if (reqdim == FindNodeDim())
 			{
 				subdim = reqdim;
-				AllocateSubnode (n);
+				AllocateSubnode (name, n);
 				return true;
 			} else
 			{
@@ -104,11 +127,11 @@ public class MultiNode extends Node {
 				subdim = FindNodeDim();
 				
 				// So allocate the subnode
-				Node mn = new MultiNode(subdim, base);
-				AllocateSubnode(mn);
+				Node mn = new MultiNode(subdim);
+				AllocateSubnode (null, mn);
 				
 				// And then add the considered node to the subnode
-				return mn.AddNode(n);
+				return mn.AddNode (name, n);
 			}
 		} else
 		{
@@ -119,88 +142,42 @@ public class MultiNode extends Node {
 			// Try allocating this node in any of the subnodes
 			for (Node nodum : subnodes.values())
 			{
-				if (nodum.AddNode(n))
+				if (nodum.AddNode (name, n))
 					return true;
 			}
 			
 			// If it failed - create a new subnode and allocate considered node in it
-			Node mn = new MultiNode(subdim, base);
-			mn.AddNode(n);
-			return AllocateSubnode(mn);
+			Node mn = new MultiNode(subdim);
+			mn.AddNode (name, n);
+			return AllocateSubnode (null, mn);
 		}
 	}
 	
-	private boolean AllocateSubnode (Node mn)
+	private boolean AllocateSubnode (String name, Node mn)
 	{
 		// First find the ring to go to
-		int outerring = 1;
-		while (DimToCap(outerring) <= subnodes.size())
-			outerring += 1;
-		
+		Position rs = Units.FindSpotAround(subnodes.size());
+
 		// If the ring is too far away we can not allocate the subnode
-		if (outerring > this.dim)
+		if (rs.x > this.dim)
 			return false;
 		
-		int shift = subnodes.size() - DimToCap(outerring - 1);
+		// Register the node with its name
+		if (name != null)
+			subnodesByName.put (name, mn);
 		
 		// Redraw this - it might be incorrect for the bigger ones
-		Position p = CoordinateByRingAndShift (outerring * subdim, shift * (subdim+1));
+		Position p = Units.CoordinateByRingAndShift (subdim, rs.x, rs.y);
 
 		// Add it to the right place
 		subnodes.put (p, mn);
 		return true;
 	}
 	
-	public Position CoordinateByRingAndShift (int ring, int shift)
-	{
-		Position p = new Position (0,0);
-		
-		// First go to the right ring
-		p.y += ring;
-		p.x -= ring/2; // Rounded down (look at the Fig 1)
-		
-		// Now move around the ring to find the right spot
-		int [] xstages = new int [] {+1, +1,  0, -1, -1, 0, +1};
-		int [] ystages = new int [] {0,  -1, -1,  0, +1, +1, 0};
-		
-		int stageid = 0;
-		int dx = xstages[0];
-		int dy = ystages[0];
-		
-		// Look at the Fig 2
-		for (int i=-((ring-1)/2); i<shift-((ring-1)/2); i++)
-		{
-			if (i % ring == 0)
-			{
-				// Switch to the next stage
-				stageid += 1;
-				dx = xstages[stageid];
-				dy = ystages[stageid];
-			}
-			
-			p.x += dx;
-			p.y += dy;
-		}
-		
-		return p;
-	}
-	
-	public Position PositionByCoordinate (int base, Position coord)
-	{
-		// Converts the position from the skewed Euclidean to Euclidean
-		
-		Position pos = new Position (0,0);
-		
-		pos.x += Math.round(coord.x * Math.sqrt(3.0) * base + coord.y * Math.sqrt(3.0) * base * Math.cos(Math.PI/3));
-		pos.y += Math.round(coord.y * Math.sqrt(3.0) * Math.sin(Math.PI/3));
-		
-		return pos;
-	}
-	
 	public int FindNodeDim ()
 	{
 		int trydim = dim-1;
-		while (7 * DimToCap(trydim) > DimToCap(dim))
+		while (7 * Units.DimToCap(trydim) > Units.DimToCap(dim))
 			trydim--;
 		
 		return trydim;

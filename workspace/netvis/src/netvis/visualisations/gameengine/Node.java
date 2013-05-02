@@ -17,7 +17,9 @@ public abstract class Node {
 	public int getDimenstion () {return 1;}
 	public int getCapacity   () {return 1;}
 	
-	public boolean AddNode (Node n) {return false;};
+	public Node GetNode (String name) {return null;}
+	
+	public boolean AddNode (String name, Node n) {return false;}
 
 	public abstract void UpdateWithData(String sip);
 

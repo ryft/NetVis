@@ -28,14 +28,13 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualisations.Visualisation;
+import netvis.visualisations.comets.Map.NodeWithPosition;
 import netvis.visualisations.gameengine.FramebufferPool;
-import netvis.visualisations.gameengine.Node;
-import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
 import netvis.visualisations.gameengine.ValueAnimator;
 
-public class ActivityVisualisation extends Visualisation {
+public class HeatmapVisualisation extends Visualisation {
 
 	int width;
 	int height;
@@ -52,7 +51,7 @@ public class ActivityVisualisation extends Visualisation {
 
 	Timer animator, cleaner;
 
-	MapExperimental currentMap;
+	Map currentMap;
 
 	HashMap<String, Candidate> candidates;
 
@@ -76,7 +75,7 @@ public class ActivityVisualisation extends Visualisation {
 		}
 	}
 
-	public ActivityVisualisation(DataController dataController, OpenGLPanel joglPanel,
+	public HeatmapVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
 
 		super(dataController, joglPanel, visControlsContainer);
@@ -90,7 +89,7 @@ public class ActivityVisualisation extends Visualisation {
 
 		candidates = new HashMap<String, Candidate>();
 
-		currentMap = new MapExperimental(width, height);
+		currentMap = new Map(width, height);
 
 		ActionListener animatum = new ActionListener() {
 			long lasttime = (new Date()).getTime();
@@ -194,11 +193,13 @@ public class ActivityVisualisation extends Visualisation {
 				int x = (int) Math.round(middlex.toDouble() + (e.getX() - (width / 2)) * viewfield);
 				int y = (int) Math.round(middley.toDouble() - (e.getY() - (height / 2)) * viewfield);
 
-				Node n = currentMap.FindClickedNode(x, y);
-				Position p = currentMap.FindClickedPosition(x, y);
-				if (n != null) n.MouseClick(e);
+				NodeWithPosition n = currentMap.FindClickedNode(x, y);
+				if (n != null) n.node.MouseClick(e);
 
 				if (e.getClickCount() == 2) {
+					// Sort the map
+					currentMap.SortNodes();
+
 					// Zoom on the selected node - such that it will fill the
 					// screen
 					double goal = currentMap.ZoomOn();
@@ -207,8 +208,8 @@ public class ActivityVisualisation extends Visualisation {
 
 				if (n != null) {
 					// Move to the selected node
-					middlex.MoveTo(p.x, 1000);
-					middley.MoveTo(p.y, 1000);
+					middlex.MoveTo(n.pos.x, 1000);
+					middley.MoveTo(n.pos.y, 1000);
 				}
 
 				e.consume();
@@ -243,15 +244,7 @@ public class ActivityVisualisation extends Visualisation {
 		for (int i = 0; i < 0; i++) {
 			currentMap.SuggestNode("testk" + i, "test" + i);
 		}
-		
-		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode("ServerA", "testa" + i);
-		}
 
-		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode("ServerB", "testb" + i);
-		}
-		
 	}
 
 	private void ZoomIn() {
@@ -326,9 +319,9 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 
 		gl.glPushMatrix();
-			gl.glTranslated(0.0, 0.0, -1000.0);
-			// Make the map draw all of the elements
-			currentMap.DrawEverything(gl);
+		gl.glTranslated(0.0, 0.0, -1000.0);
+		// Make the map draw all of the elements
+		currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
 	}
 
@@ -356,7 +349,9 @@ public class ActivityVisualisation extends Visualisation {
 			if (can.datasize >= 2000) {
 				// System.out.println("IP: " + ip + " which dataflow: " +
 				// can.datasize + " added to the simulation");
-				//currentMap.AddNode(can.sip, can.dip);
+				currentMap.SuggestNode(can.sip, can.dip);
+				currentMap.SuggestNode(can.dip, can.sip);
+				currentMap.SortNodes();
 			}
 		}
 	}
@@ -420,7 +415,7 @@ public class ActivityVisualisation extends Visualisation {
 
 	@Override
 	public String getName() {
-		return "Groups of activity";
+		return "Heatmap of activity";
 	}
 
 	@Override
