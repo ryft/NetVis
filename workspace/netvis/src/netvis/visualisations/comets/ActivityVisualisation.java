@@ -356,7 +356,7 @@ public class ActivityVisualisation extends Visualisation {
 			if (can.datasize >= 2000) {
 				// System.out.println("IP: " + ip + " which dataflow: " +
 				// can.datasize + " added to the simulation");
-				//currentMap.AddNode(can.sip, can.dip);
+				currentMap.SuggestNode(can.sip, can.dip);
 			}
 		}
 	}
