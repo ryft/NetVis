@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import netvis.data.DataController;
-import netvis.ui.ContextPanel;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualisations.comets.ActivityVisualisation;
@@ -43,7 +42,7 @@ public class VisualisationsController {
 			VisControlsContainer visControlsContainer) {
 		visList.add(new HeatmapVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new ActivityVisualisation(dataController, glPanel, visControlsContainer));
-		visList.add(new TimePortVisualisation(dataController, glPanel, visControlsContainer));
+		visList.add(new DistributionVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new MulticubeVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new DataflowVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new TrafficVolumeVisualisation(dataController, glPanel, visControlsContainer));
@@ -54,15 +53,17 @@ public class VisualisationsController {
 			visNameList.add(visList.get(i).getName());
 	}
 
-	public void ActivateById(int selectedIndex, ContextPanel descriptionContainer) {
+	public Visualisation ActivateById(int selectedIndex) {
 		// If we are switching away from the visualisation, deactivate it
 		if (oldVisId != -1)
 			visList.get(oldVisId).deactivate();
 		oldVisId = selectedIndex;
 
 		Visualisation newVis = visList.get(selectedIndex);
-		descriptionContainer.update(newVis.getDescription());
+		//descriptionContainer.update(newVis.getDescription());
 		newVis.activate();
 		newVis.requestFocusInWindow();
+		return newVis;
 	};
+	
 };

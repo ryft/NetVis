@@ -36,7 +36,7 @@ public class ContextPanel extends JScrollPane {
 					+ "Contextual views don't update automatically for performance\n"
 					+ "reasons. They can all be manually refreshed by clicking on\n"
 					+ "the relevant control again.");
-	
+
 	static {
 		Font f = TextRendererPool.getFont("default");
 		initialComponent.setFont(f);
@@ -106,10 +106,10 @@ public class ContextPanel extends JScrollPane {
 	 */
 	public void update(String text) {
 		JTextArea descriptionBox = new JTextArea(text);
-		
+
 		Font f = TextRendererPool.getFont("default");
 		descriptionBox.setFont(f);
-		
+
 		setComponent(descriptionBox);
 	}
 

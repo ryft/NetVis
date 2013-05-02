@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.Timer;
 
 import netvis.data.model.Packet;
@@ -32,7 +31,6 @@ public class DataController implements ActionListener {
 		listeners = new ArrayList<DataControllerListener>();
 		filters = new ArrayList<PacketFilter>();
 		filteredPackets = new ArrayList<Packet>();
-
 		allPackets = new ArrayList<Packet>();
 		timer = new Timer(updateInterval, this);
 		timer.start();
@@ -61,6 +59,8 @@ public class DataController implements ActionListener {
 		filters.remove(packetFilter);
 		allDataChanged();
 	}
+	
+
 
 	public Iterator<PacketFilter> filterIterator() {
 		return filters.iterator();

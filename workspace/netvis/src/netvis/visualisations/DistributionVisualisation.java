@@ -1,63 +1,56 @@
 package netvis.visualisations;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import netvis.data.DataController;
 import netvis.data.DataUtilities;
+import netvis.data.NormaliseFactory;
+import netvis.data.NormaliseFactory.Normaliser;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
+import netvis.util.ColourPalette;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
-public class TimePortVisualisation extends Visualisation {
+public class DistributionVisualisation extends Visualisation {
 
 	private static final long serialVersionUID = 1L;
 	int noPorts;
 	int logFactor = 6;
-	boolean sourceEnabled, destEnabled;
-	public TimePortVisualisation(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
+	int resolution = 100;
+	private Normaliser normaliser;
+	private int[] packetCount;
+	private int[] packetCountAnimated;
+	public DistributionVisualisation(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 		super(dc, joglPanel, visControlsContainer);
-	    noPorts = DataUtilities.MAX_PORT;
-	    this.sourceEnabled = true;
-	    this.destEnabled = true;
-	    
+	    normaliser = NormaliseFactory.INSTANCE.getNormaliser(0);
+	    packetCount = new int[resolution];
+	    packetCountAnimated = new int[resolution + 1];
 	}
 	
 	protected JPanel createControls() {
-		JPanel localControls = new JPanel();
-		JLabel sourceText = new JLabel("Source");
-	    JCheckBox sourceCheckBox = new JCheckBox();
-	    sourceCheckBox.setSelected(this.sourceEnabled);
-	    sourceCheckBox.addActionListener(new ActionListener(){
+		JPanel panel = new JPanel();
+		String[] array = new String[NormaliseFactory.INSTANCE.getAttrs().size()];
+		NormaliseFactory.INSTANCE.getAttrs().toArray(array);
+		
+		final JComboBox<String> normaliserBox = new JComboBox<String>(array);
+		normaliserBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sourceEnabled = !sourceEnabled;
-				joglPanel.redraw();
+				normaliser = NormaliseFactory.INSTANCE.getNormaliser(normaliserBox.getSelectedIndex());
 			}
-	    });
-	    
-	    JLabel destText = new JLabel("Dest");
-	    JCheckBox destCheckBox = new JCheckBox();
-	    destCheckBox.setSelected(this.destEnabled);
-	    destCheckBox.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				destEnabled = !destEnabled;
-				joglPanel.redraw();
-			}
-	    });
-	    localControls.add(sourceText);
-	    localControls.add(sourceCheckBox);
-	    
-	    localControls.add(destText);
-	    localControls.add(destCheckBox);
-		return localControls;
+		});
+		panel.add(normaliserBox);
+		
+		return panel;
+
 	}
 
 	public void display(GLAutoDrawable drawable) {
@@ -76,17 +69,6 @@ public class TimePortVisualisation extends Visualisation {
 	    gl.glVertex2d(1,-0.8);
 	    gl.glEnd();
 	    
-        	    
-	    int[] sourcePorts = new int[noPorts];
-	    int[] destPorts = new int[noPorts];
-	    for (int i = 0; i < noPorts; i++){
-	    	sourcePorts[i] = 0;
-	    	destPorts[i] = 0;
-	    }
-	    for (int i = 0; i < listOfPackets.size(); i++) {
-	    		sourcePorts[listOfPackets.get(i).sport]++;
-	    		destPorts[listOfPackets.get(i).dport]++;
-		}
 		gl.glLineWidth(1);
 		gl.glColor3d(0.8, 0.8, 0.8);
 	    final GLUT glut = new GLUT();
@@ -102,47 +84,37 @@ public class TimePortVisualisation extends Visualisation {
             glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf((int)Math.exp((height+0.8)*logFactor)));
 	    }
 	    
-    	gl.glLineWidth(6);
-    	if (this.sourceEnabled && this.destEnabled)
-		    for (int i = 0; i < noPorts; i++){
-		    	/*
-		    	 * Draw the lines for  each port
-		    	 */
-		    	if (sourcePorts[i] > destPorts[i]){
-		    		drawLine(gl, sourcePorts[i], i, 0);
-		    		drawLine(gl, destPorts[i], i, 1);
-		    	} else {
-		    		drawLine(gl, destPorts[i], i, 1);
-		    		drawLine(gl, sourcePorts[i], i, 0);
-		    	}
-		    
-		    }
-    	else if (this.sourceEnabled)
-    	    for (int i = 0; i < noPorts; i++){
-		    		drawLine(gl, sourcePorts[i], i, 0);		    
-		    }
-    	else if (this.destEnabled)
-    		for (int i = 0; i < noPorts; i++){
-	    		drawLine(gl, destPorts[i], i, 1);    
+	    for (int i = 0; i < resolution; i++)
+	    	packetCount[i] = 0;
+	    for (int i = 0; i < listOfPackets.size(); i++)
+	    	packetCount[(int)(normaliser.normalise(listOfPackets.get(i))*(double)resolution)]++;
+	    for (int i = 0; i < resolution; i++){
+	    	packetCountAnimated[i] = packetCount[i] - (packetCount[i] - packetCountAnimated[i])*2/3;
 	    }
+	    double currentLog, lastLog;
+	    currentLog = Math.max(Math.log(packetCountAnimated[0])/logFactor, 0);
+	    gl.glLineWidth(3);
+	    for (int i = 1; i <= resolution; i++){
+	    	lastLog = currentLog;
+	    	currentLog = Math.max(Math.log(packetCountAnimated[i])/logFactor, 0);
+	    	
+	    	gl.glBegin(GL2.GL_POLYGON);
+	    	gl.glColor3d(0.7, 0.7, 0.7);
+	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 );
+	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 + lastLog);
+	    	gl.glVertex2d(-1 + 2*((double)i/resolution),-0.8 + currentLog);
+	    	gl.glVertex2d(-1 + 2*((double)i/resolution),-0.8);
+		    gl.glEnd();
+		    ColourPalette.setColour(gl, 
+		    		ColourPalette.getColourShade(Color.red, Color.blue, (currentLog + lastLog)/2));
+		    gl.glBegin(GL2.GL_LINE_STRIP);
+	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 + lastLog);
+	    	gl.glVertex2d(-1 + 2*((double)i/resolution),-0.8 + currentLog);
+		    gl.glEnd();
+	    }
+	      
 	}
 
-	private void drawLine(GL2 gl, int val, int i, int type) {
-		if (val != 0){
-		    double nedLog = 0;
-			gl.glBegin(GL.GL_LINES);
-	
-	    	nedLog = (Math.log(val)/logFactor);
-	    	if (type == 0)
-	    		gl.glColor4d(nedLog/4+0.4, 0, 0, 0.6);
-	    	else
-	    		gl.glColor4d(0, nedLog/4+0.4, 0, 0.6);
-	    	gl.glVertex2f(-1 + 2*((float)i/noPorts) , (float) -0.8);
-	    	gl.glVertex2f(-1 + 2*((float)i/noPorts), (float) (-0.8 + nedLog));
-	
-	    	gl.glEnd();		
-		}
-	}
 
 	@Override
 	public void dispose(GLAutoDrawable arg0) {
@@ -152,6 +124,9 @@ public class TimePortVisualisation extends Visualisation {
 	@Override
 	public void init(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
+		gl.glEnable(GL2.GL_POINT_SMOOTH);
+		gl.glEnable(GL2.GL_LINE_SMOOTH);
+		gl.glShadeModel(GL2.GL_SMOOTH);
 		gl.glEnable(GL2.GL_BLEND);
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		gl.glColor3d(0, 0, 0);
@@ -199,15 +174,13 @@ public class TimePortVisualisation extends Visualisation {
 
 	@Override
 	public String getName() {
-		return "Ports";
+		return "Attribute Distribution";
 	}
 
 	@Override
 	public String getDescription() {
 		return getName()+"\n\n"+
-				"Shows how much traffic was recorded on a port.\n" +
-				"It is a graded log graph. The red lines show \n" +
-				"traffic on 'destination' ports and the green ones \n" +
-				"show traffic on the 'source' ports. ";
+				"Shows the distribution of a certain packet\n" +
+				"attribute. It is a graded log chart.\n";
 	}
 }

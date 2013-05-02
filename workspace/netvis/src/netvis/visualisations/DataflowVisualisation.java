@@ -1,16 +1,23 @@
 package netvis.visualisations;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import netvis.data.DataController;
 import netvis.data.NormaliseFactory;
 import netvis.data.NormaliseFactory.Normaliser;
+import netvis.data.UndoAction;
+import netvis.data.UndoController;
 import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
@@ -115,7 +122,7 @@ public class DataflowVisualisation extends Visualisation {
 						trafficMeasure[i][j] = 0.1f;
 					gl.glColor4f(0.6f + trafficMeasure[i][j] * 4, 0f, 0, trafficMeasure[i][j] * 4);
 
-					drawDiamond(gl, ((float) i) / (normPasses.size() - 1), (float) j*0.01f,
+					drawActivityBar(gl, ((float) i) / (normPasses.size() - 1), (float) j*0.01f,
 							trafficMeasure[i][j] / 2);
 					trafficMeasure[i][j] = trafficMeasure[i][j] * 0.99f;
 				}
@@ -149,10 +156,35 @@ public class DataflowVisualisation extends Visualisation {
 
 	@Override
 	protected JPanel createControls() {
-		return null;
+		JPanel panel = new JPanel();
+		final Visualisation thisVis = this;
+		final JButton swapButton = new JButton("Swap to TimePort");
+		swapButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				VisualisationsController vc = VisualisationsController.GetInstance();
+				vc.ActivateById(1);
+				UndoController.INSTANCE.addUndoMove(new UndoAction(){
+					@Override
+					public void execute_undo() {
+						VisualisationsController vc = VisualisationsController.GetInstance();
+						vc.ActivateById(vc.getVList().indexOf(thisVis));
+					}
+				});
+			}
+		});
+
+		Box box = Box.createHorizontalBox();
+		box = Box.createHorizontalBox();
+		box.add(swapButton);
+		panel.add(box);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+
+		return panel;
 	}
 
-	private void drawDiamond(GL2 gl, float xc, float yc, float radius) {
+	private void drawActivityBar(GL2 gl, float xc, float yc, float radius) {
 		gl.glBegin(GL2.GL_POLYGON);
 		gl.glVertex2f(xc+radius, yc+0.01f);
 		gl.glVertex2f(xc+radius, yc);
