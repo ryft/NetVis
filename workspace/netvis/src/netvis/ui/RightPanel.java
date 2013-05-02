@@ -17,7 +17,9 @@ import javax.swing.SwingConstants;
 
 import netvis.data.DataController;
 import netvis.data.DataFeeder;
+import netvis.data.UndoController;
 import netvis.data.model.PacketFilter;
+import netvis.visualisations.Visualisation;
 import netvis.visualisations.VisualisationsController;
 
 @SuppressWarnings("serial")
@@ -56,12 +58,14 @@ public class RightPanel extends JPanel {
 
 		visComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				VisualisationsController.GetInstance().ActivateById(visComboBox.getSelectedIndex(),
-						contextPanel);
+				Visualisation newVis = 
+					VisualisationsController.GetInstance().ActivateById(visComboBox.getSelectedIndex());
+				contextPanel.update(newVis.getDescription());
+				UndoController.INSTANCE.clearUndoStack();
 			}
 		});
 		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
-
+		add(UndoController.INSTANCE.getPanel());
 		/** Visualisation choice */
 		add(visualisationsTitle);
 		add(new JSeparator(SwingConstants.HORIZONTAL));
