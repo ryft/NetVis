@@ -119,8 +119,8 @@ public class Painter {
 
 	public static void DrawGrid(int base, GL2 gl) {
 		// Draw the usual hexagon
-		for (int i = -20; i < 20; i++) {
-			for (int j = -20; j < 20; j++) {
+		for (int i = -40; i < 40; i++) {
+			for (int j = -40; j < 40; j++) {
 				gl.glLineWidth(1.0f);
 				gl.glColor3d(0.8, 0.8, 0.8);
 				double dx = base / 2 * Math.sqrt(3);

@@ -12,6 +12,12 @@ public abstract class Node {
 	public void Draw(int base, NodePainter painter, GL2 gl) {
 		painter.DrawNode(base, this, gl);
 	}
+	
+	// Defaultly a node is a singular hexagon
+	public int getDimenstion () {return 1;}
+	public int getCapacity   () {return 1;}
+	
+	public boolean AddNode (Node n) {return false;};
 
 	public abstract void UpdateWithData(String sip);
 

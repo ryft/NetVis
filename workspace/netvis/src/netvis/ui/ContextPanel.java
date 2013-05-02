@@ -11,7 +11,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 
 import netvis.data.model.Packet;
 import netvis.util.Utilities.MapComparator;
