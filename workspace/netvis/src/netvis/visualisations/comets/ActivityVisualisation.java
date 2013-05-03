@@ -282,7 +282,7 @@ public class ActivityVisualisation extends Visualisation {
 
 		gl.glOrtho(middlex.toDouble() - this.width * viewfield / 2, middlex.toDouble() + this.width
 				* viewfield / 2, middley.toDouble() - this.height * viewfield / 2,
-				middley.toDouble() + this.height * viewfield / 2, 1000, 2000);
+				middley.toDouble() + this.height * viewfield / 2, -1000, 2000);
 
 		// Clear the board
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
