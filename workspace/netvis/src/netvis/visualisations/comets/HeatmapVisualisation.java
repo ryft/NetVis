@@ -275,7 +275,7 @@ public class HeatmapVisualisation extends Visualisation {
 
 		gl.glOrtho(middlex.toDouble() - this.width * viewfield / 2, middlex.toDouble() + this.width
 				* viewfield / 2, middley.toDouble() - this.height * viewfield / 2,
-				middley.toDouble() + this.height * viewfield / 2, 1000, 2000);
+				middley.toDouble() + this.height * viewfield / 2, -1000, 2000);
 
 		// Clear the board
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -284,6 +284,7 @@ public class HeatmapVisualisation extends Visualisation {
 		gl.glShadeModel(GL2.GL_FLAT);
 
 		// Depth things - probably unnecessary
+		gl.glDisable (GL.GL_DEPTH_TEST);
 		// gl.glEnable(GL.GL_DEPTH_TEST);
 		// gl.glDepthFunc(GL2.GL_GEQUAL);
 
@@ -303,7 +304,7 @@ public class HeatmapVisualisation extends Visualisation {
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 
 		gl.glPushMatrix();
-		gl.glTranslated(0.0, 0.0, -1000.0);
+			gl.glTranslated(0.0, 0.0, -1.0);
 		// Make the map draw all of the elements
 		currentMap.DrawEverything(gl);
 		gl.glPopMatrix();

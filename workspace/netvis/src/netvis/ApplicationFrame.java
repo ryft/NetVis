@@ -58,7 +58,7 @@ import netvis.visualisations.VisualisationsController;
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
 
-	protected final String versionNumber = "1.0.1";
+	protected final String versionNumber = "1.0.2";
 
 	// Flags governing the behaviour of the application window
 	/**
@@ -102,7 +102,7 @@ public class ApplicationFrame extends JFrame {
 		});
 
 		if (DEBUG_MODE)
-			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"),
+			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/jre-overflow.csv"),
 					ApplicationFrame.this);
 		else
 			dataFeeder = new DummyDataFeeder(ApplicationFrame.this);
