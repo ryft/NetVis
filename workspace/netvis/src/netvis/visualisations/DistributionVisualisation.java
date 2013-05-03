@@ -59,7 +59,8 @@ public class DistributionVisualisation extends Visualisation {
 	public void display(GLAutoDrawable drawable) {
 		
 	    GL2 gl = drawable.getGL().getGL2();	    
-	  
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
 	    /*
 	     * Draw the white background
 	     */
@@ -100,7 +101,8 @@ public class DistributionVisualisation extends Visualisation {
 	    for (int i = 1; i <= resolution; i++){
 	    	lastLog = currentLog;
 	    	currentLog = Math.max(Math.log(packetCountAnimated[i])/logFactor, 0);
-	    	
+	    	if (packetCountAnimated[i] == 1)
+	    		currentLog = 0.5/logFactor;
 	    	gl.glBegin(GL2.GL_POLYGON);
 	    	gl.glColor3d(0.7, 0.7, 0.7);
 	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 );
@@ -192,9 +194,12 @@ public class DistributionVisualisation extends Visualisation {
 	public String getDescription() {
 		return getName()+"\n\n"+
 				"Shows the distribution of a certain packet\n" +
-				"attribute. It is a graded log chart.\n";
+				"attribute. It is a graded log chart.\n" +
+				"The dots represent a better indicative \n" +
+				"of the actual traffic on that range (the \n" +
+				"area of the dots is directly proportional \n" +
+				"to the number of packets on that interval.";
 	}
-	
 	@Override
 	public void setState(int i){
 		normaliser = NormaliseFactory.INSTANCE.getNormaliser(i);
