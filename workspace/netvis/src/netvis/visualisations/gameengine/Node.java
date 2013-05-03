@@ -19,6 +19,8 @@ public abstract class Node {
 	
 	public Node GetNode (String name) {return null;}
 	
+	public Node GetClickedNode (int base, Position pixelposition) {return this;}
+	
 	public boolean AddNode (String name, Node n) {return false;}
 
 	public abstract void UpdateWithData(String sip);

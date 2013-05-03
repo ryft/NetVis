@@ -77,7 +77,7 @@ public class MapExperimental {
 			Position pos = en.getKey();
 			MultiNode mn = en.getValue();
 			
-			Position realp = Units.PositionByCoordinate(base, pos);
+			Position realp = Units.MetaPositionByCoordinate(dim, base, pos);
 
 			gl.glPushMatrix();
 				// Transpose it to the right spot
@@ -124,13 +124,18 @@ public class MapExperimental {
 			// If there is no grouping node - create it
 			Position ringshift = Units.FindSpotAround(nodes.size());
 			
-			Position coord = Units.CoordinateByRingAndShift (dim, ringshift.x, ringshift.y);
+			Position coord = Units.CoordinateByRingAndShift (1, ringshift.x, ringshift.y);
 			System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
 			
 			nearnode = new MultiNode(dim);
 			
 			nodes.put(coord, nearnode);
 			nodesByName.put(near, nearnode);
+			
+			// Put the indicator node in the middle of the group node
+			HeatNode midnode = new HeatNode(textureName, near);
+			midnode.setBGColor(0.5, 0.6, 1.0);
+			nearnode.AddNode ("near", midnode);
 		}
 
 		// If the node is not already there - add it
@@ -154,21 +159,28 @@ public class MapExperimental {
 		return found;
 	}
 	
-	public Position FindClickedPosition (int x, int y)
-	{
-		Position p = new Position(x, y);
-		Position c = Units.CoordinateByPosition(base, p);
-		
-		return c;
-	}
+
 
 	public Node FindClickedNode (int x, int y)
 	{
 		// Optimised version
-		Position c = FindClickedPosition (x, y);
+		
+		// Center of the clicked meta-node
+		Position centercoo = Units.MetaCoordinateByPosition (dim, base, new Position(x, y)); 
+		
+		MultiNode node = nodes.get(centercoo);
 
-		Node node = nodes.get(c);
-		return node;
+		if (node != null)
+		{
+			// Position of the center of the metanode in pixels
+			Position centerrealpos = Units.MetaPositionByCoordinate(dim, base, centercoo);
+			
+			Position delta = new Position (x - centerrealpos.x, y - centerrealpos.y);
+
+			return node.GetClickedNode (base, delta);
+		}
+		
+		return null;
 	}
 
 	public double ZoomOn() {

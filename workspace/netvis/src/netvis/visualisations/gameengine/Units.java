@@ -72,6 +72,11 @@ public class Units {
 		return pos;
 	}
 	
+	public static Position MetaPositionByCoordinate (int dim, int base, Position pos)
+	{
+		return Units.PositionByCoordinate (base*(2*dim-1), pos);
+	}
+	
 	public static Position CoordinateByPosition (int base, Position pos)
 	{
 		double r3 = Math.sqrt(3.0);
@@ -81,5 +86,10 @@ public class Units {
 		p.x = (int) Math.round ((pos.x - p.y * base * r3 * Math.cos(Math.PI/3)) / (base * r3));
 
 		return p;
+	}
+	
+	public static Position MetaCoordinateByPosition (int dim, int base, Position pos)
+	{
+		return Units.CoordinateByPosition (base*(2*dim-1), pos);
 	}
 }

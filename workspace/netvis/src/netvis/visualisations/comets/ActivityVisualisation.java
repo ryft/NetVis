@@ -33,6 +33,7 @@ import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
+import netvis.visualisations.gameengine.Units;
 import netvis.visualisations.gameengine.ValueAnimator;
 
 public class ActivityVisualisation extends Visualisation {
@@ -195,7 +196,8 @@ public class ActivityVisualisation extends Visualisation {
 				int y = (int) Math.round(middley.toDouble() - (e.getY() - (height / 2)) * viewfield);
 
 				Node n = currentMap.FindClickedNode(x, y);
-				Position p = currentMap.FindClickedPosition(x, y);
+				Position c = Units.MetaCoordinateByPosition(1, currentMap.base, new Position(x, y));
+				Position p = Units.MetaPositionByCoordinate(1, currentMap.base, c);
 				if (n != null) n.MouseClick(e);
 
 				if (e.getClickCount() == 2) {
@@ -426,7 +428,7 @@ public class ActivityVisualisation extends Visualisation {
 	@Override
 	public String getDescription() {
 		return getName() + "\n\n" + "A hexagonal grid displaying clients active in the network.\n" +
-				"Color indicated how much data is being transferred.\n" +
+				"They are being grouped around the machine they send packets to.\n" +
 				"Nodes 'heat up' when amount of data goes over specified threshold and 'heat down' in time.";
 	}
 

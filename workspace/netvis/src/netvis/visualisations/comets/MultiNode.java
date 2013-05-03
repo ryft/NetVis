@@ -66,6 +66,28 @@ public class MultiNode extends Node {
 		return nn;
 	}
 	
+	@Override
+	public Node GetClickedNode (int base, Position pixelposition)
+	{
+		// Center of the clicked meta-node
+		Position centercoo = Units.MetaCoordinateByPosition (subdim, base, pixelposition);
+		
+		Node chosen = subnodes.get(centercoo);
+		if (chosen != null)
+		{
+			// Go deeper
+			
+			// Position of the center of the metanode in pixels
+			Position centerrealpos = Units.MetaPositionByCoordinate(dim, base, centercoo);
+			
+			Position delta = new Position (pixelposition.x - centerrealpos.x, pixelposition.y - centerrealpos.y);
+			
+			return chosen.GetClickedNode (base, delta);
+		}
+					
+		return null;
+	}
+	
 	public MultiNode(int dimension) {
 		super();
 		
@@ -99,7 +121,7 @@ public class MultiNode extends Node {
 		gl.glPushMatrix();
 			gl.glLineWidth (3.0f);
 			gl.glRotated(90.0, 0.0, 0.0, 1.0);
-			Painter.DrawHexagon(GL.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
+			//Painter.DrawHexagon(GL.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
 		gl.glPopMatrix();
 	}
 	
