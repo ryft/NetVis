@@ -3,6 +3,8 @@ package netvis.visualisations;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +44,7 @@ import com.jogamp.opengl.util.gl2.GLUT;
 public class DataflowVisualisation extends Visualisation {
 
 	private static final long serialVersionUID = 1L;
-	List<Normaliser> normPasses;
+	protected List<Normaliser> normPasses;
 	float[][] trafficMeasure;
 	private GLUT glut;
 	
@@ -56,8 +58,25 @@ public class DataflowVisualisation extends Visualisation {
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(1));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(3));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(5));
-
+	
 		trafficMeasure = new float[normPasses.size()][100];
+		this.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+			}
+			@Override
+			public void mouseEntered(MouseEvent arg0) {}
+			@Override
+			public void mouseExited(MouseEvent arg0) {}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {}
+		});
+		
 	}
 
 	@Override
@@ -158,29 +177,34 @@ public class DataflowVisualisation extends Visualisation {
 	protected JPanel createControls() {
 		JPanel panel = new JPanel();
 		final Visualisation thisVis = this;
-		final JButton swapButton = new JButton("Swap to TimePort");
-		swapButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualisationsController vc = VisualisationsController.GetInstance();
-				vc.ActivateById(1);
-				UndoController.INSTANCE.addUndoMove(new UndoAction(){
-					@Override
-					public void execute_undo() {
-						VisualisationsController vc = VisualisationsController.GetInstance();
-						vc.ActivateById(vc.getVList().indexOf(thisVis));
-					}
-				});
-			}
-		});
-
-		Box box = Box.createHorizontalBox();
-		box = Box.createHorizontalBox();
-		box.add(swapButton);
-		panel.add(box);
+		JButton swapButton;
+		for (int i = 0; i < NormaliseFactory.INSTANCE.getNormalisers().size(); i++){
+			
+			swapButton = new JButton(NormaliseFactory.INSTANCE.getNormaliser(i).name());
+			final int insideI = i;
+			swapButton.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					VisualisationsController vc = VisualisationsController.GetInstance();
+					vc.ActivateById(1);
+					vc.getVList().get(1).setState(insideI);
+					UndoController.INSTANCE.addUndoMove(new UndoAction(){
+						@Override
+						public void execute_undo() {
+							VisualisationsController vc = VisualisationsController.GetInstance();
+							vc.ActivateById(vc.getVList().indexOf(thisVis));
+						}
+					});
+				}
+			});
+	
+			Box box = Box.createHorizontalBox();
+			box = Box.createHorizontalBox();
+			box.add(swapButton); 
+			panel.add(box);
+		}
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-
+		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT); 
 		return panel;
 	}
 

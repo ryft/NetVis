@@ -29,19 +29,22 @@ public class DistributionVisualisation extends Visualisation {
 	private Normaliser normaliser;
 	private int[] packetCount;
 	private int[] packetCountAnimated;
+	Color graphColour;
+	JComboBox<String> normaliserBox;
 	public DistributionVisualisation(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 		super(dc, joglPanel, visControlsContainer);
 	    normaliser = NormaliseFactory.INSTANCE.getNormaliser(0);
 	    packetCount = new int[resolution];
 	    packetCountAnimated = new int[resolution + 1];
+	    graphColour = new Color(23,123,185);
 	}
 	
 	protected JPanel createControls() {
 		JPanel panel = new JPanel();
-		String[] array = new String[NormaliseFactory.INSTANCE.getAttrs().size()];
-		NormaliseFactory.INSTANCE.getAttrs().toArray(array);
-		
-		final JComboBox<String> normaliserBox = new JComboBox<String>(array);
+		String[] normNames = new String[NormaliseFactory.INSTANCE.getNormalisers().size()];
+		for (int i = 0; i < normNames.length; i++)
+			normNames[i] = NormaliseFactory.INSTANCE.getNormaliser(i).name();
+		normaliserBox = new JComboBox<String>(normNames);
 		normaliserBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				normaliser = NormaliseFactory.INSTANCE.getNormaliser(normaliserBox.getSelectedIndex());
@@ -56,7 +59,8 @@ public class DistributionVisualisation extends Visualisation {
 	public void display(GLAutoDrawable drawable) {
 		
 	    GL2 gl = drawable.getGL().getGL2();	    
-	  
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
 	    /*
 	     * Draw the white background
 	     */
@@ -70,7 +74,7 @@ public class DistributionVisualisation extends Visualisation {
 	    gl.glEnd();
 	    
 		gl.glLineWidth(1);
-		gl.glColor3d(0.8, 0.8, 0.8);
+		gl.glColor3d(0.6, 0.6, 0.6);
 	    final GLUT glut = new GLUT();
 	    for (int i = 0; i < 16; i++){
 
@@ -97,7 +101,8 @@ public class DistributionVisualisation extends Visualisation {
 	    for (int i = 1; i <= resolution; i++){
 	    	lastLog = currentLog;
 	    	currentLog = Math.max(Math.log(packetCountAnimated[i])/logFactor, 0);
-	    	
+	    	if (packetCountAnimated[i] == 1)
+	    		currentLog = 0.5/logFactor;
 	    	gl.glBegin(GL2.GL_POLYGON);
 	    	gl.glColor3d(0.7, 0.7, 0.7);
 	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 );
@@ -106,24 +111,41 @@ public class DistributionVisualisation extends Visualisation {
 	    	gl.glVertex2d(-1 + 2*((double)i/resolution),-0.8);
 		    gl.glEnd();
 		    ColourPalette.setColour(gl, 
-		    		ColourPalette.getColourShade(Color.red, Color.blue, (currentLog + lastLog)/2));
+		    		ColourPalette.getColourShade(Color.red, graphColour, (currentLog + lastLog)/4));
 		    gl.glBegin(GL2.GL_LINE_STRIP);
 	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 + lastLog);
 	    	gl.glVertex2d(-1 + 2*((double)i/resolution),-0.8 + currentLog);
 		    gl.glEnd();
+	    } 
+	    for (int i = 0; i < resolution; i++){
+	    	if (packetCountAnimated[i] > 0){
+		    	currentLog = Math.max(Math.log(packetCountAnimated[i])/logFactor, 0);
+			    ColourPalette.setColour(gl, 
+			    		ColourPalette.getColourShade(Color.red, graphColour, currentLog/2));
+
+	    		double numPoints = Math.log(packetCountAnimated[i]*10);
+				double c = Math.sqrt((double)packetCountAnimated[i]/(numPoints*numPoints*numPoints))*3;
+				for(int j = 0; j < numPoints; j++){
+		    	    gl.glPointSize((float) ((float)(numPoints - j)*c));
+					gl.glBegin(GL2.GL_POINTS);
+
+					gl.glVertex2d(-1 + 2*((double)i/resolution) , -0.75 + (double)j*currentLog/(numPoints*2));
+					gl.glEnd();
+
+				}
+	    	}
 	    }
-	      
 	}
 
 
 	@Override
-	public void dispose(GLAutoDrawable arg0) {
-		
-	}
+	public void dispose(GLAutoDrawable arg0) {}
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
 		gl.glEnable(GL2.GL_POINT_SMOOTH);
 		gl.glEnable(GL2.GL_LINE_SMOOTH);
 		gl.glShadeModel(GL2.GL_SMOOTH);
@@ -135,15 +157,6 @@ public class DistributionVisualisation extends Visualisation {
 
 	    final GLUT glut = new GLUT();
         gl.glRasterPos2d(-0.9,0.93); // set position
-
-        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, "Source/Destination Port Traffic (LOG)");
-        gl.glColor3d(0.8, 0, 0);
-        gl.glRasterPos2d(-0.9,0.88); // set position
-        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_10, "\n Source");
-        
-        gl.glColor3d(0, 0.8, 0);
-        gl.glRasterPos2d(-0.9,0.84); // set position
-        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_10, "\n Destination");
 	
 		gl.glColor3d(0.9, 0.9,0.9);
 		gl.glLineWidth(1);
@@ -181,6 +194,15 @@ public class DistributionVisualisation extends Visualisation {
 	public String getDescription() {
 		return getName()+"\n\n"+
 				"Shows the distribution of a certain packet\n" +
-				"attribute. It is a graded log chart.\n";
+				"attribute. It is a graded log chart.\n" +
+				"The dots represent a better indicative \n" +
+				"of the actual traffic on that range (the \n" +
+				"area of the dots is directly proportional \n" +
+				"to the number of packets on that interval.";
+	}
+	@Override
+	public void setState(int i){
+		normaliser = NormaliseFactory.INSTANCE.getNormaliser(i);
+		this.normaliserBox.setSelectedIndex(i);
 	}
 }

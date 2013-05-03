@@ -117,4 +117,6 @@ public abstract class Visualisation extends GLJPanel implements DataControllerLi
 		this.destroy();
 		this.fpskeep.stop();
 	}
+
+	public void setState(int insideI) {}
 }

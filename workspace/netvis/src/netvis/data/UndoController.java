@@ -17,7 +17,7 @@ public class UndoController {
 	private UndoController(){
 		undoMoves = new Stack<UndoAction>();
 		 panel = new JPanel();
-		 undoButton = new JButton("Undo");
+		 undoButton = new JButton("Back");
 		 
 		 undoButton.addActionListener(new ActionListener(){
 				@Override
