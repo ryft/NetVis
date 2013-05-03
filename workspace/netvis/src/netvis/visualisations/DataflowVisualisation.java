@@ -5,11 +5,18 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import netvis.data.DataController;
 import netvis.data.NormaliseFactory;
@@ -46,6 +53,7 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 	private int visHighlighted;
 	private boolean displaySelectionBar;
 	private Color fColor, lColor;
+	private int pastLimit = 30;
 	
 	public DataflowVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
@@ -94,7 +102,18 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 		Packet p;
 
 		gl.glColor3d(0, 0, 0);
-		for (int i = 0; i < listOfPackets.size(); i++) {
+		int ii = -1;
+		if (listOfPackets.size() > 0){
+			ii = Collections.binarySearch(listOfPackets, 
+				new Packet(0, listOfPackets.get(listOfPackets.size()-1).time - pastLimit, "", "", 0, "", "", 0, "", 0, ""), 
+				new Comparator<Packet>(){
+					@Override
+					public int compare(Packet p1, Packet p2) {
+						return (int) (10*(p1.time - p2.time));
+					}
+			});
+		}
+		for (int i = ii+1; i < listOfPackets.size(); i++) {
 			p = listOfPackets.get(i);
 			
 			double standout = (double)Math.max(0, i - listOfPackets.size() + 300) / 300; 
@@ -173,7 +192,31 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 
 	@Override
 	protected JPanel createControls() {
-		return null;
+		JPanel panel = new JPanel();
+		int PAST_MIN = 1, PAST_MAX = 20, PAST_INIT = 1;
+		final JSlider timeFilter = new JSlider(JSlider.HORIZONTAL,
+                PAST_MIN, PAST_MAX, PAST_INIT);
+		timeFilter.setMajorTickSpacing(3);
+		timeFilter.setMinorTickSpacing(1);
+		timeFilter.setPaintTicks(true);
+		timeFilter.setPaintLabels(true);
+		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+		labelTable.put( new Integer( 2 ), new JLabel("1 Min") );
+		labelTable.put( new Integer( 6 ), new JLabel("3 Min") );
+		labelTable.put( new Integer( PAST_MAX ), new JLabel("All") );
+		timeFilter.setLabelTable( labelTable );
+
+		timeFilter.addChangeListener(new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				pastLimit = timeFilter.getValue()*30;
+				if (timeFilter.getValue() == 20)
+					pastLimit = 1000;
+			}
+			
+		});
+		panel.add(timeFilter);
+		return panel;
 	}
 
 	private void drawActivityBar(GL2 gl, float xc, float yc, float radius) {
@@ -209,7 +252,6 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 		double xClicked = (double)e.getX()/this.getSize().getWidth();
 		int visChosen = (int)(xClicked * normPasses.size());
 		visChosen = NormaliseFactory.INSTANCE.getNormalisers().indexOf(normPasses.get(visChosen));
-		System.out.println("Vis Chosen: " + String.valueOf(visChosen));
 		VisualisationsController vc = VisualisationsController.GetInstance();
 		vc.ActivateById(2);
 		vc.getVList().get(2).setState(visChosen);

@@ -31,8 +31,9 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	private Normaliser normaliser;
 	private int[] packetCount;
 	private int[] packetCountAnimated;
-	private boolean displaySelectionBar = false;
+	private boolean displaySelectionBar = false, mouseClicked = false;
 	private int intervalHighlighted = 0;
+	private int startIntervalHighlight, endIntervalHighlight = 0;
 	Color graphColour;
 	JComboBox<String> normaliserBox;
 	public DistributionVisualisation(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
@@ -175,6 +176,17 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	    	
 	    	gl.glEnd();
 	    }
+	    if (mouseClicked){
+	    	gl.glColor4d(1, 1, 1, 0.4);
+	    	gl.glLineWidth(4);
+	    	gl.glBegin(GL2.GL_POLYGON);
+	    		gl.glVertex2d(-1.01 + 2*((double)startIntervalHighlight/resolution) , -0.8);
+	    		gl.glVertex2d(-1.01 + 2*((double)(endIntervalHighlight+1)/resolution), -0.8);
+	    		gl.glVertex2d(-1.01 + 2*((double)(endIntervalHighlight+1)/resolution), 0.8);
+	    		gl.glVertex2d(-1.01 + 2*((double)startIntervalHighlight/resolution) , 0.8);
+	    	
+	    	gl.glEnd();
+	    }
 	}
 
 
@@ -219,14 +231,7 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		double xClicked = ((double)e.getX()/this.getSize().getWidth())*1.052631-0.025;
-		intervalHighlighted = (int)(xClicked * resolution);
-		double lowerBound = (double)intervalHighlighted/resolution;
-		double upperBound = (double)(intervalHighlighted+1)/resolution;
-		dataController.addFilter(new NormalisationFilter(normaliser, lowerBound, upperBound, dataController));
-		VisualisationsController.GetInstance().ActivateById(4);
-	}
+	public void mouseClicked(MouseEvent e) {}
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
@@ -236,16 +241,38 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 		displaySelectionBar = false;
+		mouseClicked = false;
 	}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {}
+	public void mousePressed(MouseEvent e) {
+		double xClicked = ((double)e.getX()/this.getSize().getWidth())*1.052631-0.025;
+		startIntervalHighlight = (int)(xClicked * resolution);
+		endIntervalHighlight = (int)(xClicked * resolution);
+
+		mouseClicked = true;
+	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {}
+	public void mouseReleased(MouseEvent e) {
+		double xClicked = ((double)e.getX()/this.getSize().getWidth())*1.052631-0.025;
+		endIntervalHighlight = (int)(xClicked * resolution);
+		double lowerBound = (double)startIntervalHighlight/resolution;
+		double upperBound = (double)(endIntervalHighlight+1)/resolution;
+		if (lowerBound > upperBound){
+			double aux = lowerBound;
+			lowerBound = upperBound;
+			upperBound = aux;
+		}
+		dataController.addFilter(new NormalisationFilter(normaliser, lowerBound, upperBound, dataController));
+		VisualisationsController.GetInstance().ActivateById(4);
+		mouseClicked = false;
+	}
 
 	@Override
-	public void mouseDragged(MouseEvent arg0) {
+	public void mouseDragged(MouseEvent e) {
+		double xClicked = ((double)e.getX()/this.getSize().getWidth())*1.052631-0.025;
+		endIntervalHighlight = (int)(xClicked * resolution);
 	}
 
 	@Override
