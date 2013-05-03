@@ -58,7 +58,7 @@ import netvis.visualisations.VisualisationsController;
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
 
-	protected final String versionNumber = "1.0";
+	protected final String versionNumber = "1.0.1";
 
 	// Flags governing the behaviour of the application window
 	/**
