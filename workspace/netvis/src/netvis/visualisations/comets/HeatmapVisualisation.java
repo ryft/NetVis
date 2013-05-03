@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -54,26 +55,6 @@ public class HeatmapVisualisation extends Visualisation {
 	Map currentMap;
 
 	HashMap<String, Candidate> candidates;
-
-	public class Candidate {
-
-		// How close the client is to the internal network 0-closest 10-furthest
-		public int proximity;
-
-		// How much data it send throughout the last interval
-		public int datasize;
-
-		// Source and destination
-		public String sip, dip;
-
-		public Candidate(int prox, int dat, String s, String d) {
-			proximity = prox;
-			datasize = dat;
-
-			sip = s;
-			dip = d;
-		}
-	}
 
 	public HeatmapVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
@@ -242,7 +223,10 @@ public class HeatmapVisualisation extends Visualisation {
 
 		// Add test nodes
 		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode("testk" + i, "test" + i);
+			Packet pp = new Packet (0, 0, "testk" + i, "", 11, "test" + i, "", 0, "", 0, "");
+			ArrayList<Packet> plist = new ArrayList<Packet> ();
+			plist.add(pp);
+			currentMap.SuggestNode (pp.sip, pp.dip, plist);
 		}
 
 	}
@@ -335,9 +319,9 @@ public class HeatmapVisualisation extends Visualisation {
 				// Create the candidate to be displayed
 				dri = new Candidate(0, i.length, i.sip, i.dip);
 				candidates.put(i.sip, dri);
-			} else {
-				dri.datasize += i.length;
 			}
+			
+			dri.RegisterPacket (i);
 		}
 
 		// Decide on which candidates should be displayed
@@ -349,9 +333,10 @@ public class HeatmapVisualisation extends Visualisation {
 			if (can.datasize >= 2000) {
 				// System.out.println("IP: " + ip + " which dataflow: " +
 				// can.datasize + " added to the simulation");
-				currentMap.SuggestNode(can.sip, can.dip);
-				currentMap.SuggestNode(can.dip, can.sip);
-				currentMap.SortNodes();
+				currentMap.SuggestNode(can.sip, can.dip, can.GetWaitingPackets());
+				currentMap.SuggestNode(can.dip, can.sip, can.GetWaitingPackets());
+				
+				can.ResetWaitingPackets();
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.media.opengl.GL2;
 
+import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
@@ -115,7 +116,7 @@ public class Map {
 		height = h;
 	}
 
-	public void SuggestNode(String sip, String dip) {
+	public void SuggestNode (String sip, String dip, List<Packet> packets) {
 		// Suggests the existence of the node in the network to be displayed
 
 		// Look whether the node already exists
@@ -125,7 +126,8 @@ public class Map {
 			find = AddNode(sip, dip, "basic");
 		}
 
-		find.node.UpdateWithData(sip);
+		for (Packet pp : packets)
+			find.node.UpdateWithData(pp);
 	}
 
 	public void SortNodes() {

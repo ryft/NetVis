@@ -2,6 +2,7 @@ package netvis.visualisations.comets;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.media.opengl.GL2;
 
+import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
@@ -110,9 +112,13 @@ public class MapExperimental {
 		height = h;
 	}
 
-	public void SuggestNode (String sip, String dip) {
+	public void SuggestNode (String sip, String dip, List<Packet> packets) {
 		// Suggests the existence of the node in the network to be displayed
-		AddNode (dip, sip, "basic");
+		Node nnn = AddNode (dip, sip, "basic");
+
+		// Update the node with data
+		for (Packet pp : packets)
+			nnn.UpdateWithData(pp);
 	}
 	
 	private Node AddNode(String near, String name, String textureName) {
@@ -152,9 +158,6 @@ public class MapExperimental {
 			nearnode.AddNode(name, newnode);
 			found = newnode;
 		}
-
-		// Update the node with data
-		found.UpdateWithData (near);
 
 		return found;
 	}

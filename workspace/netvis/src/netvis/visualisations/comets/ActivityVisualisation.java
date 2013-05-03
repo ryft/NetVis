@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -56,26 +57,6 @@ public class ActivityVisualisation extends Visualisation {
 	MapExperimental currentMap;
 
 	HashMap<String, Candidate> candidates;
-
-	public class Candidate {
-
-		// How close the client is to the internal network 0-closest 10-furthest
-		public int proximity;
-
-		// How much data it send throughout the last interval
-		public int datasize;
-
-		// Source and destination
-		public String sip, dip;
-
-		public Candidate(int prox, int dat, String s, String d) {
-			proximity = prox;
-			datasize = dat;
-
-			sip = s;
-			dip = d;
-		}
-	}
 
 	public ActivityVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
@@ -242,6 +223,7 @@ public class ActivityVisualisation extends Visualisation {
 		});
 
 		// Add test nodes
+		/*
 		for (int i = 0; i < 0; i++) {
 			currentMap.SuggestNode ("testk" + i, "test" + i);
 		}
@@ -252,7 +234,7 @@ public class ActivityVisualisation extends Visualisation {
 
 		for (int i = 0; i < 0; i++) {
 			currentMap.SuggestNode ("testb0", "ServerB");
-		}
+		}*/
 		
 	}
 
@@ -344,9 +326,8 @@ public class ActivityVisualisation extends Visualisation {
 				// Create the candidate to be displayed
 				dri = new Candidate(0, i.length, i.sip, i.dip);
 				candidates.put(i.sip, dri);
-			} else {
-				dri.datasize += i.length;
-			}
+			}	
+			dri.RegisterPacket (i);
 		}
 
 		// Decide on which candidates should be displayed
@@ -358,7 +339,8 @@ public class ActivityVisualisation extends Visualisation {
 			if (can.datasize >= 2000) {
 				// System.out.println("IP: " + ip + " which dataflow: " +
 				// can.datasize + " added to the simulation");
-				currentMap.SuggestNode(can.sip, can.dip);
+				currentMap.SuggestNode (can.sip, can.dip, can.GetWaitingPackets());
+				can.ResetWaitingPackets();
 			}
 		}
 	}

@@ -4,6 +4,8 @@ import java.awt.event.MouseEvent;
 
 import javax.media.opengl.GL2;
 
+import netvis.data.model.Packet;
+
 public abstract class Node {
 
 	public Node() {
@@ -23,7 +25,7 @@ public abstract class Node {
 	
 	public boolean AddNode (String name, Node n) {return false;}
 
-	public abstract void UpdateWithData(String sip);
+	public abstract void UpdateWithData (Packet pp);
 
 	public abstract void UpdateAnimation(long time);
 

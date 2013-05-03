@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import javax.media.opengl.GL2;
 
+import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.NodePainter;
 
 public class CometHeatNode extends HeatNode {
@@ -31,11 +32,11 @@ public class CometHeatNode extends HeatNode {
 		painter.DrawNode(base, (CometHeatNode) this, gl);
 	}
 
-	public void UpdateWithData(String sip) {
+	public void UpdateWithData(Packet pp) {
 		// Make their tilts nicely shifted
-		AddSatelite(sip, 100, entities.size() * Math.PI / 10);
+		AddSatelite(pp.sip, 100, entities.size() * Math.PI / 10);
 		
-		super.UpdateWithData(sip);
+		super.UpdateWithData (pp);
 	}
 
 	public void UpdateAnimation(long time) {

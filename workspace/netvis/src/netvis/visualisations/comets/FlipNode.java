@@ -4,6 +4,7 @@ import java.awt.event.MouseEvent;
 
 import javax.media.opengl.GL2;
 
+import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.Framebuffer;
 import netvis.visualisations.gameengine.FramebufferPool;
 import netvis.visualisations.gameengine.Node;
@@ -95,9 +96,9 @@ public class FlipNode extends Node {
 
 	}
 
-	public void UpdateWithData(String sip) {
-		front.UpdateWithData(sip);
-		back.UpdateWithData(sip);
+	public void UpdateWithData(Packet pp) {
+		front.UpdateWithData (pp);
+		back.UpdateWithData  (pp);
 	}
 
 	public void UpdateAnimation(long time) {

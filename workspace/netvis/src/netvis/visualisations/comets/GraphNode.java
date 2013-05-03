@@ -4,6 +4,7 @@ import java.awt.event.MouseEvent;
 
 import javax.media.opengl.GL2;
 
+import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
 
@@ -24,7 +25,7 @@ public class GraphNode extends Node {
 		painter.DrawNode(base, this, gl);
 	}
 
-	public void UpdateWithData(String sip) {
+	public void UpdateWithData(Packet pp) {
 	}
 
 	public void UpdateAnimation(long time) {
