@@ -565,10 +565,6 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
-<<<<<<< HEAD
->>>>>>> 5592a0c5f7a3b87613c3bbc0f6b0698b050531bf
-=======
->>>>>>> 5592a0c5f7a3b87613c3bbc0f6b0698b050531bf
 		gl.glOrtho(middlex.toDouble() - this.width * viewfield / 2, middlex.toDouble() + this.width
 				* viewfield / 2, middley.toDouble() - this.height * viewfield / 2,
 				middley.toDouble() + this.height * viewfield / 2, -1000, 2000);
