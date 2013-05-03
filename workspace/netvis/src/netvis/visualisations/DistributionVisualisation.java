@@ -115,13 +115,29 @@ public class DistributionVisualisation extends Visualisation {
 	    	gl.glVertex2d(-1 + 2*((double)i/resolution),-0.8 + currentLog);
 		    gl.glEnd();
 	    } 
+	    for (int i = 0; i < resolution; i++){
+	    	if (packetCountAnimated[i] > 0){
+		    	currentLog = Math.max(Math.log(packetCountAnimated[i])/logFactor, 0);
+			    ColourPalette.setColour(gl, 
+			    		ColourPalette.getColourShade(Color.red, graphColour, currentLog/2));
+
+	    		double numPoints = Math.log(packetCountAnimated[i]*10);
+				double c = Math.sqrt((double)packetCountAnimated[i]/(numPoints*numPoints*numPoints))*3;
+				for(int j = 0; j < numPoints; j++){
+		    	    gl.glPointSize((float) ((float)(numPoints - j)*c));
+					gl.glBegin(GL2.GL_POINTS);
+
+					gl.glVertex2d(-1 + 2*((double)i/resolution) , -0.75 + (double)j*currentLog/(numPoints*2));
+					gl.glEnd();
+
+				}
+	    	}
+	    }
 	}
 
 
 	@Override
-	public void dispose(GLAutoDrawable arg0) {
-		
-	}
+	public void dispose(GLAutoDrawable arg0) {}
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
