@@ -3,6 +3,10 @@ package netvis.visualisations;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.swing.JComboBox;
@@ -11,13 +15,14 @@ import javax.swing.JPanel;
 import netvis.data.DataController;
 import netvis.data.NormaliseFactory;
 import netvis.data.NormaliseFactory.Normaliser;
+import netvis.data.filters.NormalisationFilter;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.util.ColourPalette;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
-public class DistributionVisualisation extends Visualisation {
+public class DistributionVisualisation extends Visualisation implements MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 	int noPorts;
@@ -26,6 +31,8 @@ public class DistributionVisualisation extends Visualisation {
 	private Normaliser normaliser;
 	private int[] packetCount;
 	private int[] packetCountAnimated;
+	private boolean displaySelectionBar = false;
+	private int intervalHighlighted = 0;
 	Color graphColour;
 	JComboBox<String> normaliserBox;
 	public DistributionVisualisation(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
@@ -34,7 +41,9 @@ public class DistributionVisualisation extends Visualisation {
 	    packetCount = new int[resolution];
 	    packetCountAnimated = new int[resolution + 1];
 	    graphColour = new Color(23,123,185);
-
+	    
+		this.addMouseListener(this);		
+		this.addMouseMotionListener(this);
 	}
 	
 	protected JPanel createControls() {
@@ -155,6 +164,17 @@ public class DistributionVisualisation extends Visualisation {
 			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, normaliser.denormalise((double)i/(lowerBarRes-1)));
 
 	    }
+	    if (displaySelectionBar){
+	    	gl.glColor4d(1, 1, 1, 0.5);
+	    	gl.glLineWidth(4);
+	    	gl.glBegin(GL2.GL_POLYGON);
+	    		gl.glVertex2d(-1.01 + 2*((double)intervalHighlighted/resolution) , -0.8);
+	    		gl.glVertex2d(-1.01 + 2*((double)(intervalHighlighted+1)/resolution), -0.8);
+	    		gl.glVertex2d(-1.01 + 2*((double)(intervalHighlighted+1)/resolution), 0.8);
+	    		gl.glVertex2d(-1.01 + 2*((double)intervalHighlighted/resolution) , 0.8);
+	    	
+	    	gl.glEnd();
+	    }
 	}
 
 
@@ -164,23 +184,18 @@ public class DistributionVisualisation extends Visualisation {
 	@Override
 	public void init(GLAutoDrawable drawable) {
 	    GL2 gl = drawable.getGL().getGL2();	    
+		gl.glScaled(0.95, 1, 1);
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-
 		gl.glEnable(GL2.GL_POINT_SMOOTH);
 		gl.glEnable(GL2.GL_LINE_SMOOTH);
 		gl.glShadeModel(GL2.GL_SMOOTH);
 		gl.glEnable(GL2.GL_BLEND);
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-		gl.glScaled(0.95, 0.95, 1);
-
 	}
 
 	@Override
 	public void reshape(GLAutoDrawable arg0, int arg1, int arg2, int arg3,
-			int arg4) {
-		// TODO Auto-generated method stub
-		
-	}
+			int arg4) {}
 
 	@Override
 	public String getName() {
@@ -201,6 +216,42 @@ public class DistributionVisualisation extends Visualisation {
 	public void setState(int i){
 		normaliser = NormaliseFactory.INSTANCE.getNormaliser(i);
 		this.normaliserBox.setSelectedIndex(i);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		double xClicked = ((double)e.getX()/this.getSize().getWidth())*1.052631-0.025;
+		intervalHighlighted = (int)(xClicked * resolution);
+		double lowerBound = (double)intervalHighlighted/resolution;
+		double upperBound = (double)(intervalHighlighted+1)/resolution;
+		dataController.addFilter(new NormalisationFilter(normaliser, lowerBound, upperBound, dataController));
+		VisualisationsController.GetInstance().ActivateById(4);
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		displaySelectionBar = true;
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		displaySelectionBar = false;
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		double xClicked = ((double)e.getX()/this.getSize().getWidth())*1.052631-0.025;
+		intervalHighlighted = (int)(xClicked * resolution);
 	}
 
 

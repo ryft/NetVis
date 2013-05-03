@@ -93,7 +93,6 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 		}
 		Packet p;
 
-
 		gl.glColor3d(0, 0, 0);
 		for (int i = 0; i < listOfPackets.size(); i++) {
 			p = listOfPackets.get(i);
@@ -113,7 +112,6 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 			gl.glEnd();
 		}
 		
-
 		for (int i = 0; i < newPackets.size(); i++) {
 			p = newPackets.get(i);
 			for (int j = 0; j < normPasses.size(); j++) {

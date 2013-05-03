@@ -97,9 +97,10 @@ public class RightPanel extends JPanel {
 		while (it.hasNext()) {
 			this.add(it.next().getPanel());
 		}
+		
 
 		// Add an update button that tells all filters to update
-		JButton updateButton = new JButton("Apply filters");
+		JButton updateButton = new JButton("Apply filters");		
 		it = this.dataController.filterIterator();
 		while (it.hasNext()) {
 			updateButton.addActionListener(it.next());
@@ -107,6 +108,9 @@ public class RightPanel extends JPanel {
 		this.add(updateButton);
 		add(Box.createVerticalStrut(10));
 
+		/** Fixed filters from data controller */
+		add(dataController.fixedFiltersPanel());
+		
 		/** Data controls */
 		if (dataFeeder.controlPanel() != null) {
 			add(dataTitle);

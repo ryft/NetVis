@@ -49,7 +49,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return "Source Port";
+			return "Src Port";
 		}
 
 		@Override
@@ -64,7 +64,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return "Destination Port";
+			return "Dest Port";
 		}
 
 		@Override
@@ -79,7 +79,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return "Source IP";
+			return "Src IP";
 		}
 
 		@Override
@@ -94,7 +94,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return "Destination Port";
+			return "Dest IP";
 		}
 
 		@Override
@@ -109,7 +109,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return "Source MAC Address";
+			return "Src MAC Address";
 		}
 
 		@Override
@@ -124,7 +124,7 @@ public class NormaliseFactory {
 		}
 
 		public String name() {
-			return "Destination MAC Adress";
+			return "Dest MAC Adress";
 		}
 
 		@Override

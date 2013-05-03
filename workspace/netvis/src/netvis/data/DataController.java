@@ -6,8 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import netvis.data.filters.FixedFilter;
 import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
 
@@ -20,6 +25,7 @@ public class DataController implements ActionListener {
 	final List<Packet> filteredPackets;
 	private int noUpdated = 0;
 	protected int intervalsComplete = 0;
+	JPanel filterPanel;
 
 	/**
 	 * @param dataFeeder
@@ -33,6 +39,11 @@ public class DataController implements ActionListener {
 		filteredPackets = new ArrayList<Packet>();
 		allPackets = new ArrayList<Packet>();
 		timer = new Timer(updateInterval, this);
+		filterPanel = new JPanel();
+
+
+		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.Y_AXIS));
+		filterPanel.add(Box.createVerticalGlue());
 		timer.start();
 	}
 
@@ -52,11 +63,17 @@ public class DataController implements ActionListener {
 
 	public void addFilter(PacketFilter packetFilter) {
 		filters.add(packetFilter);
+		if (packetFilter instanceof FixedFilter){
+			filterPanel.add(packetFilter.getPanel());
+		}
 		allDataChanged();
 	}
 
 	public void removeFilter(PacketFilter packetFilter) {
 		filters.remove(packetFilter);
+		if (packetFilter instanceof FixedFilter){
+			filterPanel.remove(packetFilter.getPanel());
+		}
 		allDataChanged();
 	}
 	
@@ -148,6 +165,10 @@ public class DataController implements ActionListener {
 		this.dataFeeder = newDataFeeder;
 		this.allPackets.clear();
 		allDataChanged();
+	}
+
+	public JPanel fixedFiltersPanel() {
+		return filterPanel;
 	}
 
 }
