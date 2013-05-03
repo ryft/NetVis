@@ -38,7 +38,7 @@ public class ColourPalette {
 	}
 
 	// Define colours to be picked from (Qualitative, Sequential, Divergent)
-	protected Color[][] colourSchemes = {
+	public static final Color[][] colourSchemes = {
 			{ new Color(141, 211, 199), new Color(255, 255, 179), new Color(190, 186, 218),
 					new Color(251, 128, 114), new Color(128, 177, 211), new Color(253, 180, 98),
 					new Color(179, 222, 105), new Color(252, 205, 229), new Color(217, 217, 217),

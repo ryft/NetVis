@@ -3,15 +3,12 @@ package netvis.visualisations;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import netvis.data.DataController;
-import netvis.data.DataUtilities;
 import netvis.data.NormaliseFactory;
 import netvis.data.NormaliseFactory.Normaliser;
 import netvis.ui.OpenGLPanel;
@@ -37,6 +34,7 @@ public class DistributionVisualisation extends Visualisation {
 	    packetCount = new int[resolution];
 	    packetCountAnimated = new int[resolution + 1];
 	    graphColour = new Color(23,123,185);
+
 	}
 	
 	protected JPanel createControls() {
@@ -53,7 +51,6 @@ public class DistributionVisualisation extends Visualisation {
 		panel.add(normaliserBox);
 		
 		return panel;
-
 	}
 
 	public void display(GLAutoDrawable drawable) {
@@ -86,6 +83,12 @@ public class DistributionVisualisation extends Visualisation {
 	    	
 	    	gl.glRasterPos2d(0, height + 0.02); // set position
             glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf((int)Math.exp((height+0.8)*logFactor)));
+	   
+	    	gl.glRasterPos2d(-0.9, height + 0.02); // set position
+            glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf((int)Math.exp((height+0.8)*logFactor)));
+	    	gl.glRasterPos2d(0.7, height + 0.02); // set position
+            glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf((int)Math.exp((height+0.8)*logFactor)));
+
 	    }
 	    
 	    for (int i = 0; i < resolution; i++)
@@ -104,7 +107,7 @@ public class DistributionVisualisation extends Visualisation {
 	    	if (packetCountAnimated[i] == 1)
 	    		currentLog = 0.5/logFactor;
 	    	gl.glBegin(GL2.GL_POLYGON);
-	    	gl.glColor3d(0.7, 0.7, 0.7);
+	    	gl.glColor3d(0.9, 0.9, 0.9);
 	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 );
 	    	gl.glVertex2d(-1 + 2*((double)(i-1)/resolution),-0.8 + lastLog);
 	    	gl.glVertex2d(-1 + 2*((double)i/resolution),-0.8 + currentLog);
@@ -135,6 +138,23 @@ public class DistributionVisualisation extends Visualisation {
 				}
 	    	}
 	    }
+	    gl.glColor3d(1, 1, 1);
+	    int lowerBarRes = 5;
+	    float lastOffset = 0;
+	    gl.glLineWidth(1);
+	    for (int i = 0; i < lowerBarRes; i++){
+	    	gl.glBegin(GL2.GL_LINE_STRIP);
+	    	float xAxis = (float)i*2/(lowerBarRes - 1);
+	    	gl.glVertex2f(-1+xAxis, -0.8f);
+	    	gl.glVertex2f(-1+xAxis, -0.9f);
+	    	gl.glEnd();
+	    	if (i == lowerBarRes - 1)
+	    		lastOffset = 0.14f;
+			gl.glRasterPos2f(-0.98f + xAxis -lastOffset, -0.87f); // set
+			// position
+			glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, normaliser.denormalise((double)i/(lowerBarRes-1)));
+
+	    }
 	}
 
 
@@ -151,31 +171,8 @@ public class DistributionVisualisation extends Visualisation {
 		gl.glShadeModel(GL2.GL_SMOOTH);
 		gl.glEnable(GL2.GL_BLEND);
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-		gl.glColor3d(0, 0, 0);
-		gl.glRectd(-1, -1, 1, 1);
-		gl.glColor3f(1, 1, 1);
+		gl.glScaled(0.95, 0.95, 1);
 
-	    final GLUT glut = new GLUT();
-        gl.glRasterPos2d(-0.9,0.93); // set position
-	
-		gl.glColor3d(0.9, 0.9,0.9);
-		gl.glLineWidth(1);
-		for (int i = 0; i < DataUtilities.MAX_PORT; i+=1000){
-			gl.glBegin(GL.GL_LINES);
-			gl.glVertex2f(-1 + 2*((float)i/noPorts) , (float) -0.8);
-	    	gl.glVertex2f(-1 + 2*((float)i/noPorts), (float) (-0.82));
-	    	gl.glEnd();	
-		}
-		
-		gl.glLineWidth(3);
-		for (int i = 0; i < DataUtilities.MAX_PORT; i+=10000){
-			gl.glBegin(GL.GL_LINES);
-			gl.glVertex2f(-1 + 2*((float)i/noPorts) , (float) -0.8);
-	    	gl.glVertex2f(-1 + 2*((float)i/noPorts), (float) (-0.88));
-	    	gl.glEnd();	
-	        gl.glRasterPos2d(-0.99 + 2*((float)i/noPorts),-0.87); // set position
-	        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_10, String.valueOf(i));
-		}
 	}
 
 	@Override
@@ -205,4 +202,6 @@ public class DistributionVisualisation extends Visualisation {
 		normaliser = NormaliseFactory.INSTANCE.getNormaliser(i);
 		this.normaliserBox.setSelectedIndex(i);
 	}
+
+
 }

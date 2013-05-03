@@ -64,6 +64,10 @@ public class VisualisationsController {
 		newVis.activate();
 		newVis.requestFocusInWindow();
 		return newVis;
+	}
+
+	public void ActivateByReference(Visualisation visualisation) {
+		ActivateById(visList.indexOf(visualisation));
 	};
 	
 };

@@ -39,7 +39,7 @@ public class NormaliseFactory {
 
 	public interface Normaliser {
 		public double normalise(Packet p);
-
+		public String denormalise (double v);
 		public String name();
 	}
 
@@ -51,6 +51,11 @@ public class NormaliseFactory {
 		public String name() {
 			return "Source Port";
 		}
+
+		@Override
+		public String denormalise(double v) {
+			return DataUtilities.denormalisePort(v);
+		}
 	}
 
 	private class DestinationPortNorm implements Normaliser {
@@ -60,6 +65,11 @@ public class NormaliseFactory {
 
 		public String name() {
 			return "Destination Port";
+		}
+
+		@Override
+		public String denormalise(double v) {
+			return DataUtilities.denormalisePort(v);
 		}
 	}
 
@@ -71,6 +81,11 @@ public class NormaliseFactory {
 		public String name() {
 			return "Source IP";
 		}
+
+		@Override
+		public String denormalise(double v) {
+			return DataUtilities.denormaliseV4Ip(v);
+		}
 	}
 
 	private class DestinationIPNorm implements Normaliser {
@@ -80,6 +95,11 @@ public class NormaliseFactory {
 
 		public String name() {
 			return "Destination Port";
+		}
+
+		@Override
+		public String denormalise(double v) {
+			return DataUtilities.denormaliseV4Ip(v);
 		}
 	}
 	
@@ -91,6 +111,11 @@ public class NormaliseFactory {
 		public String name() {
 			return "Source MAC Address";
 		}
+
+		@Override
+		public String denormalise(double v) {
+			return "Randomised";
+		}
 	}
 	
 	private class DestinationMACNorm implements Normaliser {
@@ -100,6 +125,11 @@ public class NormaliseFactory {
 
 		public String name() {
 			return "Destination MAC Adress";
+		}
+
+		@Override
+		public String denormalise(double v) {
+			return "Randomised";
 		}
 	}
 

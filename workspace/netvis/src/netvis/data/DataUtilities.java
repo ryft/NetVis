@@ -35,6 +35,19 @@ public class DataUtilities {
 		f = f / (256 * 256);
 		return f;
 	}
+	
+	public static String denormaliseV4Ip(double nv){
+		nv = nv*256*256*256*256;
+		long nvi = (long)nv;
+		if (nvi == (long)65536*65536) nvi -= 1;
+		String s = new String();
+		for (int i = 0; i < 4; i++){
+			s =  String.valueOf(nvi % 256) + s;
+			nvi = nvi / 256;
+			if (i != 3) s = '.' + s;
+		}
+		return s;
+	}
 
 	/**
 	 * Transforms a port into a double value in the range [0..1]
@@ -53,6 +66,10 @@ public class DataUtilities {
 			macMap.put(address, value);
 			return value;
 		}
+	}
+
+	public static String denormalisePort(double v) {
+		return String.valueOf((int)(v * MAX_PORT));
 	}
 
 }

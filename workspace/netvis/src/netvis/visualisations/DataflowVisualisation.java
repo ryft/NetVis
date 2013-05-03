@@ -1,18 +1,14 @@
 package netvis.visualisations;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import netvis.data.DataController;
@@ -41,12 +37,15 @@ import com.jogamp.opengl.util.gl2.GLUT;
  * percentage and grow linearly with each packet on that interval. They also
  * have an upper limit.
  */
-public class DataflowVisualisation extends Visualisation {
+public class DataflowVisualisation extends Visualisation implements MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 	protected List<Normaliser> normPasses;
 	float[][] trafficMeasure;
 	private GLUT glut;
+	private int visHighlighted;
+	private boolean displaySelectionBar;
+	private Color fColor, lColor;
 	
 	public DataflowVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
@@ -58,25 +57,13 @@ public class DataflowVisualisation extends Visualisation {
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(1));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(3));
 		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(5));
-	
+		displaySelectionBar = false;
 		trafficMeasure = new float[normPasses.size()][100];
-		this.addMouseListener(new MouseListener(){
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
-			@Override
-			public void mouseEntered(MouseEvent arg0) {}
-			@Override
-			public void mouseExited(MouseEvent arg0) {}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {}
-		});
+		fColor = Color.green;
+		lColor = Color.blue;
 		
+		this.addMouseListener(this);		
+		this.addMouseMotionListener(this);
 	}
 
 	@Override
@@ -116,7 +103,7 @@ public class DataflowVisualisation extends Visualisation {
 			
 			ColourPalette.setColour(gl, ColourPalette.getColourShade( 
 					ColourPalette.getColourShade(
-					Color.blue, Color.green, normPasses.get(0).normalise(p)
+					fColor, lColor, normPasses.get(0).normalise(p)
 					), Color.LIGHT_GRAY, standout));
 			gl.glBegin(GL2.GL_LINE_STRIP);
 			for (int j = 0; j < normPasses.size(); j++) {
@@ -147,6 +134,19 @@ public class DataflowVisualisation extends Visualisation {
 				}
 			}
 		}
+		
+		if (displaySelectionBar){
+			gl.glColor4d(0, 0, 0, 0.5);
+	    	gl.glBegin(GL2.GL_POLYGON);
+	    	float x = ((float) visHighlighted) / (normPasses.size() - 1);
+	    	
+	    	gl.glVertex2f(x+0.002f, 1f);
+			gl.glVertex2f(x+0.002f, 0f);
+			gl.glVertex2f(x-0.002f, 0f);
+			gl.glVertex2f(x-0.002f, 1f);
+			
+	    	gl.glEnd();
+		}
 	}
 
 	@Override
@@ -175,37 +175,7 @@ public class DataflowVisualisation extends Visualisation {
 
 	@Override
 	protected JPanel createControls() {
-		JPanel panel = new JPanel();
-		final Visualisation thisVis = this;
-		JButton swapButton;
-		for (int i = 0; i < NormaliseFactory.INSTANCE.getNormalisers().size(); i++){
-			
-			swapButton = new JButton(NormaliseFactory.INSTANCE.getNormaliser(i).name());
-			final int insideI = i;
-			swapButton.addActionListener(new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					VisualisationsController vc = VisualisationsController.GetInstance();
-					vc.ActivateById(1);
-					vc.getVList().get(1).setState(insideI);
-					UndoController.INSTANCE.addUndoMove(new UndoAction(){
-						@Override
-						public void execute_undo() {
-							VisualisationsController vc = VisualisationsController.GetInstance();
-							vc.ActivateById(vc.getVList().indexOf(thisVis));
-						}
-					});
-				}
-			});
-	
-			Box box = Box.createHorizontalBox();
-			box = Box.createHorizontalBox();
-			box.add(swapButton); 
-			panel.add(box);
-		}
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT); 
-		return panel;
+		return null;
 	}
 
 	private void drawActivityBar(GL2 gl, float xc, float yc, float radius) {
@@ -234,6 +204,55 @@ public class DataflowVisualisation extends Visualisation {
 				" They shrink with each iteration by some percentage\n" +
 				" and grow linearly with each packet. They also have\n" +
 				" an upper limit.";
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		double xClicked = (double)e.getX()/this.getSize().getWidth();
+		int visChosen = (int)(xClicked * normPasses.size());
+		visChosen = NormaliseFactory.INSTANCE.getNormalisers().indexOf(normPasses.get(visChosen));
+		System.out.println("Vis Chosen: " + String.valueOf(visChosen));
+		VisualisationsController vc = VisualisationsController.GetInstance();
+		vc.ActivateById(2);
+		vc.getVList().get(2).setState(visChosen);
+		UndoController.INSTANCE.addUndoMove(new UndoAction(){
+			private Visualisation backVis;
+			@Override
+			public void execute_undo() {
+				VisualisationsController vc = VisualisationsController.GetInstance();
+				vc.ActivateByReference(backVis);
+			}
+			private UndoAction init(Visualisation bV){
+				backVis = bV;
+				return this;
+			}
+		}.init(this));
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		displaySelectionBar = true;
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		displaySelectionBar = false;
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {}
+
+	@Override
+	public void mouseDragged(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		double xClicked = (double)e.getX()/this.getSize().getWidth();
+		visHighlighted = (int)(xClicked * normPasses.size());
 	}
 
 }
