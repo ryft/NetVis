@@ -49,11 +49,18 @@ public class HeatNode extends Node {
 		return selected;
 	};
 	
-	long cumul;
+	long cumultime;
+	
+	long data;
 	
 	public HeatNode (String tname, String nname)
 	{
-		cumul = 0;
+		// Cumulating time
+		cumultime = 0;
+		
+		// How much data was transferred
+		data = 0;
+
 		name = nname;
 		tex = tname;
 		
@@ -76,17 +83,22 @@ public class HeatNode extends Node {
 	
 	@Override
 	public void UpdateWithData(Packet pp) {
-		IncreaseWarning();
+		data += pp.length;
+		while (warning < data/1024)
+			IncreaseWarning();
 	}
 
 	@Override
 	public void UpdateAnimation(long time) {
-		cumul += time;
-		if (cumul >= 5000)
+		cumultime += time;
+		if (cumultime >= 5000)
 		{
 			// Every second decrease the warning of the node
 			if (warning > 0)
 				DecreaseWarning();
+			
+			// Reset the counter
+			cumultime = 0;
 		}
 
 	}
@@ -112,9 +124,6 @@ public class HeatNode extends Node {
 		bgColor[0] *= 1.3;
 		bgColor[1] *= 0.9;
 		bgColor[2] *= 0.9;
-		
-		cumul = 0;
-
 	}
 
 	public void DecreaseWarning() {
@@ -132,8 +141,6 @@ public class HeatNode extends Node {
 			
 			opacity = 0.5;
 		}
-		
-		cumul = 0;
 	}
 
 	@Override
