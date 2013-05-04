@@ -103,6 +103,7 @@ public class HeatNode extends Node {
 		};
 		
 		val += pp.length;
+		protocollengths.put(pp.protocol, val);
 		
 		// Compare it with the current most common protocol
 		if (val > maxVal)

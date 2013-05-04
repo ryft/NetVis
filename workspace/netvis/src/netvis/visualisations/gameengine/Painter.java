@@ -264,7 +264,7 @@ public class Painter {
 		gl.glFlush();
 	}
 
-	public static void DrawCircle(double x, double y, double rad, GL2 gl) {
+	public static void DrawCircle (double x, double y, double rad, GL2 gl) {
 		gl.glBegin(GL2.GL_TRIANGLE_FAN);
 		int parts = 50;
 		gl.glColor4d(0.5, 0.2, 0.0, 1.0);

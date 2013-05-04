@@ -102,7 +102,7 @@ public class ApplicationFrame extends JFrame {
 		});
 
 		if (DEBUG_MODE)
-			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/jre-overflow.csv"),
+			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/eduroam.csv"),
 					ApplicationFrame.this);
 		else
 			dataFeeder = new DummyDataFeeder(ApplicationFrame.this);
