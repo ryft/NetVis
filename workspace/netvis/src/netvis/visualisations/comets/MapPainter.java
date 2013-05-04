@@ -60,13 +60,24 @@ public class MapPainter implements NodePainter {
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");
 		renderer.begin3DRendering();
-		renderer.setSmoothing(true);
-		renderer.setUseVertexArrays(true);
-		renderer.setColor (0.2f, 0.2f, 0.2f, (float) opacity);
-		Rectangle2D noob = renderer.getBounds(lum.getName());
-		int xx = (int) (-noob.getWidth() / 2);
-		int yy = (int) (-imageSize / 2 - noob.getHeight() - 30);
-		renderer.draw(lum.getName(), xx, yy);
+			renderer.setSmoothing(true);
+			renderer.setUseVertexArrays(true);
+			double [] bgcol = lum.getBGColor();
+			if (bgcol[0] + bgcol[1] + bgcol[2] < 1.5)
+				renderer.setColor (1.0f, 1.0f, 1.0f, (float) opacity);
+			else
+				renderer.setColor (0.0f, 0.0f, 0.0f, (float) opacity);
+
+			Rectangle2D noob = renderer.getBounds(lum.getName());
+			int xx = (int) (-noob.getWidth() / 2);
+			int yy = (int) (-imageSize / 2 - noob.getHeight() - 30);
+			renderer.draw(lum.getName(), xx, yy);
+			
+			noob = renderer.getBounds(lum.maxProto);
+			xx = (int) (-noob.getWidth() / 2);
+			yy = (int) (+imageSize / 2 + noob.getHeight() + 30);
+			renderer.draw(lum.maxProto, xx, yy);
+
 		renderer.end3DRendering();
 		// Big slow down if this is uncommented
 		// renderer.flush();
