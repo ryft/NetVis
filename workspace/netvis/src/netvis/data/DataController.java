@@ -40,8 +40,7 @@ public class DataController implements ActionListener {
 		allPackets = new ArrayList<Packet>();
 		timer = new Timer(updateInterval, this);
 		filterPanel = new JPanel();
-
-
+		NormaliseFactory.INSTANCE.setDataController(this);
 		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.Y_AXIS));
 		filterPanel.add(Box.createVerticalGlue());
 		timer.start();

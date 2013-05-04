@@ -10,7 +10,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import netvis.data.DataController;
 import netvis.data.model.PacketFilter;
 
 public abstract class FixedFilter implements PacketFilter{
@@ -18,23 +17,17 @@ public abstract class FixedFilter implements PacketFilter{
 	protected final JPanel panel;
 	protected final JLabel filterText;
 	protected final JButton closeButton;
-	protected FixedFilter(final DataController dc, String text){
+	protected FixedFilter(String text){
 		panel = new JPanel();
 		filterText = new JLabel(text);
 		
 		closeButton = new JButton("X");
 		closeButton.addActionListener(new ActionListener(){
-			private FixedFilter filter;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dc.removeFilter(filter);
+				clearFilter();
 			}
-			public ActionListener init(FixedFilter f){
-				this.filter = f;
-				return this;
-			}
-			
-		}.init(this));
+		});
 		
 		Box box = Box.createHorizontalBox();
 		box.add(filterText);
@@ -43,9 +36,9 @@ public abstract class FixedFilter implements PacketFilter{
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 	}
+	protected abstract void clearFilter();
 	@Override
 	public void actionPerformed(ActionEvent arg0) {}
-
 	@Override
 	public String description() {
 		return null;

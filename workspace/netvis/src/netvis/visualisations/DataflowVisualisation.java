@@ -113,6 +113,7 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 					}
 			});
 		}
+		if (ii < -1) ii = -1;
 		for (int i = ii+1; i < listOfPackets.size(); i++) {
 			p = listOfPackets.get(i);
 			
