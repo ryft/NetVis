@@ -88,14 +88,14 @@ public class MapPainter implements NodePainter {
 	public void DrawNode(int base, GraphNode lum, GL2 gl) {
 		// TODO : Draw some graphs
 
-		gl.glColor3d(0.0, 0.0, 0.0);
+		/*gl.glColor3d(0.0, 0.0, 0.0);
 		gl.glLineWidth(15.0f);
 		gl.glBegin(GL.GL_LINES);
 		gl.glVertex2d(-30, -30);
 		gl.glVertex2d(30, 30);
 		gl.glVertex2d(-30, 30);
 		gl.glVertex2d(30, -30);
-		gl.glEnd();
+		gl.glEnd();*/
 
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");

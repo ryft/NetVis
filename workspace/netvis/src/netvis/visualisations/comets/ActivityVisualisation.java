@@ -30,11 +30,13 @@ import netvis.ui.VisControlsContainer;
 import netvis.visualisations.Visualisation;
 import netvis.visualisations.gameengine.FramebufferPool;
 import netvis.visualisations.gameengine.Node;
+import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
 import netvis.visualisations.gameengine.Units;
 import netvis.visualisations.gameengine.ValueAnimator;
+import netvis.visualisations.gameengine.VertexBufferPool;
 
 public class ActivityVisualisation extends Visualisation {
 
@@ -309,10 +311,22 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 
 		gl.glPushMatrix();
-			gl.glTranslated(0.0, 0.0, -1000.0);
+			//gl.glTranslated(0.0, 0.0, -1000.0);
 			// Make the map draw all of the elements
+			/*for (int i=0; i<120; i++)
+			{
+				gl.glColor3d (0.5, 1.0, 0.5);
+				Painter.DrawHexagon (GL2.GL_POLYGON, 0.0, 0.0, 400, gl);
+			}
+			for (int i=0; i<120; i++)
+			{
+				gl.glColor3d (0.5, 1.0, 0.5);
+				Painter.DrawSquare (100, 100, 0.0, 0.0, 1.0, 0.0, gl);
+			}*/
 			currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
+		
+		this.swapBuffers();
 	}
 
 	@Override
@@ -378,6 +392,7 @@ public class ActivityVisualisation extends Visualisation {
 		TextRendererPool.Recreate();
 		// FramebufferPool.RegenerateAll(gl);
 		FramebufferPool.DiscardAll();
+		VertexBufferPool.DiscardAll();
 	}
 
 	@Override
