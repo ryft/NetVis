@@ -1,6 +1,7 @@
 package netvis.visualisations.comets;
 
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 
 import javax.media.opengl.GL2;
 
@@ -12,13 +13,19 @@ public class GraphNode extends Node {
 
 	String name;
 
+	HashMap<String, Long> protocollengths;
+	long maxVal = 0;
+	
 	public String getName() {
 		return name;
 	}
 
 	public GraphNode(String n) {
 		super();
+		
 		name = n;
+	
+		protocollengths = new HashMap<String, Long> ();
 	}
 
 	public void Draw(int base, NodePainter painter, GL2 gl) {
@@ -26,6 +33,19 @@ public class GraphNode extends Node {
 	}
 
 	public void UpdateWithData(Packet pp) {
+		Long val = protocollengths.get (pp.protocol);
+		if (val == null)
+		{
+			val = new Long(0);
+			protocollengths.put(pp.protocol, val);
+		};
+		
+		val += pp.length;
+		protocollengths.put(pp.protocol, val);
+		
+		// Compare it with the current most common protocol
+		if (val > maxVal)
+			maxVal = val;
 	}
 
 	public void UpdateAnimation(long time) {

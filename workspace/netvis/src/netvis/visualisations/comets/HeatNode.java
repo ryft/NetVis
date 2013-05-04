@@ -1,6 +1,7 @@
 package netvis.visualisations.comets;
 
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 
 import javax.media.opengl.GL2;
 
@@ -51,7 +52,12 @@ public class HeatNode extends Node {
 	
 	long cumultime;
 	
+	// How much data was transferred
 	long data;
+	// And with what protocols
+	HashMap<String, Long> protocollengths;
+	long maxVal = 0;
+	String maxProto = "";
 	
 	public HeatNode (String tname, String nname)
 	{
@@ -74,6 +80,8 @@ public class HeatNode extends Node {
 		warning = 0;
 		
 		selected = false;
+		
+		protocollengths = new HashMap<String, Long> ();
 	}
 	
 	@Override
@@ -86,6 +94,23 @@ public class HeatNode extends Node {
 		data += pp.length;
 		while (warning < data/1024)
 			IncreaseWarning();
+		
+		Long val = protocollengths.get (pp.protocol);
+		if (val == null)
+		{
+			val = new Long(0);
+			protocollengths.put(pp.protocol, val);
+		};
+		
+		val += pp.length;
+		protocollengths.put(pp.protocol, val);
+		
+		// Compare it with the current most common protocol
+		if (val > maxVal)
+		{
+			maxVal = val;
+			maxProto = pp.protocol;
+		};
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package netvis.visualisations.comets;
 
 import java.awt.geom.Rectangle2D;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -60,13 +61,30 @@ public class MapPainter implements NodePainter {
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");
 		renderer.begin3DRendering();
-		renderer.setSmoothing(true);
-		renderer.setUseVertexArrays(true);
-		renderer.setColor (0.2f, 0.2f, 0.2f, (float) opacity);
-		Rectangle2D noob = renderer.getBounds(lum.getName());
-		int xx = (int) (-noob.getWidth() / 2);
-		int yy = (int) (-imageSize / 2 - noob.getHeight() - 30);
-		renderer.draw(lum.getName(), xx, yy);
+			renderer.setSmoothing(true);
+			renderer.setUseVertexArrays(true);
+			double [] bgcol = lum.getBGColor();
+			if (bgcol[0] + bgcol[1] + bgcol[2] < 1.5)
+				renderer.setColor (1.0f, 1.0f, 1.0f, (float) opacity);
+			else
+				renderer.setColor (0.0f, 0.0f, 0.0f, (float) opacity);
+			
+			Rectangle2D noob = renderer.getBounds(lum.getName());
+			
+			float scale = 1.0f;
+			
+			if (noob.getWidth() > base)
+				scale = 0.7f;
+			
+			int xx = (int) (-scale * noob.getWidth() / 2);
+			int yy = (int) (-imageSize / 2 - scale * noob.getHeight() - 30);
+			renderer.draw3D (lum.getName(), xx, yy, 1.0f, scale);
+			
+			noob = renderer.getBounds(lum.maxProto);
+			xx = (int) (-noob.getWidth() / 2);
+			yy = (int) (+imageSize / 2 + 30);
+			renderer.draw(lum.maxProto, xx, yy);
+
 		renderer.end3DRendering();
 		// Big slow down if this is uncommented
 		// renderer.flush();
@@ -86,29 +104,59 @@ public class MapPainter implements NodePainter {
 	}
 
 	public void DrawNode(int base, GraphNode lum, GL2 gl) {
-		// TODO : Draw some graphs
 
-		gl.glColor3d(0.0, 0.0, 0.0);
-		gl.glLineWidth(15.0f);
-		gl.glBegin(GL.GL_LINES);
-		gl.glVertex2d(-30, -30);
-		gl.glVertex2d(30, 30);
-		gl.glVertex2d(-30, 30);
-		gl.glVertex2d(30, -30);
-		gl.glEnd();
+
+		gl.glColor3d (0.8, 0.8, 0.8);
+		Painter.DrawHexagon(GL2.GL_POLYGON, 0.0, 0.0, base, gl);
+		
+		gl.glLineWidth (2.0f);
+		gl.glColor3d (0.0, 0.0, 0.0);
+		Painter.DrawHexagon(GL2.GL_LINE_LOOP, 0.0, 0.0, base, gl);
 
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");
 		renderer.begin3DRendering();
 		renderer.setSmoothing(true);
-		renderer.setUseVertexArrays(true);
-		renderer.setColor(0.2f, 0.2f, 0.2f, 1.0f);
-		Rectangle2D noob = renderer.getBounds(lum.getName());
-		int xx = (int) (-noob.getWidth() / 2);
-		int yy = (int) (-noob.getHeight() - 40.0);
-		renderer.draw(lum.getName(), xx, yy);
+			renderer.setUseVertexArrays(true);
+			renderer.setColor(0.2f, 0.2f, 0.2f, 1.0f);
+
+			Rectangle2D noob = renderer.getBounds(lum.getName());
+			
+			float scale = 1.0f;
+			
+			if (noob.getWidth() > base)
+				scale = 0.5f;
+			
+			int xx = (int) (-noob.getWidth() * scale / 2);
+			int yy = (int) (base/2.0 + noob.getHeight());
+			renderer.draw3D (lum.getName(), xx, yy, 1.0f, scale);
+			
+			noob = renderer.getBounds("Protocols used:");
+			xx = (int) (-noob.getWidth() / 2);
+			yy = (int) (base/2.0 - noob.getHeight());
+			
+			renderer.draw ("Protocols used:", xx, yy);
+
+			
+			float delta = (float) (noob.getHeight() + 5);
+			for (Entry<String, Long> e : lum.protocollengths.entrySet())
+			{
+				String proto = e.getKey();
+				long weight  = e.getValue();
+				long topwei  = lum.maxVal;
+				
+				noob = renderer.getBounds (proto);
+				
+				scale = 2.0f - (float) (3.0 * topwei / (weight + 2.0 * topwei));
+				
+				xx = (int) (-scale * noob.getWidth() / 2.0);
+				yy = (int) (base/2.0 - 2.0 - delta - scale * noob.getHeight());
+				
+				delta += scale * noob.getHeight() + 5;
+				
+				renderer.draw3D (proto, xx, yy, 1.0f, scale);
+			}
 		renderer.end3DRendering();
-		renderer.flush();
 	}
 
 	public void DrawNode(int base, FlipNode lum, GL2 gl) {
