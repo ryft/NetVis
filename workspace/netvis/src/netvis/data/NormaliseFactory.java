@@ -3,6 +3,7 @@ package netvis.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import netvis.data.filters.NormalisationFilter;
 import netvis.data.model.Packet;
 
 /**
@@ -14,6 +15,8 @@ public class NormaliseFactory {
 
 	List<Normaliser> normalisers;
 
+	private DataController dataController;
+
 	private NormaliseFactory() {
 		normalisers = new ArrayList<Normaliser>();
 		normalisers.add(new SourcePortNorm());
@@ -21,7 +24,7 @@ public class NormaliseFactory {
 		normalisers.add(new SourceIPNorm());
 		normalisers.add(new DestinationIPNorm());
 		normalisers.add(new SourceMACNorm());
-		normalisers.add(new DestinationMACNorm());
+		normalisers.add(new DestinationMACNorm());	
 	}
 
 	public List<Normaliser> getNormalisers() {
@@ -37,14 +40,44 @@ public class NormaliseFactory {
 			return null;
 	}
 
-	public interface Normaliser {
-		public double normalise(Packet p);
-		public String denormalise (double v);
-		public String name();
+	public abstract class Normaliser {
+		double lowerBound = 0, upperBound = 1;
+		NormalisationFilter myFilter = null;
+		protected abstract double normaliseFunction(Packet p);
+		protected abstract String denormaliseFunction (double v);
+		public abstract String name();
+		public double normalise(Packet p){
+			double v = this.normaliseFunction(p);
+			v = (v - lowerBound)/(upperBound - lowerBound);
+			//System.out.println(lowerBound);
+			//System.out.println(v);
+	
+			return v;
+		}
+		public String denormalise(double v){
+			v = v * (upperBound - lowerBound);
+			v += lowerBound;
+			return denormaliseFunction(v);
+		}
+		public void filter(double lowerBound, double upperBound){		
+			double interval = this.upperBound - this.lowerBound;
+			this.upperBound = this.lowerBound + upperBound*interval;
+			this.lowerBound += lowerBound*interval;
+			if (myFilter != null)
+				dataController.removeFilter(myFilter);
+			myFilter = new NormalisationFilter(this);
+			dataController.addFilter(myFilter);
+		}
+		public void clearFilter() {
+			this.lowerBound = 0;
+			this.upperBound = 1;
+			dataController.removeFilter(myFilter);
+			myFilter = null;
+		}
 	}
 
-	private class SourcePortNorm implements Normaliser {
-		public double normalise(Packet p) {
+	private class SourcePortNorm extends Normaliser {
+		public double normaliseFunction(Packet p) {
 			return DataUtilities.normalisePort(p.sport);
 		}
 
@@ -53,13 +86,13 @@ public class NormaliseFactory {
 		}
 
 		@Override
-		public String denormalise(double v) {
+		public String denormaliseFunction(double v) {
 			return DataUtilities.denormalisePort(v);
 		}
 	}
 
-	private class DestinationPortNorm implements Normaliser {
-		public double normalise(Packet p) {
+	private class DestinationPortNorm extends Normaliser {
+		public double normaliseFunction(Packet p) {
 			return DataUtilities.normalisePort(p.dport);
 		}
 
@@ -68,13 +101,13 @@ public class NormaliseFactory {
 		}
 
 		@Override
-		public String denormalise(double v) {
+		public String denormaliseFunction(double v) {
 			return DataUtilities.denormalisePort(v);
 		}
 	}
 
-	private class SourceIPNorm implements Normaliser {
-		public double normalise(Packet p) {
+	private class SourceIPNorm extends Normaliser {
+		public double normaliseFunction(Packet p) {
 			return DataUtilities.normaliseV4Ip(p.sip);
 		}
 
@@ -83,13 +116,13 @@ public class NormaliseFactory {
 		}
 
 		@Override
-		public String denormalise(double v) {
+		public String denormaliseFunction(double v) {
 			return DataUtilities.denormaliseV4Ip(v);
 		}
 	}
 
-	private class DestinationIPNorm implements Normaliser {
-		public double normalise(Packet p) {
+	private class DestinationIPNorm extends Normaliser {
+		public double normaliseFunction(Packet p) {
 			return DataUtilities.normaliseV4Ip(p.dip);
 		}
 
@@ -98,13 +131,13 @@ public class NormaliseFactory {
 		}
 
 		@Override
-		public String denormalise(double v) {
+		public String denormaliseFunction(double v) {
 			return DataUtilities.denormaliseV4Ip(v);
 		}
 	}
 	
-	private class SourceMACNorm implements Normaliser {
-		public double normalise(Packet p) {
+	private class SourceMACNorm extends Normaliser {
+		public double normaliseFunction(Packet p) {
 			return DataUtilities.normaliseMAC(p.smac);
 		}
 
@@ -113,13 +146,13 @@ public class NormaliseFactory {
 		}
 
 		@Override
-		public String denormalise(double v) {
-			return "Randomised";
+		public String denormaliseFunction(double v) {
+			return String.valueOf(v);
 		}
 	}
 	
-	private class DestinationMACNorm implements Normaliser {
-		public double normalise(Packet p) {
+	private class DestinationMACNorm extends Normaliser {
+		public double normaliseFunction(Packet p) {
 			return DataUtilities.normaliseMAC(p.dmac);
 		}
 
@@ -128,9 +161,13 @@ public class NormaliseFactory {
 		}
 
 		@Override
-		public String denormalise(double v) {
-			return "Randomised";
+		public String denormaliseFunction(double v) {
+			return String.valueOf(v);
 		}
+	}
+
+	public void setDataController(DataController dataController) {
+		this.dataController = dataController;
 	}
 
 }

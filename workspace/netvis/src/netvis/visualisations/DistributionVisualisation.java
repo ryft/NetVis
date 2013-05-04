@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 import netvis.data.DataController;
 import netvis.data.NormaliseFactory;
 import netvis.data.NormaliseFactory.Normaliser;
-import netvis.data.filters.NormalisationFilter;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.util.ColourPalette;
@@ -39,7 +38,7 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	public DistributionVisualisation(DataController dc, final OpenGLPanel joglPanel, VisControlsContainer visControlsContainer){
 		super(dc, joglPanel, visControlsContainer);
 	    normaliser = NormaliseFactory.INSTANCE.getNormaliser(0);
-	    packetCount = new int[resolution];
+	    packetCount = new int[resolution+1];
 	    packetCountAnimated = new int[resolution + 1];
 	    graphColour = new Color(23,123,185);
 	    
@@ -103,8 +102,13 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	    
 	    for (int i = 0; i < resolution; i++)
 	    	packetCount[i] = 0;
-	    for (int i = 0; i < listOfPackets.size(); i++)
-	    	packetCount[(int)(normaliser.normalise(listOfPackets.get(i))*(double)resolution)]++;
+	    for (int i = 0; i < listOfPackets.size(); i++){
+	    	int pc = (int)(normaliser.normalise(listOfPackets.get(i))*(double)resolution);
+	    	if (pc >= 0 && pc < resolution)
+	    		packetCount[pc]++;
+	    	else
+	    		System.out.println(normaliser.normalise(listOfPackets.get(i)));
+	    }
 	    for (int i = 0; i < resolution; i++){
 	    	packetCountAnimated[i] = packetCount[i] - (packetCount[i] - packetCountAnimated[i])*2/3;
 	    }
@@ -264,7 +268,7 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 			lowerBound = upperBound;
 			upperBound = aux;
 		}
-		dataController.addFilter(new NormalisationFilter(normaliser, lowerBound, upperBound, dataController));
+		normaliser.filter(lowerBound, upperBound);
 		VisualisationsController.GetInstance().ActivateById(4);
 		mouseClicked = false;
 	}
