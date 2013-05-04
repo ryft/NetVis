@@ -46,6 +46,11 @@ public class MultiNode extends Node {
 	HashMap <Position, Node> subnodes;
 	HashMap <String,   Node> subnodesByName;
 	
+	private MultiNode parent = null;
+	public MultiNode GetParent() {
+		return parent;
+	}
+	
 	@Override
 	public Node GetNode (String name) {
 		Node nn = subnodesByName.get(name);
@@ -87,8 +92,10 @@ public class MultiNode extends Node {
 		return null;
 	}
 	
-	public MultiNode(int dimension) {
+	public MultiNode (int dimension, MultiNode par) {
 		super();
+		
+		parent = par;
 		
 		dim = dimension;
 		subdim = -1;
@@ -148,7 +155,7 @@ public class MultiNode extends Node {
 				subdim = FindNodeDim();
 				
 				// So allocate the subnode
-				Node mn = new MultiNode(subdim);
+				Node mn = new MultiNode (subdim, this);
 				AllocateSubnode (null, mn);
 				
 				// And then add the considered node to the subnode
@@ -163,8 +170,7 @@ public class MultiNode extends Node {
 			// If the node fits perfectly - allocate it straight away
 			if (reqdim == subdim)
 			{
-				AllocateSubnode (name, n);
-				return true;
+				return AllocateSubnode (name, n);
 			}
 			
 			// Try allocating this node in any of the subnodes
@@ -175,7 +181,7 @@ public class MultiNode extends Node {
 			}
 			
 			// If it failed - create a new subnode and allocate considered node in it
-			Node mn = new MultiNode(subdim);
+			Node mn = new MultiNode(subdim, this);
 			mn.AddNode (name, n);
 			return AllocateSubnode (null, mn);
 		}
@@ -231,5 +237,4 @@ public class MultiNode extends Node {
 	public void MouseClick(MouseEvent e) {
 		// TODO Auto-generated method stub
 	}
-
 }

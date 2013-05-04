@@ -228,27 +228,25 @@ public class Map {
 		Position coord;
 		NodeWithPosition nearnode = nodesByName.get(near);
 		
-		if (nearnode == null) {
-			// Place it in the middle
-			posit = FindPosition(nodesByName.size());
+		// Look for the position around the specified coordinate
+		int current = 0;
+		while (true) {
+			posit = FindPosition(current);
 			coord = CoordinateByPosition(posit);
-		} else {
-			// Place it close to the specified node
-			int current = 0;
-			while (true) {
-				posit = FindPosition(current);
-				coord = CoordinateByPosition(posit);
+			if (nearnode != null)
+			{
 				coord.x += nearnode.coo.x;
 				coord.y += nearnode.coo.y;
-				posit = PositionByCoordinate(coord);
-
-				if (nodesByPosition.get(coord) != null)
-					current++;
-				else
-					break;
 			}
+			posit = PositionByCoordinate(coord);
+
+			if (nodesByPosition.get(coord) != null)
+				current++;
+			else
+				break;
 		}
-	
+		
+		coord = CoordinateByPosition(posit);	
 		NodeWithPosition k = new NodeWithPosition(lemur, coord, posit);
 
 		// System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
@@ -267,13 +265,6 @@ public class Map {
 
 		NodeWithPosition node = nodesByPosition.get(c);
 		return node;
-
-		/* Just in case if the previous thing is not working
-		 * for (NodeWithPosition n : nodesByName.values()) { Position pos =
-		 * n.pos; double distance = Math.sqrt (Math.pow(pos.x - x, 2) +
-		 * Math.pow(pos.y - y, 2)); if (distance < base-10) return n; } return
-		 * null;
-		 */
 	}
 
 	public double ZoomOn() {

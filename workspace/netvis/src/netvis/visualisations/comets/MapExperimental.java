@@ -133,7 +133,8 @@ public class MapExperimental {
 			Position coord = Units.CoordinateByRingAndShift (1, ringshift.x, ringshift.y);
 			System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
 			
-			nearnode = new MultiNode(dim);
+			// Create the node (with no parent)
+			nearnode = new MultiNode (dim, null);
 			
 			nodes.put(coord, nearnode);
 			nodesByName.put(near, nearnode);
@@ -141,7 +142,12 @@ public class MapExperimental {
 			// Put the indicator node in the middle of the group node
 			HeatNode midnode = new HeatNode(textureName, near);
 			midnode.setBGColor(0.5, 0.6, 1.0);
-			nearnode.AddNode ("near", midnode);
+			while (nearnode.AddNode ("near", midnode) == false)
+			{
+				// It was not possible to add the node to the deepest level - try higher one
+				nearnode = nearnode.GetParent();
+				nodesByName.put(near, nearnode);
+			}
 		}
 
 		// If the node is not already there - add it

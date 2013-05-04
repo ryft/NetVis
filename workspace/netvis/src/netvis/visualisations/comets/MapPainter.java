@@ -86,9 +86,6 @@ public class MapPainter implements NodePainter {
 			renderer.draw(lum.maxProto, xx, yy);
 
 		renderer.end3DRendering();
-		// Big slow down if this is uncommented
-		// renderer.flush();
-
 	}
 
 	public void DrawNode(int base, CometHeatNode lum, GL2 gl) {
