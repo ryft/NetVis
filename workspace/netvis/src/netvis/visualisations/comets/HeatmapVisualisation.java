@@ -34,6 +34,7 @@ import netvis.visualisations.gameengine.FramebufferPool;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
 import netvis.visualisations.gameengine.ValueAnimator;
+import netvis.visualisations.gameengine.VertexBufferPool;
 
 public class HeatmapVisualisation extends Visualisation {
 
@@ -308,7 +309,7 @@ public class HeatmapVisualisation extends Visualisation {
 			currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
 		
-		this.swapBuffers();
+		//this.swapBuffers();
 	}
 
 	@Override
@@ -372,11 +373,11 @@ public class HeatmapVisualisation extends Visualisation {
 
 		currentMap.SetSize(width, height, gl);
 
-		// TexturePool.Rebind(gl);
+		// Mark all the graphic card side object as broken
 		TexturePool.DiscardTextures();
 		TextRendererPool.Recreate();
-		// FramebufferPool.RegenerateAll(gl);
 		FramebufferPool.DiscardAll();
+		VertexBufferPool.DiscardAll();
 	}
 
 	@Override

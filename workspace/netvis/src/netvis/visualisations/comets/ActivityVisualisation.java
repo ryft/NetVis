@@ -30,7 +30,6 @@ import netvis.ui.VisControlsContainer;
 import netvis.visualisations.Visualisation;
 import netvis.visualisations.gameengine.FramebufferPool;
 import netvis.visualisations.gameengine.Node;
-import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
@@ -326,7 +325,8 @@ public class ActivityVisualisation extends Visualisation {
 			currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
 		
-		this.swapBuffers();
+		// Probably unnecessary
+		//this.swapBuffers();
 	}
 
 	@Override
@@ -387,10 +387,9 @@ public class ActivityVisualisation extends Visualisation {
 
 		currentMap.SetSize(width, height, gl);
 
-		// TexturePool.Rebind(gl);
+		// Mark all the graphic card side object as broken
 		TexturePool.DiscardTextures();
 		TextRendererPool.Recreate();
-		// FramebufferPool.RegenerateAll(gl);
 		FramebufferPool.DiscardAll();
 		VertexBufferPool.DiscardAll();
 	}
