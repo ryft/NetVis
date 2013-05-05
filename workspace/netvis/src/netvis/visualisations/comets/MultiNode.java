@@ -90,7 +90,7 @@ public class MultiNode extends Node {
 	}
 	
 	public MultiNode (int dimension, MultiNode par) {
-		super();
+		super(null);
 		
 		SetParent(par);
 		
@@ -126,6 +126,28 @@ public class MultiNode extends Node {
 			gl.glRotated(90.0, 0.0, 0.0, 1.0);
 			//Painter.DrawHexagon(GL.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
 		gl.glPopMatrix();
+	}
+	 
+	public void DetachNode (Node n) {
+		// Find the specified node in the lists
+		for (Entry<Position, Node> en : subnodes.entrySet())
+		{
+			if (en.getValue() == n)
+			{
+				subnodes.remove(en.getKey());
+				break;
+			}
+		}
+		
+		for (Entry<String, Node> en : subnodesByName.entrySet())
+		{
+			if (en.getValue() == n)
+			{
+				subnodesByName.remove(en.getKey());
+				break;
+			}
+		}
+		
 	}
 	
 	@Override

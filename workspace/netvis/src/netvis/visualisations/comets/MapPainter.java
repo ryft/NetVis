@@ -69,7 +69,7 @@ public class MapPainter implements NodePainter {
 			else
 				renderer.setColor (0.0f, 0.0f, 0.0f, (float) opacity);
 			
-			Rectangle2D noob = renderer.getBounds(lum.getName());
+			Rectangle2D noob = renderer.getBounds(lum.GetName());
 			
 			float scale = 1.0f;
 			
@@ -78,7 +78,7 @@ public class MapPainter implements NodePainter {
 			
 			int xx = (int) (-scale * noob.getWidth() / 2);
 			int yy = (int) (-imageSize / 2 - scale * noob.getHeight() - 30);
-			renderer.draw3D (lum.getName(), xx, yy, 1.0f, scale);
+			renderer.draw3D (lum.GetName(), xx, yy, 1.0f, scale);
 			
 			noob = renderer.getBounds(lum.maxProto);
 			xx = (int) (-noob.getWidth() / 2);
@@ -117,7 +117,7 @@ public class MapPainter implements NodePainter {
 			renderer.setUseVertexArrays(true);
 			renderer.setColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-			Rectangle2D noob = renderer.getBounds(lum.getName());
+			Rectangle2D noob = renderer.getBounds(lum.GetName());
 			
 			float scale = 1.0f;
 			
@@ -126,7 +126,7 @@ public class MapPainter implements NodePainter {
 			
 			int xx = (int) (-noob.getWidth() * scale / 2);
 			int yy = (int) (base/2.0 + noob.getHeight());
-			renderer.draw3D (lum.getName(), xx, yy, 1.0f, scale);
+			renderer.draw3D (lum.GetName(), xx, yy, 1.0f, scale);
 			
 			noob = renderer.getBounds("Protocols used:");
 			xx = (int) (-noob.getWidth() / 2);

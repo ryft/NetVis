@@ -122,86 +122,93 @@ public class MapExperimental {
 			nnn.UpdateWithData(pp);
 	}
 	
-	private Node AddNode (String near, String name, String textureName) {
+	private Node AddNode (String groupname, String nodename, String textureName) {
 
 		// Look for the wrapping node
-		MultiNode nearnode = nodesByName.get(near);
+		MultiNode nearnode = nodesByName.get(groupname);
 		if (nearnode == null)
 		{
 			// If there is no grouping node - create it
-			Position ringshift = Units.FindSpotAround(nodes.size());
+			nearnode = new MultiNode (2, null);
+			nearnode.SetName(groupname);
+			nodesByName.put(groupname, nearnode);
+
+			// Try putting the newly created group somewhere
+			boolean placed = false;
+			for (MultiNode n : nodes.values())
+			{
+				if (n.AddNode(groupname, nearnode))
+				{
+					placed = true;
+					break;
+				}
+			}
 			
-			Position coord = Units.CoordinateByRingAndShift (dim, ringshift.x, ringshift.y);
-			System.out.println("Node " + name + " placed in ringshift : (" + ringshift.x + ", " + ringshift.y +") coords : (" + coord.x + ", " + coord.y + ")");
-			
-			// Create the node (with no parent)
-			nearnode = new MultiNode (dim, null);
-			
-			nodes.put(coord, nearnode);
-			nodesByName.put(near, nearnode);
-			
+			// If there is nowhere to place the new group - add the top level node
+			if (!placed)
+			{
+				MultiNode newtop = AllocateTopLevelNode ();
+				newtop.AddNode(groupname, nearnode);
+			}
+				
 			// Put the indicator node in the middle of the group node
-			HeatNode midnode = new HeatNode(textureName, near);
+			HeatNode midnode = new HeatNode(textureName, groupname);
 			midnode.setBGColor(0.5, 0.6, 1.0);
 
-			nearnode.AddNode (near, midnode);
+			nearnode.AddNode (groupname, midnode);
 		}
 
 		// If the node is not already there - add it
-		Node found = nearnode.GetNode (name);
+		Node found = nearnode.GetNode (nodename);
 		if (found == null)
 		{
 			// Prepare the new node
-			HeatNode front = new HeatNode  (textureName, name);
-			GraphNode back = new GraphNode (name);
+			HeatNode front = new HeatNode  (textureName, nodename);
+			GraphNode back = new GraphNode (nodename);
 
 			// Make it into the flip node - the node that has two sides
 			FlipNode newnode = new FlipNode (front, back);
-	
-			while ((nearnode != null) && nearnode.AddNode (name, newnode) == false)
-			{
-				// It was not possible to add the node to the deepest level - try higher one
-				nearnode = (MultiNode) nearnode.GetParent();
-			}
 			
-			if (nearnode == null)
+			if (TryAdding (newnode, nearnode) == null)
 			{
-				// We need to resize the node
-				
-				// First find the next supernode size
-				int newdim = dim;
-				while (Units.DimToCap(newdim) < 7*Units.DimToCap(dim))
-					newdim += 1;
-				
-				// Now for all the existing nodes put them through the adding procedure again
-				nodes = new HashMap<Position, MultiNode> ();
-				
-				int i = 0;
-				for (Entry<String, MultiNode> en : nodesByName.entrySet())
+				boolean placed = false;
+				MultiNode parent = (MultiNode) nearnode.GetParent();
+				if (parent == null)
 				{
-					// If there is no grouping node - create it
-					Position ringshift = Units.FindSpotAround (i++);
-					Position coord = Units.CoordinateByRingAndShift (newdim, ringshift.x, ringshift.y);
+					// If this is the top level node - resize everything
+					ResizeBaseNode ();
 					
-					MultiNode nner = new MultiNode (newdim, null);
+					// Now we need to try adding this node once again
+					TryAdding (newnode, nearnode);
 					
-					nner.AddNode (en.getKey(), en.getValue());
+					placed = true;
+				}
+
+				if (!placed)
+				{
+					// Take the node out
+					parent.DetachNode (nearnode);
 					
-					nodes.put (coord, nner);
+					// Wrap it in the bigger node
+					nearnode = WrapExpand (nearnode);
+
+					// Try putting the node somewhere else
+					for (MultiNode n : nodes.values())
+					{
+						if (TryAdding (nearnode, n) != null)
+						{
+							placed = true;
+							break;
+						}
+					}
 				}
 				
-				dim = newdim;
-				Painter.GenerateGrid ("grid", dim);
-				
-				// Now we need to try adding this node once again
-				while ((nearnode != null) && nearnode.AddNode (name, newnode) == false)
+				// If that failed try putting the node in the new top level suernode
+				if (!placed)
 				{
-					// It was not possible to add the node to the deepest level - try higher one
-					nearnode = (MultiNode) nearnode.GetParent();
+					MultiNode newtop = AllocateTopLevelNode ();
+					placed = newtop.AddNode (groupname, newnode);
 				}
- 			} else
- 			{
- 				nodesByName.put(near, nearnode);
  			}
 
 			found = newnode;
@@ -210,6 +217,86 @@ public class MapExperimental {
 		return found;
 	}
 	
+	private MultiNode TryAdding (Node added, MultiNode group)
+	{
+		String groupname = group.GetName();
+		String nodename  = added.GetName();
+
+		if (group.AddNode(nodename, added))
+			return group;
+
+		MultiNode parent = (MultiNode) group.GetParent();
+		if ((parent != null) && (parent.subnodes.size() == 1))
+		{
+			parent.AddNode  (nodename, added);
+			
+			parent.SetName  (groupname);
+			nodesByName.put (groupname, parent);
+			return parent;
+		}
+		
+		// Impossible to expand - node has to be put somewhere else
+		return null;
+	}
+	
+	private void ResizeBaseNode ()
+	{
+		// First find the next supernode size
+		int newdim = dim;
+		while (Units.DimToCap(newdim) < 7*Units.DimToCap(dim))
+			newdim += 1;
+		dim = newdim;
+		Painter.GenerateGrid ("grid", dim);
+		
+		// Now for all the existing nodes put them through the adding procedure again
+		nodes = new HashMap<Position, MultiNode> ();
+		
+		int i = 0;
+		for (Entry<String, MultiNode> en : nodesByName.entrySet())
+		{
+			// If there is no grouping node - create it
+			Position ringshift = Units.FindSpotAround (i++);
+			Position coord = Units.CoordinateByRingAndShift (dim, ringshift.x, ringshift.y);
+			
+			MultiNode nner = new MultiNode (dim, null);
+			
+			nner.AddNode (en.getKey(), en.getValue());
+			
+			nodes.put (coord, nner);
+		}
+	}
+	
+	private MultiNode AllocateTopLevelNode ()
+	{
+		Position ringshift = Units.FindSpotAround(nodes.size());
+		
+		Position coord = Units.CoordinateByRingAndShift (dim, ringshift.x, ringshift.y);
+		
+		// Create the node - start small
+		MultiNode groupnode = new MultiNode (dim, null);
+		
+		nodes.put(coord, groupnode);
+		
+		return groupnode;
+	}
+	
+	private MultiNode WrapExpand (MultiNode groupnode)
+	{
+		String groupname = groupnode.GetName();
+		
+		// Find the new dimension
+		int dim = groupnode.getDimenstion();
+		int newdim = dim;
+		while (Units.DimToCap(newdim) < 7*Units.DimToCap(dim))
+			newdim += 1;
+		
+		// Create a wrapper node
+		MultiNode wrapper = new MultiNode (newdim, null);
+		wrapper.SetName (groupname);
+		nodesByName.put (groupname, wrapper);
+		
+		return wrapper;
+	}
 
 
 	public Node FindClickedNode (int x, int y)

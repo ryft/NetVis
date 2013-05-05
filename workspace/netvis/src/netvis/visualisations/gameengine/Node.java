@@ -8,7 +8,12 @@ import netvis.data.model.Packet;
 
 public abstract class Node {
 
-	public Node() {
+	private String name;
+	public String GetName() {return name;}
+	public void   SetName(String n) {name = n;}
+	
+	public Node(String nam) {
+		name = nam;
 	}
 
 	public void Draw(int base, NodePainter painter, GL2 gl) {

@@ -35,9 +35,16 @@ public class Units {
 	public static Position CoordinateByRingAndShift (int dim, int ring, int shift)
 	{
 		int comp = -1;
-		if ((ring != 1) && (shift % (ring-1) != 0))
+		int rel = 0;
+		if (ring != 1)
 		{
-			comp = shift / (ring-1);
+			rel = (shift % (ring-1));
+			
+			if (rel != 0)
+			{
+				comp = shift / (ring-1);
+			}
+			rel = Math.min (Math.abs (ring - 1 - rel), rel);
 		}
 
 		Position rs = ActuallRingAndShift (dim, new Position(ring, shift));
@@ -85,8 +92,8 @@ public class Units {
 		// Apply compensation
 		if (comp != -1)
 		{
-			p.x += (dim-1) * xcompens[comp];
-			p.y += (dim-1) * ycompens[comp];
+			p.x += rel * (dim-1) * xcompens[comp];
+			p.y += rel * (dim-1) * ycompens[comp];
 		};
 			
 		return p;

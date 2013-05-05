@@ -37,12 +37,6 @@ public class HeatNode extends Node {
 	public String getTexture() {
 		return tex;
 	}
-
-	String name;
-
-	public String getName() {
-		return name;
-	};
 	
 	boolean selected;
 
@@ -61,13 +55,14 @@ public class HeatNode extends Node {
 	
 	public HeatNode (String tname, String nname)
 	{
+		super (nname);
+		
 		// Cumulating time
 		cumultime = 0;
 		
 		// How much data was transferred
 		data = 0;
 
-		name = nname;
 		tex = tname;
 		
 		bgColor = new double[3];

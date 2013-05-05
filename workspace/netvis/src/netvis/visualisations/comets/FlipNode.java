@@ -39,7 +39,7 @@ public class FlipNode extends Node {
 	};
 
 	public FlipNode(Node f, Node b) {
-		super();
+		super(f.GetName());
 
 		framebufferid = FramebufferPool.Generate();
 		rotation = new ValueAnimator(0.0);
