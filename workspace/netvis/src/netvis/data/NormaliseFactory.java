@@ -62,7 +62,9 @@ public class NormaliseFactory {
 		public void filter(double lowerBound, double upperBound){		
 			double interval = this.upperBound - this.lowerBound;
 			this.upperBound = this.lowerBound + upperBound*interval;
+				if (this.upperBound > 1) this.upperBound = 1;
 			this.lowerBound += lowerBound*interval;
+				if (this.lowerBound < 0) this.lowerBound = 0;
 			if (myFilter != null)
 				dataController.removeFilter(myFilter);
 			myFilter = new NormalisationFilter(this);
