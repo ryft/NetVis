@@ -165,6 +165,10 @@ public class DataController implements ActionListener {
 		this.allPackets.clear();
 		allDataChanged();
 	}
+	
+	public DataFeeder getDataFeeder() {
+		return dataFeeder;
+	}
 
 	public JPanel fixedFiltersPanel() {
 		return filterPanel;

@@ -58,7 +58,7 @@ public class VertexBuffer {
 		
 		// Upload data
 		gl.glBufferData (GL2.GL_ARRAY_BUFFER, vertices.capacity()*Buffers.SIZEOF_FLOAT, vertices, GL2.GL_STATIC_DRAW);
-		gl.glMapBuffer(GL2.GL_ARRAY_BUFFER, GL2.GL_READ_ONLY);
+		//gl.glMapBuffer(GL2.GL_ARRAY_BUFFER, GL2.GL_READ_ONLY);
 		
 	}
 }

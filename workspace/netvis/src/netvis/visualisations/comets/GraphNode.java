@@ -11,19 +11,11 @@ import netvis.visualisations.gameengine.NodePainter;
 
 public class GraphNode extends Node {
 
-	String name;
-
-	HashMap<String, Long> protocollengths;
-	long maxVal = 0;
-	
-	public String getName() {
-		return name;
-	}
+	public HashMap<String, Long> protocollengths;
+	public long maxVal = 0;
 
 	public GraphNode(String n) {
-		super();
-		
-		name = n;
+		super(n);
 	
 		protocollengths = new HashMap<String, Long> ();
 	}

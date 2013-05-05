@@ -8,11 +8,24 @@ import netvis.data.model.Packet;
 
 public abstract class Node {
 
-	public Node() {
+	private String name;
+	public String GetName() {return name;}
+	public void   SetName(String n) {name = n;}
+	
+	public Node(String nam) {
+		name = nam;
 	}
 
 	public void Draw(int base, NodePainter painter, GL2 gl) {
 		painter.DrawNode(base, this, gl);
+	}
+	
+	Node parent = null;
+	public Node GetParent() {
+		return parent;
+	}
+	public void SetParent (Node par) {
+		parent = par;
 	}
 	
 	// Defaultly a node is a singular hexagon

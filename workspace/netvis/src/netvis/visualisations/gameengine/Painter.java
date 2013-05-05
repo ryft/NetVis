@@ -24,6 +24,21 @@ public class Painter {
 
 		VertexBuffer hexagon = new VertexBuffer (dbh);
 		
+		// Prepare the vertex buffer for the textured hexagon
+		FloatBuffer dbht = FloatBuffer.allocate(5*6);
+		for (int i = 0; i < 6; i++) {
+			dbht.put ((float) Math.cos(Math.PI / 6 + i * Math.PI / 3));
+			dbht.put ((float) Math.sin(Math.PI / 6 + i * Math.PI / 3));
+			dbht.put ((float) 0.0);
+			
+			dbht.put (0.5f + (float) (0.5 * Math.cos(Math.PI / 6 + i * Math.PI / 3)));
+			dbht.put (0.5f + (float) (0.5 * Math.sin(Math.PI / 6 + i * Math.PI / 3)));
+		}
+		
+		dbht.rewind();
+
+		VertexBuffer hexagont = new VertexBuffer (dbht);
+		
 		// Prepare the vertex buffer for the hexagon
 		FloatBuffer dbs = FloatBuffer.allocate(8*4);
 		for (int i = 0; i < 4; i++) {
@@ -44,24 +59,34 @@ public class Painter {
 
 		VertexBuffer square = new VertexBuffer (dbs);
 		
-		FloatBuffer gb = FloatBuffer.allocate (2*6*3 * 80 * 80);
-		
-		for (int i = -40; i < 40; i++) {
-			for (int j = -40; j < 40; j++) {
-				float dx = (float) (Math.sqrt(3) * i);
-				float dy = (float) (1.5 * j);
-				if (j % 2 != 0)
-					dx += 0.5 * Math.sqrt(3);
+		VertexBufferPool.PutBuffer("hexagon", hexagon);
+		VertexBufferPool.PutBuffer("hexagontexture", hexagont);
+		VertexBufferPool.PutBuffer("square", square);
+
+	}
 	
-				for (int k = 0; k < 6; k++) {
-					gb.put (dx + (float) Math.cos(Math.PI / 6 + k * Math.PI / 3));
-					gb.put (dy + (float) Math.sin(Math.PI / 6 + k * Math.PI / 3));
-					gb.put (0.0f);
+	
+	public static void GenerateGrid (String name, int dim)
+	{
+		FloatBuffer gb = FloatBuffer.allocate (2*6*3 * Units.DimToCap(dim));
+		
+		for (int i = 0; i < Units.DimToCap(dim); i++) {
+			
+			Position rs = Units.FindSpotAround(i);
+			Position co = Units.CoordinateByRingAndShift(1, rs.x, rs.y);
+			Position xy = Units.PositionByCoordinate(1000, co);
+			
+			float dx = (float) xy.x / 1000;
+			float dy = (float) xy.y / 1000;
+	
+			for (int k = 0; k < 6; k++) {
+				gb.put (dx + (float) Math.cos(Math.PI / 6 + k * Math.PI / 3));
+				gb.put (dy + (float) Math.sin(Math.PI / 6 + k * Math.PI / 3));
+				gb.put (0.0f);
 					
-					gb.put (dx + (float) Math.cos(Math.PI / 6 + (k+1) * Math.PI / 3));
-					gb.put (dy + (float) Math.sin(Math.PI / 6 + (k+1) * Math.PI / 3));
-					gb.put (0.0f);
-				}
+				gb.put (dx + (float) Math.cos(Math.PI / 6 + (k+1) * Math.PI / 3));
+				gb.put (dy + (float) Math.sin(Math.PI / 6 + (k+1) * Math.PI / 3));
+				gb.put (0.0f);
 			}
 		}
 		
@@ -69,9 +94,29 @@ public class Painter {
 		
 		VertexBuffer grid = new VertexBuffer (gb);
 		
-		VertexBufferPool.PutBuffer("hexagon", hexagon);
-		VertexBufferPool.PutBuffer("square", square);
-		VertexBufferPool.PutBuffer("grid", grid);
+		VertexBufferPool.PutBuffer (name, grid);
+	}
+	
+	public static void DrawGrid (int base, int dim, String name, GL2 gl) {
+		int bid = VertexBufferPool.get(name).Bind(gl);
+		
+		gl.glBindBuffer (GL2.GL_ARRAY_BUFFER, bid);
+		
+		gl.glPushMatrix();
+		gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+		
+			gl.glScaled (base, base, 1.0);
+		
+			//Define the dataformat
+			gl.glVertexPointer (3, GL2.GL_FLOAT, 3*Buffers.SIZEOF_FLOAT, 0);
+			
+			gl.glLineWidth(1.0f);
+			gl.glColor3d(0.8, 0.8, 0.8);
+			
+			gl.glDrawArrays (GL2.GL_LINES, 0, 12 * Units.DimToCap(dim));
+			
+		gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+		gl.glPopMatrix();
 	}
 
 	/*
@@ -92,6 +137,19 @@ public class Painter {
 		DrawSquare(w, h, cx, cy, scale, rot, gl);
 	}
 	
+	public static void DrawImageHex (Texture tex, int mode, double cx, double cy, double scale, double rot, double opacity, GL2 gl) {
+		int w = tex.getW();
+		int h = tex.getH();
+
+		// Bind to the texture
+		int id = tex.Bind(gl);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, id);
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, mode);
+		
+		// Draw the image
+		Painter.DrawHexagonTextured(GL2.GL_POLYGON, cx, cy, (int) Math.round(scale * w/2.0), rot, gl);
+	}
+	
 	public static void DrawSquare (int w, int h, double cx, double cy, double scale, double rot, GL2 gl)
 	{
 		int bid = VertexBufferPool.get("square").Bind(gl);
@@ -110,6 +168,7 @@ public class Painter {
 		
 			gl.glScaled (scale*w/2.0, scale*h/2.0, 1.0);
 			gl.glTranslated (cx, cy, 0.0);
+			gl.glRotated(rot, 0.0, 0.0, 1.0);
 			
 			//gl.glVertexPointer (3, GL2.GL_DOUBLE, 6 * Buffers.SIZEOF_DOUBLE, 0);
 			gl.glVertexPointer   (3, GL2.GL_FLOAT, 8*Buffers.SIZEOF_FLOAT, 0);
@@ -117,9 +176,7 @@ public class Painter {
 			gl.glTexCoordPointer (2, GL2.GL_FLOAT, 8*Buffers.SIZEOF_FLOAT, 6*Buffers.SIZEOF_FLOAT);
 			
 			//gl.glColor3d (0.0, 0.0, 0.0);
-			gl.glDrawArrays(GL2.GL_QUADS, 0, 4);
-			
-			gl.glFlush();
+			gl.glDrawArrays(GL2.GL_POLYGON, 0, 4);
 			
 		gl.glDisableClientState (GL2.GL_TEXTURE_COORD_ARRAY);
 		gl.glDisableClientState( GL2.GL_COLOR_ARRAY );
@@ -187,6 +244,36 @@ public class Painter {
 		gl.glPopMatrix();
 	}
 	
+	public static void DrawHexagonTextured (int mode, double x, double y, int base, double rot, GL2 gl) {
+		int bid = VertexBufferPool.get("hexagontexture").Bind(gl);
+		
+		gl.glBindBuffer (GL2.GL_ARRAY_BUFFER, bid);
+		
+		gl.glEnable(GL2.GL_TEXTURE_2D);
+		gl.glEnable(GL2.GL_TEXTURE_2D_MULTISAMPLE);
+		
+		gl.glPushMatrix();
+		gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+		gl.glEnableClientState (GL2.GL_TEXTURE_COORD_ARRAY);
+		
+			gl.glTranslated (x, y, 0.0);
+			gl.glScaled (base, base, 1.0);
+			gl.glRotated(rot, 0.0, 0.0, 1.0);
+		
+			//Define the dataformat
+			gl.glVertexPointer   (3, GL2.GL_FLOAT, 5*Buffers.SIZEOF_FLOAT, 0);
+			gl.glTexCoordPointer (2, GL2.GL_FLOAT, 5*Buffers.SIZEOF_FLOAT, 3*Buffers.SIZEOF_FLOAT);
+			
+			gl.glDrawArrays (mode, 0, 6);
+			
+		gl.glDisableClientState (GL2.GL_TEXTURE_COORD_ARRAY);
+		gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+		gl.glPopMatrix();
+		
+		gl.glDisable (GL2.GL_TEXTURE_2D);
+		gl.glDisable (GL2.GL_TEXTURE_2D_MULTISAMPLE);
+	}
+	
 	public static void DrawHexagonImmediate (int mode, double x, double y, int base, GL2 gl) {
 		gl.glBegin(mode);
 		for (int i = 0; i < 6; i++) {
@@ -211,28 +298,6 @@ public class Painter {
 				DrawHexagon(GL2.GL_LINE_LOOP, base * Math.sqrt(3) * i + dx, base * 1.5 * j, 400, gl);
 			}
 		}
-	}
-	
-	public static void DrawGrid(int base, GL2 gl) {
-		int bid = VertexBufferPool.get("grid").Bind(gl);
-		
-		gl.glBindBuffer (GL2.GL_ARRAY_BUFFER, bid);
-		
-		gl.glPushMatrix();
-		gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
-		
-			gl.glScaled (base, base, 1.0);
-		
-			//Define the dataformat
-			gl.glVertexPointer (3, GL2.GL_FLOAT, 3*Buffers.SIZEOF_FLOAT, 0);
-			
-			gl.glLineWidth(1.0f);
-			gl.glColor3d(0.8, 0.8, 0.8);
-			
-			gl.glDrawArrays (GL2.GL_LINES, 0, 12 * 80 * 80);
-			
-		gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
-		gl.glPopMatrix();
 	}
 
 	public static void TraceCurve(double[] arr, int size, GL2 gl) {
@@ -260,8 +325,6 @@ public class Painter {
 			gl.glEvalMesh1(GL2.GL_POINT, 0, 3);
 			gl.glDisable(GL2.GL_MAP1_VERTEX_3);
 		}
-
-		gl.glFlush();
 	}
 
 	public static void DrawCircle (double x, double y, double rad, GL2 gl) {
@@ -277,5 +340,51 @@ public class Painter {
 			gl.glVertex2d(xx, yy);
 		}
 		gl.glEnd();
+	}
+	
+	public static void StressTest (int base, GL2 gl) {
+	
+		for (int i=0; i<10000; i++)
+		{
+			int x = base * (i % (int) Math.round(Math.sqrt(10000)));
+			int y = 2 * base * (i / (int) Math.round(Math.sqrt(10000)));
+
+			gl.glPushMatrix();
+				gl.glTranslatef(x, y, 0.0f);
+
+				gl.glColor3d(0.5, 0.5, 0.4);
+				Painter.DrawHexagon (GL2.GL_POLYGON, 0.0, 0.0, base, gl);
+				gl.glColor3d(0.7, 0.7, 0.6);
+				Painter.DrawSquare (100, 100, 0.0, 0.0, 1.0, 0.0, gl);
+				
+			gl.glPopMatrix();
+		}
+	}
+	
+	public static void StressTestList (int base, GL2 gl) {
+		
+		int	index = gl.glGenLists(1);
+		
+		gl.glNewList(index, GL2.GL_COMPILE);
+			gl.glColor3d(0.5, 0.5, 0.4);
+			Painter.DrawHexagon (GL2.GL_POLYGON, 0.0, 0.0, base, gl);
+			gl.glColor3d(0.7, 0.7, 0.6);
+			Painter.DrawSquare (100, 100, 0.0, 0.0, 1.0, 0.0, gl);
+		gl.glEndList();
+		
+		for (int i=0; i<10000; i++)
+		{
+			int x = base * (i % (int) Math.round(Math.sqrt(10000)));
+			int y = 2 * base * (i / (int) Math.round(Math.sqrt(10000)));
+
+			gl.glPushMatrix();
+				gl.glTranslatef(x, y, 0.0f);
+				//gl.glTranslated(x, y, 0.0);
+				
+				gl.glCallList(index);		
+			gl.glPopMatrix();
+		}
+		
+		gl.glDeleteLists(index, 1);
 	}
 }

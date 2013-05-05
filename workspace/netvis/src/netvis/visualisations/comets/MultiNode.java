@@ -46,6 +46,8 @@ public class MultiNode extends Node {
 	HashMap <Position, Node> subnodes;
 	HashMap <String,   Node> subnodesByName;
 	
+	public int GetSubSize() {return subnodes.size();}
+	
 	@Override
 	public Node GetNode (String name) {
 		Node nn = subnodesByName.get(name);
@@ -87,8 +89,10 @@ public class MultiNode extends Node {
 		return null;
 	}
 	
-	public MultiNode(int dimension) {
-		super();
+	public MultiNode (int dimension, MultiNode par) {
+		super(null);
+		
+		SetParent(par);
 		
 		dim = dimension;
 		subdim = -1;
@@ -120,8 +124,30 @@ public class MultiNode extends Node {
 		gl.glPushMatrix();
 			gl.glLineWidth (3.0f);
 			gl.glRotated(90.0, 0.0, 0.0, 1.0);
-			//Painter.DrawHexagon(GL.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
+			//Painter.DrawHexagon(GL2.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
 		gl.glPopMatrix();
+	}
+	 
+	public void DetachNode (Node n) {
+		// Find the specified node in the lists
+		for (Entry<Position, Node> en : subnodes.entrySet())
+		{
+			if (en.getValue() == n)
+			{
+				subnodes.remove(en.getKey());
+				break;
+			}
+		}
+		
+		for (Entry<String, Node> en : subnodesByName.entrySet())
+		{
+			if (en.getValue() == n)
+			{
+				subnodesByName.remove(en.getKey());
+				break;
+			}
+		}
+		
 	}
 	
 	@Override
@@ -140,15 +166,14 @@ public class MultiNode extends Node {
 			} else if (reqdim == FindNodeDim())
 			{
 				subdim = reqdim;
-				AllocateSubnode (name, n);
-				return true;
+				return AllocateSubnode (name, n);
 			} else
 			{
 				// We can put this node in the subnode
 				subdim = FindNodeDim();
 				
 				// So allocate the subnode
-				Node mn = new MultiNode(subdim);
+				Node mn = new MultiNode (subdim, this);
 				AllocateSubnode (null, mn);
 				
 				// And then add the considered node to the subnode
@@ -163,8 +188,7 @@ public class MultiNode extends Node {
 			// If the node fits perfectly - allocate it straight away
 			if (reqdim == subdim)
 			{
-				AllocateSubnode (name, n);
-				return true;
+				return AllocateSubnode (name, n);
 			}
 			
 			// Try allocating this node in any of the subnodes
@@ -175,7 +199,7 @@ public class MultiNode extends Node {
 			}
 			
 			// If it failed - create a new subnode and allocate considered node in it
-			Node mn = new MultiNode(subdim);
+			Node mn = new MultiNode(subdim, this);
 			mn.AddNode (name, n);
 			return AllocateSubnode (null, mn);
 		}
@@ -183,19 +207,37 @@ public class MultiNode extends Node {
 	
 	private boolean AllocateSubnode (String name, Node mn)
 	{
-		// First find the ring to go to
-		Position rs = Units.FindSpotAround(subnodes.size());
-
+		// Set the parent to this
+		mn.SetParent (this);
+		
+		// Find the first empty spot
+		Position vrs = new Position (0, 0);
+		Position p = new Position (0, 0);
+		int i=0;
+		boolean found = false;
+		while (!found)
+		{
+			vrs = Units.FindSpotAround (i);
+			// Redraw this - it might be incorrect for the bigger ones
+			p = Units.CoordinateByRingAndShift (subdim, vrs.x, vrs.y);
+			
+			if (subnodes.get(p) == null)
+				found = true;
+			
+			i++;
+		};
+		
+		Position ars = Units.ActuallRingAndShift(subdim, vrs);
+			
 		// If the ring is too far away we can not allocate the subnode
-		if (rs.x > this.dim)
+		if (ars.x > this.dim)
 			return false;
 		
 		// Register the node with its name
 		if (name != null)
 			subnodesByName.put (name, mn);
 		
-		// Redraw this - it might be incorrect for the bigger ones
-		Position p = Units.CoordinateByRingAndShift (subdim, rs.x, rs.y);
+		System.out.println("Node " + name + " placed in ringshift : (" + ars.x + ", " + ars.y +") coords : (" + p.x + ", " + p.y + ")");
 
 		// Add it to the right place
 		subnodes.put (p, mn);
@@ -218,7 +260,9 @@ public class MultiNode extends Node {
 
 	@Override
 	public void UpdateAnimation(long time) {
-		// TODO Auto-generated method stub
+		// Recursively update the animation of the subnodes
+		for (Node n : subnodes.values())
+			n.UpdateAnimation(time);
 	}
 
 	@Override
@@ -231,5 +275,4 @@ public class MultiNode extends Node {
 	public void MouseClick(MouseEvent e) {
 		// TODO Auto-generated method stub
 	}
-
 }

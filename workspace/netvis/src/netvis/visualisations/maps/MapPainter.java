@@ -1,4 +1,4 @@
-package netvis.visualisations.comets;
+package netvis.visualisations.maps;
 
 import java.awt.geom.Rectangle2D;
 import java.util.List;
@@ -7,6 +7,12 @@ import java.util.Map.Entry;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
+import netvis.visualisations.comets.ActivityVisualisation;
+import netvis.visualisations.comets.Comet;
+import netvis.visualisations.comets.CometHeatNode;
+import netvis.visualisations.comets.FlipNode;
+import netvis.visualisations.comets.GraphNode;
+import netvis.visualisations.comets.HeatNode;
 import netvis.visualisations.gameengine.Framebuffer;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
@@ -24,8 +30,8 @@ public class MapPainter implements NodePainter {
 		TexturePool.LoadTexture("hexagon1",	ActivityVisualisation.class.getResource("resources/hex1.png"));
 		TexturePool.LoadTexture("hexagon2",	ActivityVisualisation.class.getResource("resources/hex2.png"));
 		
-		TexturePool.LoadTexture("server", Map.class.getResource("resources/server.png"));
-		TexturePool.LoadTexture("basic", Map.class.getResource("resources/basic.png"));
+		TexturePool.LoadTexture("server", ActivityVisualisation.class.getResource("resources/server.png"));
+		TexturePool.LoadTexture("basic", ActivityVisualisation.class.getResource("resources/basic.png"));
 	}
 	
 	public void DrawNode(int base, HeatNode lum, GL2 gl) {
@@ -34,29 +40,22 @@ public class MapPainter implements NodePainter {
 		double opacity = lum.getOpacity();
 
 		// Draw the background
-		gl.glPushMatrix();
-		gl.glTranslated(0.0, 0.0, -1.0);
 		gl.glColor4d (color[0], color[1], color[2], opacity);
-		Painter.DrawHexagon(GL2.GL_POLYGON, 0, 0, base, gl);
-		gl.glPopMatrix();
+		//Painter.DrawHexagon(GL2.GL_POLYGON, 0, 0, base, gl);
 
-		// Draw the usual hexagon
-		gl.glLineWidth(3.0f);
-		gl.glColor3d(0.0, 0.0, 0.0);
-		// this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
-		
 		// Draw the graphical hexagon
 		if (lum.getSelected() == true)
-			Painter.DrawImage(TexturePool.get("hexagon2"), 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
+			Painter.DrawImageHex(TexturePool.get("hexagon2"), GL2.GL_DECAL, 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
 		else
-			Painter.DrawImage(TexturePool.get("hexagon1"), 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
+			Painter.DrawImageHex(TexturePool.get("hexagon1"), GL2.GL_DECAL, 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
 
 		// Draw the server image
 		int imageSize = 200;
+		gl.glColor4d (0.0, 0.0, 0.0, opacity);
 		if (lum.getSelected() == true)
-			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 90.0, opacity, gl);
+			Painter.DrawImageHex (TexturePool.get(lum.getTexture()), GL2.GL_BLEND, 0.0, 0.0, imageSize / 512.0, 90.0, opacity, gl);
 		else
-			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 0.0, opacity, gl);
+			Painter.DrawImageHex (TexturePool.get(lum.getTexture()), GL2.GL_BLEND, 0.0, 0.0, imageSize / 512.0, 0.0, opacity, gl);
 
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");
@@ -69,7 +68,7 @@ public class MapPainter implements NodePainter {
 			else
 				renderer.setColor (0.0f, 0.0f, 0.0f, (float) opacity);
 			
-			Rectangle2D noob = renderer.getBounds(lum.getName());
+			Rectangle2D noob = renderer.getBounds(lum.GetName());
 			
 			float scale = 1.0f;
 			
@@ -78,7 +77,7 @@ public class MapPainter implements NodePainter {
 			
 			int xx = (int) (-scale * noob.getWidth() / 2);
 			int yy = (int) (-imageSize / 2 - scale * noob.getHeight() - 30);
-			renderer.draw3D (lum.getName(), xx, yy, 1.0f, scale);
+			renderer.draw3D (lum.GetName(), xx, yy, 1.0f, scale);
 			
 			noob = renderer.getBounds(lum.maxProto);
 			xx = (int) (-noob.getWidth() / 2);
@@ -86,9 +85,6 @@ public class MapPainter implements NodePainter {
 			renderer.draw(lum.maxProto, xx, yy);
 
 		renderer.end3DRendering();
-		// Big slow down if this is uncommented
-		// renderer.flush();
-
 	}
 
 	public void DrawNode(int base, CometHeatNode lum, GL2 gl) {
@@ -120,7 +116,7 @@ public class MapPainter implements NodePainter {
 			renderer.setUseVertexArrays(true);
 			renderer.setColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-			Rectangle2D noob = renderer.getBounds(lum.getName());
+			Rectangle2D noob = renderer.getBounds(lum.GetName());
 			
 			float scale = 1.0f;
 			
@@ -129,7 +125,7 @@ public class MapPainter implements NodePainter {
 			
 			int xx = (int) (-noob.getWidth() * scale / 2);
 			int yy = (int) (base/2.0 + noob.getHeight());
-			renderer.draw3D (lum.getName(), xx, yy, 1.0f, scale);
+			renderer.draw3D (lum.GetName(), xx, yy, 1.0f, scale);
 			
 			noob = renderer.getBounds("Protocols used:");
 			xx = (int) (-noob.getWidth() / 2);

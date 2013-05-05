@@ -1,4 +1,4 @@
-package netvis.visualisations.comets;
+package netvis.visualisations.maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,13 +16,17 @@ import java.util.concurrent.TimeUnit;
 import javax.media.opengl.GL2;
 
 import netvis.data.model.Packet;
+import netvis.visualisations.comets.Connection;
+import netvis.visualisations.comets.FlipNode;
+import netvis.visualisations.comets.GraphNode;
+import netvis.visualisations.comets.HeatNode;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 
-public class Map {
+public class MapHeat extends Map {
 
-	class NodeWithPosition {
+	public class NodeWithPosition {
 		public NodeWithPosition(Node a, Position c, Position p) {
 			node = a;
 			coo = c;
@@ -43,15 +47,12 @@ public class Map {
 	
 	MapPainter painter;
 
-	// Basic size of the node
-	int base = 400;
-	int width;
-	int height;
-
 	// Connections to be drawn
 	HashMap<String, Connection> connections;
 
 	Random rand;
+	
+	int gridsize;
 
 	class NamedThreadFactory implements ThreadFactory {
 		int i = 0;
@@ -65,7 +66,7 @@ public class Map {
 	ExecutorService exe = new ThreadPoolExecutor(4, 8, 5000, TimeUnit.MILLISECONDS,
 			new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory());
 
-	public Map(int w, int h) {
+	public MapHeat(int w, int h) {
 		width = w;
 		height = h;
 
@@ -76,11 +77,14 @@ public class Map {
 		nodesl = new ArrayList<NodeWithPosition>();
 		
 		painter = new MapPainter();
+		
+		gridsize = 40;
+		Painter.GenerateGrid("secondgrid", 40);
 	}
 
 	public void DrawEverything(GL2 gl) {
 
-		Painter.DrawGrid(base, gl);
+		Painter.DrawGrid (base, gridsize, "secondgrid", gl);
 		for (NodeWithPosition i : nodesByName.values()) {
 			int x = i.pos.x;
 			int y = i.pos.y;
@@ -228,27 +232,25 @@ public class Map {
 		Position coord;
 		NodeWithPosition nearnode = nodesByName.get(near);
 		
-		if (nearnode == null) {
-			// Place it in the middle
-			posit = FindPosition(nodesByName.size());
+		// Look for the position around the specified coordinate
+		int current = 0;
+		while (true) {
+			posit = FindPosition(current);
 			coord = CoordinateByPosition(posit);
-		} else {
-			// Place it close to the specified node
-			int current = 0;
-			while (true) {
-				posit = FindPosition(current);
-				coord = CoordinateByPosition(posit);
+			if (nearnode != null)
+			{
 				coord.x += nearnode.coo.x;
 				coord.y += nearnode.coo.y;
-				posit = PositionByCoordinate(coord);
-
-				if (nodesByPosition.get(coord) != null)
-					current++;
-				else
-					break;
 			}
+			posit = PositionByCoordinate(coord);
+
+			if (nodesByPosition.get(coord) != null)
+				current++;
+			else
+				break;
 		}
-	
+		
+		coord = CoordinateByPosition(posit);	
 		NodeWithPosition k = new NodeWithPosition(lemur, coord, posit);
 
 		// System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
@@ -260,27 +262,21 @@ public class Map {
 		return k;
 	}
 
-	public NodeWithPosition FindClickedNode(int x, int y) {
+	public Node FindClickedNode(int x, int y) {
 		// Optimised version
 		Position p = new Position(x, y);
 		Position c = CoordinateByPosition(p);
 
 		NodeWithPosition node = nodesByPosition.get(c);
-		return node;
-
-		/* Just in case if the previous thing is not working
-		 * for (NodeWithPosition n : nodesByName.values()) { Position pos =
-		 * n.pos; double distance = Math.sqrt (Math.pow(pos.x - x, 2) +
-		 * Math.pow(pos.y - y, 2)); if (distance < base-10) return n; } return
-		 * null;
-		 */
+		return node.node;
 	}
+	
+	public Position FindClickedNodePos (int x, int y) {
+		// Optimised version
+		Position p = new Position(x, y);
+		Position c = CoordinateByPosition(p);
 
-	public double ZoomOn() {
-		double screenratio = (1.0 * width) / height;
-		if (screenratio < Math.sqrt(3.0)) {
-			return (base * Math.sqrt(3.0)) / width;
-		}
-		return (1.0 * base) / height;
+		NodeWithPosition node = nodesByPosition.get(c);
+		return node.pos;
 	}
 }
