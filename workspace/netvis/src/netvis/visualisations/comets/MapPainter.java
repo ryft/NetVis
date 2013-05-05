@@ -34,29 +34,22 @@ public class MapPainter implements NodePainter {
 		double opacity = lum.getOpacity();
 
 		// Draw the background
-		gl.glPushMatrix();
-		gl.glTranslated(0.0, 0.0, -1.0);
 		gl.glColor4d (color[0], color[1], color[2], opacity);
-		Painter.DrawHexagon(GL2.GL_POLYGON, 0, 0, base, gl);
-		gl.glPopMatrix();
+		//Painter.DrawHexagon(GL2.GL_POLYGON, 0, 0, base, gl);
 
-		// Draw the usual hexagon
-		gl.glLineWidth(3.0f);
-		gl.glColor3d(0.0, 0.0, 0.0);
-		// this.DrawHexagon (GL2.GL_LINE_LOOP, x, y, 400, gl);
-		
 		// Draw the graphical hexagon
 		if (lum.getSelected() == true)
-			Painter.DrawImage(TexturePool.get("hexagon2"), 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
+			Painter.DrawImageHex(TexturePool.get("hexagon2"), GL2.GL_DECAL, 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
 		else
-			Painter.DrawImage(TexturePool.get("hexagon1"), 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
+			Painter.DrawImageHex(TexturePool.get("hexagon1"), GL2.GL_DECAL, 0.0, 0.0, 2 * base / 512.0, 0, opacity, gl);
 
 		// Draw the server image
 		int imageSize = 200;
+		gl.glColor4d (0.0, 0.0, 0.0, opacity);
 		if (lum.getSelected() == true)
-			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 90.0, opacity, gl);
+			Painter.DrawImageHex (TexturePool.get(lum.getTexture()), GL2.GL_BLEND, 0.0, 0.0, imageSize / 512.0, 90.0, opacity, gl);
 		else
-			Painter.DrawImage(TexturePool.get(lum.getTexture()), 0.0, 0.0, imageSize / 512.0, 0.0, opacity, gl);
+			Painter.DrawImageHex (TexturePool.get(lum.getTexture()), GL2.GL_BLEND, 0.0, 0.0, imageSize / 512.0, 0.0, opacity, gl);
 
 		// Write the name of the node
 		TextRenderer renderer = TextRendererPool.get("basic");

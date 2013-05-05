@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.media.opengl.GL2;
 
+import junit.framework.Assert;
+
 import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Painter;
@@ -125,19 +127,19 @@ public class MapExperimental {
 	private Node AddNode (String groupname, String nodename, String textureName) {
 
 		// Look for the wrapping node
-		MultiNode nearnode = nodesByName.get(groupname);
-		if (nearnode == null)
+		MultiNode groupnode = nodesByName.get(groupname);
+		if (groupnode == null)
 		{
 			// If there is no grouping node - create it
-			nearnode = new MultiNode (2, null);
-			nearnode.SetName(groupname);
-			nodesByName.put(groupname, nearnode);
+			groupnode = new MultiNode (2, null);
+			groupnode.SetName(groupname);
+			nodesByName.put(groupname, groupnode);
 
 			// Try putting the newly created group somewhere
 			boolean placed = false;
 			for (MultiNode n : nodes.values())
 			{
-				if (n.AddNode(groupname, nearnode))
+				if (n.AddNode(groupname, groupnode))
 				{
 					placed = true;
 					break;
@@ -148,18 +150,18 @@ public class MapExperimental {
 			if (!placed)
 			{
 				MultiNode newtop = AllocateTopLevelNode ();
-				newtop.AddNode(groupname, nearnode);
+				newtop.AddNode(groupname, groupnode);
 			}
 				
 			// Put the indicator node in the middle of the group node
 			HeatNode midnode = new HeatNode(textureName, groupname);
 			midnode.setBGColor(0.5, 0.6, 1.0);
 
-			nearnode.AddNode (groupname, midnode);
+			groupnode.AddNode (groupname, midnode);
 		}
 
 		// If the node is not already there - add it
-		Node found = nearnode.GetNode (nodename);
+		Node found = groupnode.GetNode (nodename);
 		if (found == null)
 		{
 			// Prepare the new node
@@ -169,35 +171,43 @@ public class MapExperimental {
 			// Make it into the flip node - the node that has two sides
 			FlipNode newnode = new FlipNode (front, back);
 			
-			if (TryAdding (newnode, nearnode) == null)
+			if (TryAdding (newnode, groupnode) == null)
 			{
 				boolean placed = false;
-				MultiNode parent = (MultiNode) nearnode.GetParent();
+				MultiNode parent = (MultiNode) groupnode.GetParent();
 				if (parent == null)
 				{
 					// If this is the top level node - resize everything
 					ResizeBaseNode ();
 					
 					// Now we need to try adding this node once again
-					TryAdding (newnode, nearnode);
+					placed = (TryAdding (newnode, groupnode) != null);
+
+					if (!placed)
+					{
+						MultiNode newtop = AllocateTopLevelNode ();
+						placed = newtop.AddNode (groupname, groupnode);
+					}
 					
-					placed = true;
+					// It has to fit now
+					Assert.assertEquals(placed, true);
 				}
 
 				if (!placed)
 				{
 					// Take the node out
-					parent.DetachNode (nearnode);
+					parent.DetachNode (groupnode);
 					
 					// Wrap it in the bigger node
-					nearnode = WrapExpand (nearnode);
+					MultiNode trygroupnode = WrapExpand (groupnode);
 
 					// Try putting the node somewhere else
 					for (MultiNode n : nodes.values())
 					{
-						if (TryAdding (nearnode, n) != null)
+						if (TryAdding (trygroupnode, n) != null)
 						{
 							placed = true;
+							groupnode = trygroupnode;
 							break;
 						}
 					}
@@ -207,8 +217,10 @@ public class MapExperimental {
 				if (!placed)
 				{
 					MultiNode newtop = AllocateTopLevelNode ();
-					placed = newtop.AddNode (groupname, newnode);
+					placed = newtop.AddNode (groupname, groupnode);
 				}
+				
+				TryAdding (newnode, groupnode);
  			}
 
 			found = newnode;
@@ -251,18 +263,26 @@ public class MapExperimental {
 		// Now for all the existing nodes put them through the adding procedure again
 		nodes = new HashMap<Position, MultiNode> ();
 		
-		int i = 0;
 		for (Entry<String, MultiNode> en : nodesByName.entrySet())
 		{
-			// If there is no grouping node - create it
-			Position ringshift = Units.FindSpotAround (i++);
-			Position coord = Units.CoordinateByRingAndShift (dim, ringshift.x, ringshift.y);
+			// Try putting the node somewhere else
+			boolean placed = false;
+			for (MultiNode n : nodes.values())
+			{
+				if (TryAdding (en.getValue(), n) != null)
+				{
+					placed = true;
+					break;
+				}
+			}
 			
-			MultiNode nner = new MultiNode (dim, null);
-			
-			nner.AddNode (en.getKey(), en.getValue());
-			
-			nodes.put (coord, nner);
+			if (!placed)
+			{
+				// If there is no top level grouping node - create it
+				MultiNode newtoplevel = AllocateTopLevelNode ();
+				
+				newtoplevel.AddNode (en.getKey(), en.getValue());
+			}
 		}
 	}
 	
@@ -292,8 +312,7 @@ public class MapExperimental {
 		
 		// Create a wrapper node
 		MultiNode wrapper = new MultiNode (newdim, null);
-		wrapper.SetName (groupname);
-		nodesByName.put (groupname, wrapper);
+		wrapper.AddNode (groupname, groupnode);
 		
 		return wrapper;
 	}

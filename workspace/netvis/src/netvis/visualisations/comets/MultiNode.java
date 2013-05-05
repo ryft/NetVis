@@ -4,7 +4,6 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 import netvis.data.model.Packet;
@@ -124,7 +123,7 @@ public class MultiNode extends Node {
 		gl.glPushMatrix();
 			gl.glLineWidth (3.0f);
 			gl.glRotated(90.0, 0.0, 0.0, 1.0);
-			//Painter.DrawHexagon(GL.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
+			//Painter.DrawHexagon(GL2.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
 		gl.glPopMatrix();
 	}
 	 
@@ -210,12 +209,25 @@ public class MultiNode extends Node {
 		// Set the parent to this
 		mn.SetParent (this);
 		
-		// First find the ring to go to
-		Position vrs = Units.FindSpotAround(subnodes.size());
-		// Redraw this - it might be incorrect for the bigger ones
-		Position p = Units.CoordinateByRingAndShift (subdim, vrs.x, vrs.y);
+		// Find the first empty spot
+		Position vrs = new Position (0, 0);
+		Position p = new Position (0, 0);
+		int i=0;
+		boolean found = false;
+		while (!found)
+		{
+			vrs = Units.FindSpotAround (i);
+			// Redraw this - it might be incorrect for the bigger ones
+			p = Units.CoordinateByRingAndShift (subdim, vrs.x, vrs.y);
+			
+			if (subnodes.get(p) == null)
+				found = true;
+			
+			i++;
+		};
+		
 		Position ars = Units.ActuallRingAndShift(subdim, vrs);
-
+			
 		// If the ring is too far away we can not allocate the subnode
 		if (ars.x > this.dim)
 			return false;

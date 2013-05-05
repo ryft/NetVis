@@ -31,6 +31,7 @@ import netvis.ui.VisControlsContainer;
 import netvis.visualisations.Visualisation;
 import netvis.visualisations.gameengine.FramebufferPool;
 import netvis.visualisations.gameengine.Node;
+import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
@@ -316,6 +317,7 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 
 		gl.glPushMatrix();
+			//Painter.StressTest(currentMap.base, gl);
 			currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
 		
