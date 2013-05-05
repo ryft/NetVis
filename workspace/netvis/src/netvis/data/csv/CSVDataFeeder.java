@@ -22,17 +22,22 @@ import netvis.ui.TimeControlPanel;
 
 public class CSVDataFeeder implements DataFeeder {
 	protected double firstPacketTime, timeScale;
+	protected File file;
+	protected ApplicationFrame parent;
 	protected CSVReader csvReader;
 	protected Iterator<String[]> it;
 	protected Timer secondsTimer;
 	protected int seconds;
 	protected TimeControlPanel timeControlPanel;
+	protected boolean goToEnd = false;
 
 	/**
 	 * @param fileName
 	 *            CSV file that contains the capture.
 	 */
 	public CSVDataFeeder(File file,	ApplicationFrame parent) {
+		this.file = file;
+		this.parent = parent;
 		String fileName = file.getAbsolutePath();
 		try {
 			Reader reader = new FileReader(file);
@@ -57,26 +62,36 @@ public class CSVDataFeeder implements DataFeeder {
 		ActionListener secondCounter = new ActionListener() {
 		      public void actionPerformed(ActionEvent evt) {
 		          seconds++;
+		          timeControlPanel.setStatusLabel("Current time: "+Integer.toString(seconds)+"s");
 		      }
 		};
 		secondsTimer = new Timer(1000, secondCounter);
 		secondsTimer.start();
 
-		
 		timeControlPanel = new TimeControlPanel(this);
 		
 		parent.setTitle("NetVis - " + fileName);
 	}
 	
 	public List<Packet> getNewPackets() {
-		if (!secondsTimer.isRunning()) {
+		if (!it.hasNext()) {
+			secondsTimer.stop();
+			timeControlPanel.feedEnded();
+			return null;
+		} else if (!secondsTimer.isRunning()) {
 			return null;
 		} else {
 			List<Packet> list = new ArrayList<Packet>();
 			while (it.hasNext()) {
 				list.add(lineToPacket(it.next()));
-				if (list.get(list.size() - 1).time > seconds)
+				if (!goToEnd && list.get(list.size() - 1).time > seconds)
 					break;
+			}
+			if (goToEnd) {
+				timeControlPanel.setStatusLabel("Current time: "
+							+Long.toString(Math.round(list.get(list.size() - 1).time))+"s");
+				secondsTimer.stop();
+				timeControlPanel.feedEnded();
 			}
 			return list;
 		}
@@ -84,6 +99,10 @@ public class CSVDataFeeder implements DataFeeder {
 	
 	@Override
 	public boolean hasNext() {
+		if (!it.hasNext()) {
+			secondsTimer.stop();
+			timeControlPanel.feedEnded();
+		}
 		return it.hasNext();
 	}
 	
@@ -120,10 +139,12 @@ public class CSVDataFeeder implements DataFeeder {
 		secondsTimer.setDelay((int) (secondsTimer.getDelay() * 2));
 	}
 	
+	public void skipToStart() {
+		parent.openCSV(file);
+	}
+	
 	public void skipToEnd() {
-		seconds = 14 * 24 * 60 * 60; // assume CSVs don't capture more than 14 days
-		// TODO this might break some statistics, in particular averages over time
-		timeControlPanel.setPlayStatus(false);
+		goToEnd = true;
 	}
 	
 	public boolean isPlaying() {

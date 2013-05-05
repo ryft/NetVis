@@ -29,12 +29,15 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualisations.Visualisation;
-import netvis.visualisations.comets.Map.NodeWithPosition;
 import netvis.visualisations.gameengine.FramebufferPool;
+import netvis.visualisations.gameengine.Node;
+import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
 import netvis.visualisations.gameengine.ValueAnimator;
 import netvis.visualisations.gameengine.VertexBufferPool;
+import netvis.visualisations.maps.MapHeat;
+import netvis.visualisations.maps.MapHeat.NodeWithPosition;
 
 public class HeatmapVisualisation extends Visualisation {
 
@@ -53,7 +56,7 @@ public class HeatmapVisualisation extends Visualisation {
 
 	Timer animator, cleaner;
 
-	Map currentMap;
+	MapHeat currentMap;
 
 	HashMap<String, Candidate> candidates;
 
@@ -71,7 +74,7 @@ public class HeatmapVisualisation extends Visualisation {
 
 		candidates = new HashMap<String, Candidate>();
 
-		currentMap = new Map(width, height);
+		currentMap = new MapHeat(width, height);
 
 		ActionListener animatum = new ActionListener() {
 			long lasttime = (new Date()).getTime();
@@ -175,8 +178,9 @@ public class HeatmapVisualisation extends Visualisation {
 				int x = (int) Math.round(middlex.toDouble() + (e.getX() - (width / 2)) * viewfield);
 				int y = (int) Math.round(middley.toDouble() - (e.getY() - (height / 2)) * viewfield);
 
-				NodeWithPosition n = currentMap.FindClickedNode(x, y);
-				if (n != null) n.node.MouseClick(e);
+				Node nnn = currentMap.FindClickedNode(x, y);
+				Position ppp = currentMap.FindClickedNodePos(x, y);
+				if (nnn != null) nnn.MouseClick(e);
 
 				if (e.getClickCount() == 2) {
 					// Sort the map
@@ -188,10 +192,10 @@ public class HeatmapVisualisation extends Visualisation {
 					viewfieldanim.MoveTo(goal, 1000);
 				}
 
-				if (n != null) {
+				if (nnn != null) {
 					// Move to the selected node
-					middlex.MoveTo(n.pos.x, 1000);
-					middley.MoveTo(n.pos.y, 1000);
+					middlex.MoveTo (ppp.x, 1000);
+					middley.MoveTo (ppp.y, 1000);
 				}
 
 				e.consume();

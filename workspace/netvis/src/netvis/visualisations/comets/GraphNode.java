@@ -11,8 +11,8 @@ import netvis.visualisations.gameengine.NodePainter;
 
 public class GraphNode extends Node {
 
-	HashMap<String, Long> protocollengths;
-	long maxVal = 0;
+	public HashMap<String, Long> protocollengths;
+	public long maxVal = 0;
 
 	public GraphNode(String n) {
 		super(n);

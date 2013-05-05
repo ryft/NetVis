@@ -1,4 +1,4 @@
-package netvis.visualisations.comets;
+package netvis.visualisations.maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,22 +19,22 @@ import javax.media.opengl.GL2;
 import junit.framework.Assert;
 
 import netvis.data.model.Packet;
+import netvis.visualisations.comets.Connection;
+import netvis.visualisations.comets.FlipNode;
+import netvis.visualisations.comets.GraphNode;
+import netvis.visualisations.comets.HeatNode;
+import netvis.visualisations.comets.MultiNode;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.Units;
 
-public class MapExperimental {
+public class MapActivity extends Map {
 
 	MapPainter painter;
 	
 	// Top dimension
 	int dim;
-	
-	// Basic size of the node
-	int base = 400;
-	int width;
-	int height;
 	
 	// Top level nodes
 	HashMap<Position, MultiNode> nodes;
@@ -59,7 +59,7 @@ public class MapExperimental {
 	ExecutorService exe = new ThreadPoolExecutor(4, 8, 5000, TimeUnit.MILLISECONDS,
 			new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory());
 	
-	public MapExperimental(int w, int h) {
+	public MapActivity(int w, int h) {
 		width = w;
 		height = h;
 		
@@ -238,7 +238,7 @@ public class MapExperimental {
 			return group;
 
 		MultiNode parent = (MultiNode) group.GetParent();
-		if ((parent != null) && (parent.subnodes.size() == 1))
+		if ((parent != null) && (parent.GetSubSize() == 1))
 		{
 			parent.AddNode  (nodename, added);
 			
@@ -317,13 +317,14 @@ public class MapExperimental {
 		return wrapper;
 	}
 
-
+	@Override
 	public Node FindClickedNode (int x, int y)
 	{
 		// Optimised version
 		
 		// Center of the clicked meta-node
-		Position centercoo = Units.MetaCoordinateByPosition (dim, base, new Position(x, y)); 
+		Position centercoo = Units.CoordinateByPosition (base, new Position(x, y));
+		System.out.println("Clicked near the node at metaposition: (" + centercoo.x + ", " + centercoo.y + ")");
 		
 		MultiNode node = nodes.get(centercoo);
 
@@ -338,14 +339,6 @@ public class MapExperimental {
 		}
 		
 		return null;
-	}
-
-	public double ZoomOn() {
-		double screenratio = (1.0 * width) / height;
-		if (screenratio < Math.sqrt(3.0)) {
-			return (base * Math.sqrt(3.0)) / width;
-		}
-		return (1.0 * base) / height;
 	}
 	
 }

@@ -1,4 +1,4 @@
-package netvis.visualisations.comets;
+package netvis.visualisations.maps;
 
 import java.awt.geom.Rectangle2D;
 import java.util.List;
@@ -7,6 +7,12 @@ import java.util.Map.Entry;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
+import netvis.visualisations.comets.ActivityVisualisation;
+import netvis.visualisations.comets.Comet;
+import netvis.visualisations.comets.CometHeatNode;
+import netvis.visualisations.comets.FlipNode;
+import netvis.visualisations.comets.GraphNode;
+import netvis.visualisations.comets.HeatNode;
 import netvis.visualisations.gameengine.Framebuffer;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
@@ -24,8 +30,8 @@ public class MapPainter implements NodePainter {
 		TexturePool.LoadTexture("hexagon1",	ActivityVisualisation.class.getResource("resources/hex1.png"));
 		TexturePool.LoadTexture("hexagon2",	ActivityVisualisation.class.getResource("resources/hex2.png"));
 		
-		TexturePool.LoadTexture("server", Map.class.getResource("resources/server.png"));
-		TexturePool.LoadTexture("basic", Map.class.getResource("resources/basic.png"));
+		TexturePool.LoadTexture("server", ActivityVisualisation.class.getResource("resources/server.png"));
+		TexturePool.LoadTexture("basic", ActivityVisualisation.class.getResource("resources/basic.png"));
 	}
 	
 	public void DrawNode(int base, HeatNode lum, GL2 gl) {
