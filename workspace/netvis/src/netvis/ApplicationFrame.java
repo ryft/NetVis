@@ -154,7 +154,7 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(bottomPanel, bottomConstraints);
 
 		// Set up filter control panel
-		rightPanel = new RightPanel(dataFeeder, dataController, visControlsContainer, contextPanel);
+		rightPanel = new RightPanel(dataController, visControlsContainer, contextPanel);
 		final GridBagConstraints rightConstraints = new GridBagConstraints();
 		rightConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
 		rightConstraints.fill = GridBagConstraints.NONE;
@@ -226,9 +226,7 @@ public class ApplicationFrame extends JFrame {
 		openCSVItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION) {
-
-					dataFeeder = new CSVDataFeeder(fileChooser.getSelectedFile(), parent);
-					dataController.setDataFeeder(dataFeeder);
+					openCSV(fileChooser.getSelectedFile());
 				}
 			}
 		});
@@ -318,6 +316,15 @@ public class ApplicationFrame extends JFrame {
 		menuBar.add(helpMenu);
 
 		return menuBar;
+	}
+	
+	/**
+	 * Open a CSV packet trace file and play it.
+	 * @param file The reference to the file
+	 */
+	public void openCSV(File file) {
+		dataFeeder = new CSVDataFeeder(file, parent);
+		dataController.setDataFeeder(dataFeeder);
 	}
 
 	protected void toggleFullScreen() {
@@ -466,7 +473,7 @@ public class ApplicationFrame extends JFrame {
 		});
 
 	}
-
+	
 	protected void componentResized() {
 		glPanel.resizeVisualisation();
 	}

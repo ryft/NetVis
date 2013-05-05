@@ -6,7 +6,7 @@ import netvis.data.model.Packet;
 
 public interface DataControllerListener {
 	/**
-	 * There has been a major data change. (Eg. new filter applied)
+	 * There has been a major data change. (e.g. new filter applied)
 	 * 
 	 * @param allPackets
 	 *            The new list of packets

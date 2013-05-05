@@ -16,16 +16,18 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
 import netvis.data.DataController;
-import netvis.data.DataFeeder;
+import netvis.data.DataControllerListener;
 import netvis.data.UndoController;
+import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
 import netvis.visualisations.Visualisation;
 import netvis.visualisations.VisualisationsController;
 
 @SuppressWarnings("serial")
-public class RightPanel extends JPanel {
+public class RightPanel extends JPanel implements DataControllerListener {
 
 	protected final DataController dataController;
+	protected DataControlsContainer dataControls;
 
 	// ID of the previous visualisation for deactivation
 	protected int oldVisId = -1;
@@ -43,9 +45,10 @@ public class RightPanel extends JPanel {
 	 * @param contextPanel
 	 *            Context panel for displaying each visualisation description
 	 */
-	public RightPanel(DataFeeder dataFeeder, DataController dataController,
+	public RightPanel(DataController dataController,
 			VisControlsContainer visControlContainer, final ContextPanel contextPanel) {
 		this.dataController = dataController;
+		dataController.addListener(this);
 
 		JLabel visualisationsTitle = new TitleLabel("Visualisations");
 		JLabel visContainerTitle = new TitleLabel("Visualisation Controls");
@@ -112,11 +115,11 @@ public class RightPanel extends JPanel {
 		add(dataController.fixedFiltersPanel());
 		
 		/** Data controls */
-		if (dataFeeder.controlPanel() != null) {
-			add(dataTitle);
-			add(new JSeparator(SwingConstants.HORIZONTAL));
-			add(dataFeeder.controlPanel());
-		}
+		add(dataTitle);
+		add(new JSeparator(SwingConstants.HORIZONTAL));
+		dataControls = new DataControlsContainer();
+		add(dataControls);
+		dataControls.setPanel(dataController.getDataFeeder().controlPanel());
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(Box.createVerticalGlue());
@@ -131,6 +134,21 @@ public class RightPanel extends JPanel {
 			super(text);
 			setFont(new Font("SansSerif", Font.BOLD, 14));
 		}
+	}
+
+	@Override
+	public void allDataChanged(List<Packet> allPackets, int updateInterval,
+			int intervalsComplete) {
+		// this is fired when a new Data Feeder gets active, so update panel
+		dataControls.setPanel(dataController.getDataFeeder().controlPanel());
+	}
+
+	@Override
+	public void newPacketsArrived(List<Packet> newPackets) {
+	}
+
+	@Override
+	public void everythingEnds() {
 	}
 
 }
