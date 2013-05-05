@@ -52,6 +52,8 @@ public class Map {
 	HashMap<String, Connection> connections;
 
 	Random rand;
+	
+	int gridsize;
 
 	class NamedThreadFactory implements ThreadFactory {
 		int i = 0;
@@ -76,11 +78,14 @@ public class Map {
 		nodesl = new ArrayList<NodeWithPosition>();
 		
 		painter = new MapPainter();
+		
+		gridsize = 40;
+		Painter.GenerateGrid("secondgrid", 40);
 	}
 
 	public void DrawEverything(GL2 gl) {
 
-		//Painter.DrawGrid (base, gl);
+		Painter.DrawGrid (base, gridsize, "secondgrid", gl);
 		for (NodeWithPosition i : nodesByName.values()) {
 			int x = i.pos.x;
 			int y = i.pos.y;

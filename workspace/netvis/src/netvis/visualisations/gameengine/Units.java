@@ -34,6 +34,11 @@ public class Units {
 	
 	public static Position CoordinateByRingAndShift (int dim, int ring, int shift)
 	{
+		int comp = -1;
+		if ((ring != 1) && (shift % (ring-1) != 0))
+		{
+			comp = shift / (ring-1);
+		}
 
 		Position rs = ActuallRingAndShift (dim, new Position(ring, shift));
 		
@@ -47,8 +52,11 @@ public class Units {
 		p.x -= (ring-1)/2; // Rounded down (look at the Fig 1)
 		
 		// Now move around the ring to find the right spot
-		int [] xstages = new int [] {+1, +1,  0, -1, -1, 0, +1, +1,  0};
+		int [] xstages = new int [] {+1, +1,  0, -1, -1, 0, +1, +1,  0}; // last three repeat
 		int [] ystages = new int [] {0,  -1, -1,  0, +1, +1, 0, -1, -1};
+		
+		int [] xcompens = new int [] { 0, -1, -1,  0, +1, +1,  0, -1, -1};
+		int [] ycompens = new int [] {-1,  0, +1, +1,  0, -1, -1,  0, +1};
 		
 		int stageid = 0;
 		int dx = xstages[0];
@@ -57,7 +65,7 @@ public class Units {
 		int delta = ((ring-1)/2);
 		
 		// This changes the adjacency style
-		shift += delta;
+		//shift += delta;
 		
 		// Look at the Fig 2
 		for (int i=0; i < shift; i++)
@@ -74,6 +82,13 @@ public class Units {
 			p.y += dy;
 		}
 		
+		// Apply compensation
+		if (comp != -1)
+		{
+			p.x += (dim-1) * xcompens[comp];
+			p.y += (dim-1) * ycompens[comp];
+		};
+			
 		return p;
 	}
 	

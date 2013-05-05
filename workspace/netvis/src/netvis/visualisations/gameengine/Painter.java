@@ -50,7 +50,7 @@ public class Painter {
 	}
 	
 	
-	public static void GenerateGrid (int dim)
+	public static void GenerateGrid (String name, int dim)
 	{
 		FloatBuffer gb = FloatBuffer.allocate (2*6*3 * Units.DimToCap(dim));
 		
@@ -78,11 +78,11 @@ public class Painter {
 		
 		VertexBuffer grid = new VertexBuffer (gb);
 		
-		VertexBufferPool.PutBuffer("grid", grid);
+		VertexBufferPool.PutBuffer (name, grid);
 	}
 	
-	public static void DrawGrid (int base, int dim, GL2 gl) {
-		int bid = VertexBufferPool.get("grid").Bind(gl);
+	public static void DrawGrid (int base, int dim, String name, GL2 gl) {
+		int bid = VertexBufferPool.get(name).Bind(gl);
 		
 		gl.glBindBuffer (GL2.GL_ARRAY_BUFFER, bid);
 		

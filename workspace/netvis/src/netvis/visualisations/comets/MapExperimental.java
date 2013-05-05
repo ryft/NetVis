@@ -66,7 +66,7 @@ public class MapExperimental {
 		
 		// Start with one node 14x14
 		dim = 5;
-		Painter.GenerateGrid (dim);
+		Painter.GenerateGrid ("grid", dim);
 
 		rand = new Random();
 		
@@ -86,7 +86,7 @@ public class MapExperimental {
 				gl.glTranslated (realp.x, realp.y, 0.0);
 	
 				// Draw it
-				Painter.DrawGrid (base, dim, gl);
+				Painter.DrawGrid (base, dim, "grid", gl);
 				mn.Draw(base, painter, gl);
 			gl.glPopMatrix();
 		}
@@ -191,7 +191,7 @@ public class MapExperimental {
 				}
 				
 				dim = newdim;
-				Painter.GenerateGrid (dim);
+				Painter.GenerateGrid ("grid", dim);
 				
 				// Now we need to try adding this node once again
 				while ((nearnode != null) && nearnode.AddNode (name, newnode) == false)
