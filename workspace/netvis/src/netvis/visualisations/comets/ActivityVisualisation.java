@@ -1,17 +1,8 @@
 package netvis.visualisations.comets;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,13 +21,8 @@ import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.visualisations.Visualisation;
 import netvis.visualisations.gameengine.FramebufferPool;
-import netvis.visualisations.gameengine.Node;
-import netvis.visualisations.gameengine.Painter;
-import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
-import netvis.visualisations.gameengine.Units;
-import netvis.visualisations.gameengine.ValueAnimator;
 import netvis.visualisations.gameengine.VertexBufferPool;
 import netvis.visualisations.maps.MapActivity;
 import netvis.visualisations.maps.MapController;
@@ -161,7 +147,7 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
-		gl.glOrtho( - this.width * viewfield / 2, mx + this.width
+		gl.glOrtho(mx - this.width * viewfield / 2, mx + this.width
 				* viewfield / 2, my - this.height * viewfield / 2,
 				my + this.height * viewfield / 2, -1000, 2000);
 
