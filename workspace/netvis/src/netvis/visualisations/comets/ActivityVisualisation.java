@@ -11,7 +11,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +30,6 @@ import netvis.ui.VisControlsContainer;
 import netvis.visualisations.Visualisation;
 import netvis.visualisations.gameengine.FramebufferPool;
 import netvis.visualisations.gameengine.Node;
-import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.TextRendererPool;
 import netvis.visualisations.gameengine.TexturePool;
@@ -60,8 +58,8 @@ public class ActivityVisualisation extends Visualisation {
 
 	HashMap<String, Candidate> candidates;
 
-	public ActivityVisualisation(DataController dataController, OpenGLPanel joglPanel,
-			VisControlsContainer visControlsContainer) {
+	public ActivityVisualisation(DataController dataController,
+			OpenGLPanel joglPanel, VisControlsContainer visControlsContainer) {
 
 		super(dataController, joglPanel, visControlsContainer);
 
@@ -160,8 +158,10 @@ public class ActivityVisualisation extends Visualisation {
 			public void mouseDragged(MouseEvent e) {
 				double viewfield = viewfieldanim.toDouble();
 				if (oldpos != null) {
-					middlex.MoveTo(middlex.getGoal() - (e.getX() - oldpos.x) * viewfield, 0);
-					middley.MoveTo(middley.getGoal() + (e.getY() - oldpos.y) * viewfield, 0);
+					middlex.MoveTo(middlex.getGoal() - (e.getX() - oldpos.x)
+							* viewfield, 0);
+					middley.MoveTo(middley.getGoal() + (e.getY() - oldpos.y)
+							* viewfield, 0);
 					// middlex -= (e.getX()-oldpos.x)*viewfield;
 					// middley += (e.getY()-oldpos.y)*viewfield;
 				}
@@ -175,13 +175,18 @@ public class ActivityVisualisation extends Visualisation {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				double viewfield = viewfieldanim.toDouble();
-				int x = (int) Math.round(middlex.toDouble() + (e.getX() - (width / 2)) * viewfield);
-				int y = (int) Math.round(middley.toDouble() - (e.getY() - (height / 2)) * viewfield);
+				int x = (int) Math.round(middlex.toDouble()
+						+ (e.getX() - (width / 2)) * viewfield);
+				int y = (int) Math.round(middley.toDouble()
+						- (e.getY() - (height / 2)) * viewfield);
 
 				Node n = currentMap.FindClickedNode(x, y);
-				Position c = Units.MetaCoordinateByPosition(1, currentMap.base, new Position(x, y));
-				Position p = Units.MetaPositionByCoordinate(1, currentMap.base, c);
-				if (n != null) n.MouseClick(e);
+				Position c = Units.MetaCoordinateByPosition(1, currentMap.base,
+						new Position(x, y));
+				Position p = Units.MetaPositionByCoordinate(1, currentMap.base,
+						c);
+				if (n != null)
+					n.MouseClick(e);
 
 				if (e.getClickCount() == 2) {
 					// Zoom on the selected node - such that it will fill the
@@ -226,23 +231,20 @@ public class ActivityVisualisation extends Visualisation {
 
 		// Add test nodes
 		/*
-		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode ("testk" + i, "test" + i);
-		}
-		
-		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode ("testa" + i, "ServerA");
-		}
-		*/
-		
+		 * for (int i = 0; i < 0; i++) { currentMap.SuggestNode ("testk" + i,
+		 * "test" + i); }
+		 * 
+		 * for (int i = 0; i < 0; i++) { currentMap.SuggestNode ("testa" + i,
+		 * "ServerA"); }
+		 */
+
 		/*
-		List<Packet> listOfPackets = new ArrayList<Packet> ();
-		for (int i = 0; i < 48; i++) {
-			currentMap.SuggestNode ("testb" + i, "ServerB", listOfPackets );
-		}
-		
-		currentMap.SuggestNode("testbTOOMUCH", "ServerB", listOfPackets);
-		*/
+		 * List<Packet> listOfPackets = new ArrayList<Packet> (); for (int i =
+		 * 0; i < 48; i++) { currentMap.SuggestNode ("testb" + i, "ServerB",
+		 * listOfPackets ); }
+		 * 
+		 * currentMap.SuggestNode("testbTOOMUCH", "ServerB", listOfPackets);
+		 */
 	}
 
 	private void ZoomIn() {
@@ -270,7 +272,7 @@ public class ActivityVisualisation extends Visualisation {
 			long diff = now.getTime() - oldTime.getTime();
 			if (diff > 2000) {
 				double fpsnum = Math.round(10000.0 * frameNum / (diff)) / 10.0;
-				fps.setText("FPS: " + fpsnum);
+				fps.setText(fpsnum + " FPS");
 
 				oldTime = null;
 			}
@@ -287,8 +289,9 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
-		gl.glOrtho(middlex.toDouble() - this.width * viewfield / 2, middlex.toDouble() + this.width
-				* viewfield / 2, middley.toDouble() - this.height * viewfield / 2,
+		gl.glOrtho(middlex.toDouble() - this.width * viewfield / 2,
+				middlex.toDouble() + this.width * viewfield / 2,
+				middley.toDouble() - this.height * viewfield / 2,
 				middley.toDouble() + this.height * viewfield / 2, -1000, 2000);
 
 		// Clear the board
@@ -317,12 +320,12 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 
 		gl.glPushMatrix();
-			//Painter.StressTest(currentMap.base, gl);
-			currentMap.DrawEverything(gl);
+		// Painter.StressTest(currentMap.base, gl);
+		currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
-		
+
 		// Probably unnecessary
-		//this.swapBuffers();
+		// this.swapBuffers();
 	}
 
 	@Override
@@ -335,8 +338,8 @@ public class ActivityVisualisation extends Visualisation {
 				// Create the candidate to be displayed
 				dri = new Candidate(0, i.length, i.sip, i.dip);
 				candidates.put(i.sip, dri);
-			}	
-			dri.RegisterPacket (i);
+			}
+			dri.RegisterPacket(i);
 		}
 
 		// Decide on which candidates should be displayed
@@ -348,7 +351,8 @@ public class ActivityVisualisation extends Visualisation {
 			if (can.datasize >= 2000) {
 				// System.out.println("IP: " + ip + " which dataflow: " +
 				// can.datasize + " added to the simulation");
-				currentMap.SuggestNode (can.sip, can.dip, can.GetWaitingPackets());
+				currentMap.SuggestNode(can.sip, can.dip,
+						can.GetWaitingPackets());
 				can.ResetWaitingPackets();
 			}
 		}
@@ -371,7 +375,8 @@ public class ActivityVisualisation extends Visualisation {
 	}
 
 	@Override
-	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi, int he) {
+	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi,
+			int he) {
 		GL2 gl = drawable.getGL().getGL2();
 
 		if (wi != width || he != height) {
@@ -392,10 +397,12 @@ public class ActivityVisualisation extends Visualisation {
 
 	@Override
 	protected JPanel createControls() {
-		JPanel mypanel = new JPanel();
-		fps = new JLabel("FPS : 0");
 
-		mypanel.add(fps);
+		JPanel mypanel = new JPanel();
+		fps = new JLabel("0 FPS");
+
+		// May be useful in future so let's just keep this here
+		//mypanel.add(fps);
 		return mypanel;
 	}
 
@@ -418,9 +425,11 @@ public class ActivityVisualisation extends Visualisation {
 
 	@Override
 	public String getDescription() {
-		return getName() + "\n\n" + "A hexagonal grid displaying clients active in the network.\n" +
-				"They are being grouped around the machine they send packets to.\n" +
-				"Nodes 'heat up' when amount of data goes over specified threshold and 'heat down' in time.";
+		return getName()
+				+ "\n\n"
+				+ "A hexagonal grid displaying clients active in the network.\n"
+				+ "They are being grouped around the machine they send packets to.\n"
+				+ "Nodes 'heat up' when amount of data goes over specified threshold and 'heat down' in time.";
 	}
 
 }

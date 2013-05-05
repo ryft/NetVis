@@ -257,7 +257,7 @@ public class HeatmapVisualisation extends Visualisation {
 			long diff = now.getTime() - oldTime.getTime();
 			if (diff > 2000) {
 				double fpsnum = Math.round(10000.0 * frameNum / (diff)) / 10.0;
-				fps.setText("FPS: " + fpsnum);
+				fps.setText(fpsnum + " FPS");
 
 				oldTime = null;
 			}
@@ -383,9 +383,10 @@ public class HeatmapVisualisation extends Visualisation {
 	@Override
 	protected JPanel createControls() {
 		JPanel mypanel = new JPanel();
-		fps = new JLabel("FPS : 0");
+		fps = new JLabel("0 FPS");
 
-		mypanel.add(fps);
+		// May be useful in future so let's just keep this here
+		//mypanel.add(fps);
 		return mypanel;
 	}
 

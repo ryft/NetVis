@@ -75,7 +75,7 @@ public class ApplicationFrame extends JFrame {
 	protected final RightPanel rightPanel;
 	protected final AnalysisPanel analysisPanel;
 	protected final ContextPanel contextPanel;
-	protected final StatusBar statusBar;
+	protected StatusBar statusBar;
 	protected final JMenuBar menuBar;
 
 	protected DataFeeder dataFeeder;
@@ -166,16 +166,18 @@ public class ApplicationFrame extends JFrame {
 		contentPane.add(rightPanel, rightConstraints);
 
 		// Set up a status bar panel
-		statusBar = new StatusBar();
-		final GridBagConstraints statusBarConstraints = new GridBagConstraints();
-		statusBarConstraints.anchor = GridBagConstraints.NORTH;
-		statusBarConstraints.fill = GridBagConstraints.NONE;
-		statusBarConstraints.gridx = 0;
-		statusBarConstraints.gridy = 2;
-		statusBarConstraints.gridwidth = 2;
-		statusBarConstraints.weightx = 0.0;
-		statusBarConstraints.weighty = 0.0;
-		contentPane.add(statusBar, statusBarConstraints);
+		if (DEBUG_MODE) {
+			statusBar = new StatusBar();
+			final GridBagConstraints statusBarConstraints = new GridBagConstraints();
+			statusBarConstraints.anchor = GridBagConstraints.NORTH;
+			statusBarConstraints.fill = GridBagConstraints.NONE;
+			statusBarConstraints.gridx = 0;
+			statusBarConstraints.gridy = 2;
+			statusBarConstraints.gridwidth = 2;
+			statusBarConstraints.weightx = 0.0;
+			statusBarConstraints.weighty = 0.0;
+			contentPane.add(statusBar, statusBarConstraints);
+		}
 
 		// Link the model together and set the content pane
 		dataController.addListener(analysisPanel);
@@ -394,8 +396,7 @@ public class ApplicationFrame extends JFrame {
 				Long percentageUsed = Math.round(usedMemory * 100.0 / totalMemory);
 
 				// Display the usage stats in increasingly bright red text as
-				// usage
-				// approaches 100%
+				// usage approaches 100%
 				if (percentageUsed >= 80)
 					if (percentageUsed < 90)
 						label.setForeground(Color.red.darker().darker());

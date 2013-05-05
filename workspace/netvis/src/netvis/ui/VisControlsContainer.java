@@ -10,9 +10,6 @@ public class VisControlsContainer extends JPanel {
 		lastCtrl = null;
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public void setVisControl(JPanel newPanel) {
