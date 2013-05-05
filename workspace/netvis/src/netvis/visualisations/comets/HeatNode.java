@@ -51,7 +51,7 @@ public class HeatNode extends Node {
 	// And with what protocols
 	HashMap<String, Long> protocollengths;
 	long maxVal = 0;
-	String maxProto = "";
+	public String maxProto = "";
 	
 	public HeatNode (String tname, String nname)
 	{

@@ -47,6 +47,8 @@ public class MultiNode extends Node {
 	HashMap <Position, Node> subnodes;
 	HashMap <String,   Node> subnodesByName;
 	
+	public int GetSubSize() {return subnodes.size();}
+	
 	@Override
 	public Node GetNode (String name) {
 		Node nn = subnodesByName.get(name);

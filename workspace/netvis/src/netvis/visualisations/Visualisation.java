@@ -59,8 +59,8 @@ public abstract class Visualisation extends GLJPanel implements DataControllerLi
 
 	private static GLCapabilitiesImmutable CreateCapabilities() {
 		GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-		// caps.setSampleBuffers (true);
-		// caps.setNumSamples (2);
+		//caps.setSampleBuffers (true);
+		//caps.setNumSamples (2);
 
 		return caps;
 	}
@@ -72,7 +72,7 @@ public abstract class Visualisation extends GLJPanel implements DataControllerLi
 		if (joglPanel.getVis() == this) {
 			this.newPackets = allPackets;
 			this.allDataChanged = true;
-			this.display();
+			//this.display();
 		}
 	}
 
@@ -80,7 +80,6 @@ public abstract class Visualisation extends GLJPanel implements DataControllerLi
 	public void newPacketsArrived(List<Packet> newPackets) {
 		if (joglPanel.getVis() == this) {
 			this.newPackets = newPackets;
-			this.render();
 		}
 	}
 
@@ -95,9 +94,6 @@ public abstract class Visualisation extends GLJPanel implements DataControllerLi
 
 		// this.fpskeep.add(this);
 		this.fpskeep.start();
-
-		// No need to render straight away - timer will take care of that
-		// this.render();
 	}
 
 	public void deactivate() {

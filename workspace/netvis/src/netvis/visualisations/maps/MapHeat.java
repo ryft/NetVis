@@ -1,4 +1,4 @@
-package netvis.visualisations.comets;
+package netvis.visualisations.maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,13 +16,17 @@ import java.util.concurrent.TimeUnit;
 import javax.media.opengl.GL2;
 
 import netvis.data.model.Packet;
+import netvis.visualisations.comets.Connection;
+import netvis.visualisations.comets.FlipNode;
+import netvis.visualisations.comets.GraphNode;
+import netvis.visualisations.comets.HeatNode;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 
-public class Map {
+public class MapHeat extends Map {
 
-	class NodeWithPosition {
+	public class NodeWithPosition {
 		public NodeWithPosition(Node a, Position c, Position p) {
 			node = a;
 			coo = c;
@@ -43,11 +47,6 @@ public class Map {
 	
 	MapPainter painter;
 
-	// Basic size of the node
-	int base = 400;
-	int width;
-	int height;
-
 	// Connections to be drawn
 	HashMap<String, Connection> connections;
 
@@ -67,7 +66,7 @@ public class Map {
 	ExecutorService exe = new ThreadPoolExecutor(4, 8, 5000, TimeUnit.MILLISECONDS,
 			new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory());
 
-	public Map(int w, int h) {
+	public MapHeat(int w, int h) {
 		width = w;
 		height = h;
 
@@ -263,20 +262,21 @@ public class Map {
 		return k;
 	}
 
-	public NodeWithPosition FindClickedNode(int x, int y) {
+	public Node FindClickedNode(int x, int y) {
 		// Optimised version
 		Position p = new Position(x, y);
 		Position c = CoordinateByPosition(p);
 
 		NodeWithPosition node = nodesByPosition.get(c);
-		return node;
+		return node.node;
 	}
+	
+	public Position FindClickedNodePos (int x, int y) {
+		// Optimised version
+		Position p = new Position(x, y);
+		Position c = CoordinateByPosition(p);
 
-	public double ZoomOn() {
-		double screenratio = (1.0 * width) / height;
-		if (screenratio < Math.sqrt(3.0)) {
-			return (base * Math.sqrt(3.0)) / width;
-		}
-		return (1.0 * base) / height;
+		NodeWithPosition node = nodesByPosition.get(c);
+		return node.pos;
 	}
 }

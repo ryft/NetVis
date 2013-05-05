@@ -38,17 +38,13 @@ import netvis.visualisations.gameengine.TexturePool;
 import netvis.visualisations.gameengine.Units;
 import netvis.visualisations.gameengine.ValueAnimator;
 import netvis.visualisations.gameengine.VertexBufferPool;
+import netvis.visualisations.maps.MapActivity;
+import netvis.visualisations.maps.MapController;
 
 public class ActivityVisualisation extends Visualisation {
 
 	int width;
 	int height;
-
-	Point oldpos = null;
-
-	ValueAnimator middlex;
-	ValueAnimator middley;
-	ValueAnimator viewfieldanim;
 
 	Date oldTime;
 	int frameNum;
@@ -56,7 +52,7 @@ public class ActivityVisualisation extends Visualisation {
 
 	Timer animator, cleaner;
 
-	MapExperimental currentMap;
+	MapActivity map;
 
 	HashMap<String, Candidate> candidates;
 
@@ -65,16 +61,13 @@ public class ActivityVisualisation extends Visualisation {
 
 		super(dataController, joglPanel, visControlsContainer);
 
-		viewfieldanim = new ValueAnimator(5.0);
-		middlex = new ValueAnimator(0.0);
-		middley = new ValueAnimator(0.0);
-
 		width = joglPanel.getWidth();
 		height = joglPanel.getHeight();
 
 		candidates = new HashMap<String, Candidate>();
 
-		currentMap = new MapExperimental(width, height);
+		map = new MapActivity(width, height);
+		new MapController (map, this);
 
 		ActionListener animatum = new ActionListener() {
 			long lasttime = (new Date()).getTime();
@@ -84,7 +77,7 @@ public class ActivityVisualisation extends Visualisation {
 				long newtime = (new Date()).getTime();
 
 				try {
-					currentMap.StepAnimation(newtime - lasttime);
+					map.StepAnimation(newtime - lasttime);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -111,118 +104,7 @@ public class ActivityVisualisation extends Visualisation {
 		cleaner = new Timer(2000, clearing);
 		cleaner.start();
 
-		// Now add the keyboard listener which will be responsible for zooming
-		this.addKeyListener(new KeyListener() {
 
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyChar() == KeyEvent.VK_EQUALS) {
-					ZoomIn();
-				}
-				;
-				if (e.getKeyChar() == KeyEvent.VK_MINUS) {
-					ZoomOut();
-				}
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-
-		});
-
-		this.addMouseWheelListener(new MouseWheelListener() {
-
-			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				if (e.getWheelRotation() < 0) {
-					ZoomIn();
-				}
-				if (e.getWheelRotation() > 0) {
-					ZoomOut();
-				}
-			}
-		});
-
-		this.addMouseMotionListener(new MouseMotionListener() {
-
-			@Override
-			public void mouseMoved(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				double viewfield = viewfieldanim.toDouble();
-				if (oldpos != null) {
-					middlex.MoveTo(middlex.getGoal() - (e.getX() - oldpos.x) * viewfield, 0);
-					middley.MoveTo(middley.getGoal() + (e.getY() - oldpos.y) * viewfield, 0);
-					// middlex -= (e.getX()-oldpos.x)*viewfield;
-					// middley += (e.getY()-oldpos.y)*viewfield;
-				}
-				;
-				oldpos = e.getPoint();
-			}
-		});
-
-		this.addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				double viewfield = viewfieldanim.toDouble();
-				int x = (int) Math.round(middlex.toDouble() + (e.getX() - (width / 2)) * viewfield);
-				int y = (int) Math.round(middley.toDouble() - (e.getY() - (height / 2)) * viewfield);
-
-				Node n = currentMap.FindClickedNode(x, y);
-				Position c = Units.MetaCoordinateByPosition(1, currentMap.base, new Position(x, y));
-				Position p = Units.MetaPositionByCoordinate(1, currentMap.base, c);
-				if (n != null) n.MouseClick(e);
-
-				if (e.getClickCount() == 2) {
-					// Zoom on the selected node - such that it will fill the
-					// screen
-					double goal = currentMap.ZoomOn();
-					viewfieldanim.MoveTo(goal, 1000);
-				}
-
-				if (n != null) {
-					// Move to the selected node
-					middlex.MoveTo(p.x, 1000);
-					middley.MoveTo(p.y, 1000);
-				}
-
-				e.consume();
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-				// If it is over some node - drag this node - TODO
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				oldpos = null;
-			}
-
-		});
 
 		// Add test nodes
 		/*
@@ -245,21 +127,13 @@ public class ActivityVisualisation extends Visualisation {
 		*/
 	}
 
-	private void ZoomIn() {
-		double viewfield = viewfieldanim.getGoal();
-		viewfieldanim.MoveTo(viewfield * 0.9, 100);
-	}
-
-	private void ZoomOut() {
-		double viewfield = viewfieldanim.getGoal();
-		viewfieldanim.MoveTo(viewfield * 1.1, 100);
-	}
-
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
-		double viewfield = viewfieldanim.toDouble();
+		double viewfield = map.GetViewfield ();
+		double mx = map.GetMX ();
+		double my = map.GetMY();
 
 		// Count the FPS
 		if (oldTime == null) {
@@ -287,9 +161,9 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
-		gl.glOrtho(middlex.toDouble() - this.width * viewfield / 2, middlex.toDouble() + this.width
-				* viewfield / 2, middley.toDouble() - this.height * viewfield / 2,
-				middley.toDouble() + this.height * viewfield / 2, -1000, 2000);
+		gl.glOrtho( - this.width * viewfield / 2, mx + this.width
+				* viewfield / 2, my - this.height * viewfield / 2,
+				my + this.height * viewfield / 2, -1000, 2000);
 
 		// Clear the board
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -317,8 +191,8 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 
 		gl.glPushMatrix();
-			//Painter.StressTest(currentMap.base, gl);
-			currentMap.DrawEverything(gl);
+			//Painter.StressTestList (currentMap.base, gl);
+			map.DrawEverything(gl);
 		gl.glPopMatrix();
 		
 		// Probably unnecessary
@@ -348,7 +222,7 @@ public class ActivityVisualisation extends Visualisation {
 			if (can.datasize >= 2000) {
 				// System.out.println("IP: " + ip + " which dataflow: " +
 				// can.datasize + " added to the simulation");
-				currentMap.SuggestNode (can.sip, can.dip, can.GetWaitingPackets());
+				map.SuggestNode (can.sip, can.dip, can.GetWaitingPackets());
 				can.ResetWaitingPackets();
 			}
 		}
@@ -381,7 +255,7 @@ public class ActivityVisualisation extends Visualisation {
 			this.setPreferredSize(new Dimension(wi, he));
 		}
 
-		currentMap.SetSize(width, height, gl);
+		map.SetSize(width, height, gl);
 
 		// Mark all the graphic card side object as broken
 		TexturePool.DiscardTextures();

@@ -343,14 +343,48 @@ public class Painter {
 	}
 	
 	public static void StressTest (int base, GL2 gl) {
-		for (int i=0; i<1200; i++)
+	
+		for (int i=0; i<10000; i++)
 		{
-			int x = base * (i % (int) Math.round(Math.sqrt(1200)));
-			int y = 2 * base * (i / (int) Math.round(Math.sqrt(1200)));
-			gl.glColor3d(0.5, 0.5, 0.4);
-			Painter.DrawHexagon (GL2.GL_POLYGON, x, y, base, gl);
-			gl.glColor3d(0.7, 0.7, 0.6);
-			Painter.DrawSquare (10, 10, x, y, 1.0, 0.0, gl);
+			int x = base * (i % (int) Math.round(Math.sqrt(10000)));
+			int y = 2 * base * (i / (int) Math.round(Math.sqrt(10000)));
+
+			gl.glPushMatrix();
+				gl.glTranslatef(x, y, 0.0f);
+
+				gl.glColor3d(0.5, 0.5, 0.4);
+				Painter.DrawHexagon (GL2.GL_POLYGON, 0.0, 0.0, base, gl);
+				gl.glColor3d(0.7, 0.7, 0.6);
+				Painter.DrawSquare (100, 100, 0.0, 0.0, 1.0, 0.0, gl);
+				
+			gl.glPopMatrix();
 		}
+	}
+	
+	public static void StressTestList (int base, GL2 gl) {
+		
+		int	index = gl.glGenLists(1);
+		
+		gl.glNewList(index, GL2.GL_COMPILE);
+			gl.glColor3d(0.5, 0.5, 0.4);
+			Painter.DrawHexagon (GL2.GL_POLYGON, 0.0, 0.0, base, gl);
+			gl.glColor3d(0.7, 0.7, 0.6);
+			Painter.DrawSquare (100, 100, 0.0, 0.0, 1.0, 0.0, gl);
+		gl.glEndList();
+		
+		for (int i=0; i<10000; i++)
+		{
+			int x = base * (i % (int) Math.round(Math.sqrt(10000)));
+			int y = 2 * base * (i / (int) Math.round(Math.sqrt(10000)));
+
+			gl.glPushMatrix();
+				gl.glTranslatef(x, y, 0.0f);
+				//gl.glTranslated(x, y, 0.0);
+				
+				gl.glCallList(index);		
+			gl.glPopMatrix();
+		}
+		
+		gl.glDeleteLists(index, 1);
 	}
 }
