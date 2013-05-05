@@ -4,11 +4,13 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
+import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.Units;
 
@@ -45,11 +47,6 @@ public class MultiNode extends Node {
 	
 	HashMap <Position, Node> subnodes;
 	HashMap <String,   Node> subnodesByName;
-	
-	private MultiNode parent = null;
-	public MultiNode GetParent() {
-		return parent;
-	}
 	
 	@Override
 	public Node GetNode (String name) {
@@ -95,7 +92,7 @@ public class MultiNode extends Node {
 	public MultiNode (int dimension, MultiNode par) {
 		super();
 		
-		parent = par;
+		SetParent(par);
 		
 		dim = dimension;
 		subdim = -1;
@@ -147,8 +144,7 @@ public class MultiNode extends Node {
 			} else if (reqdim == FindNodeDim())
 			{
 				subdim = reqdim;
-				AllocateSubnode (name, n);
-				return true;
+				return AllocateSubnode (name, n);
 			} else
 			{
 				// We can put this node in the subnode
@@ -189,19 +185,24 @@ public class MultiNode extends Node {
 	
 	private boolean AllocateSubnode (String name, Node mn)
 	{
+		// Set the parent to this
+		mn.SetParent (this);
+		
 		// First find the ring to go to
-		Position rs = Units.FindSpotAround(subnodes.size());
+		Position vrs = Units.FindSpotAround(subnodes.size());
+		// Redraw this - it might be incorrect for the bigger ones
+		Position p = Units.CoordinateByRingAndShift (subdim, vrs.x, vrs.y);
+		Position ars = Units.ActuallRingAndShift(subdim, vrs);
 
 		// If the ring is too far away we can not allocate the subnode
-		if (rs.x > this.dim)
+		if (ars.x > this.dim)
 			return false;
 		
 		// Register the node with its name
 		if (name != null)
 			subnodesByName.put (name, mn);
 		
-		// Redraw this - it might be incorrect for the bigger ones
-		Position p = Units.CoordinateByRingAndShift (subdim, rs.x, rs.y);
+		System.out.println("Node " + name + " placed in ringshift : (" + ars.x + ", " + ars.y +") coords : (" + p.x + ", " + p.y + ")");
 
 		// Add it to the right place
 		subnodes.put (p, mn);
@@ -224,7 +225,9 @@ public class MultiNode extends Node {
 
 	@Override
 	public void UpdateAnimation(long time) {
-		// TODO Auto-generated method stub
+		// Recursively update the animation of the subnodes
+		for (Node n : subnodes.values())
+			n.UpdateAnimation(time);
 	}
 
 	@Override

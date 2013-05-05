@@ -66,6 +66,7 @@ public class MapExperimental {
 		
 		// Start with one node 14x14
 		dim = 5;
+		Painter.GenerateGrid (dim);
 
 		rand = new Random();
 		
@@ -74,18 +75,18 @@ public class MapExperimental {
 
 	public void DrawEverything(GL2 gl) {
 
-		Painter.DrawGrid(base, gl);
 		for (Entry<Position, MultiNode> en : nodes.entrySet()) {
 			Position pos = en.getKey();
 			MultiNode mn = en.getValue();
 			
-			Position realp = Units.MetaPositionByCoordinate(dim, base, pos);
+			Position realp = Units.PositionByCoordinate (base, pos);
 
 			gl.glPushMatrix();
 				// Transpose it to the right spot
 				gl.glTranslated (realp.x, realp.y, 0.0);
 	
 				// Draw it
+				Painter.DrawGrid (base, dim, gl);
 				mn.Draw(base, painter, gl);
 			gl.glPopMatrix();
 		}
@@ -121,7 +122,7 @@ public class MapExperimental {
 			nnn.UpdateWithData(pp);
 	}
 	
-	private Node AddNode(String near, String name, String textureName) {
+	private Node AddNode (String near, String name, String textureName) {
 
 		// Look for the wrapping node
 		MultiNode nearnode = nodesByName.get(near);
@@ -130,8 +131,8 @@ public class MapExperimental {
 			// If there is no grouping node - create it
 			Position ringshift = Units.FindSpotAround(nodes.size());
 			
-			Position coord = Units.CoordinateByRingAndShift (1, ringshift.x, ringshift.y);
-			System.out.println("Node " + name + " placed in coords : " + coord.x + ", " + coord.y);
+			Position coord = Units.CoordinateByRingAndShift (dim, ringshift.x, ringshift.y);
+			System.out.println("Node " + name + " placed in ringshift : (" + ringshift.x + ", " + ringshift.y +") coords : (" + coord.x + ", " + coord.y + ")");
 			
 			// Create the node (with no parent)
 			nearnode = new MultiNode (dim, null);
@@ -142,12 +143,8 @@ public class MapExperimental {
 			// Put the indicator node in the middle of the group node
 			HeatNode midnode = new HeatNode(textureName, near);
 			midnode.setBGColor(0.5, 0.6, 1.0);
-			while (nearnode.AddNode ("near", midnode) == false)
-			{
-				// It was not possible to add the node to the deepest level - try higher one
-				nearnode = nearnode.GetParent();
-				nodesByName.put(near, nearnode);
-			}
+
+			nearnode.AddNode (near, midnode);
 		}
 
 		// If the node is not already there - add it
@@ -161,7 +158,52 @@ public class MapExperimental {
 			// Make it into the flip node - the node that has two sides
 			FlipNode newnode = new FlipNode (front, back);
 	
-			nearnode.AddNode(name, newnode);
+			while ((nearnode != null) && nearnode.AddNode (name, newnode) == false)
+			{
+				// It was not possible to add the node to the deepest level - try higher one
+				nearnode = (MultiNode) nearnode.GetParent();
+			}
+			
+			if (nearnode == null)
+			{
+				// We need to resize the node
+				
+				// First find the next supernode size
+				int newdim = dim;
+				while (Units.DimToCap(newdim) < 7*Units.DimToCap(dim))
+					newdim += 1;
+				
+				// Now for all the existing nodes put them through the adding procedure again
+				nodes = new HashMap<Position, MultiNode> ();
+				
+				int i = 0;
+				for (Entry<String, MultiNode> en : nodesByName.entrySet())
+				{
+					// If there is no grouping node - create it
+					Position ringshift = Units.FindSpotAround (i++);
+					Position coord = Units.CoordinateByRingAndShift (newdim, ringshift.x, ringshift.y);
+					
+					MultiNode nner = new MultiNode (newdim, null);
+					
+					nner.AddNode (en.getKey(), en.getValue());
+					
+					nodes.put (coord, nner);
+				}
+				
+				dim = newdim;
+				Painter.GenerateGrid (dim);
+				
+				// Now we need to try adding this node once again
+				while ((nearnode != null) && nearnode.AddNode (name, newnode) == false)
+				{
+					// It was not possible to add the node to the deepest level - try higher one
+					nearnode = (MultiNode) nearnode.GetParent();
+				}
+ 			} else
+ 			{
+ 				nodesByName.put(near, nearnode);
+ 			}
+
 			found = newnode;
 		}
 

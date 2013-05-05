@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -231,11 +232,16 @@ public class ActivityVisualisation extends Visualisation {
 		for (int i = 0; i < 0; i++) {
 			currentMap.SuggestNode ("testa" + i, "ServerA");
 		}
-
-		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode ("testb0", "ServerB");
-		}*/
+		*/
 		
+		/*
+		List<Packet> listOfPackets = new ArrayList<Packet> ();
+		for (int i = 0; i < 48; i++) {
+			currentMap.SuggestNode ("testb" + i, "ServerB", listOfPackets );
+		}
+		
+		currentMap.SuggestNode("testbTOOMUCH", "ServerB", listOfPackets);
+		*/
 	}
 
 	private void ZoomIn() {
@@ -310,18 +316,6 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 
 		gl.glPushMatrix();
-			//gl.glTranslated(0.0, 0.0, -1000.0);
-			// Make the map draw all of the elements
-			/*for (int i=0; i<120; i++)
-			{
-				gl.glColor3d (0.5, 1.0, 0.5);
-				Painter.DrawHexagon (GL2.GL_POLYGON, 0.0, 0.0, 400, gl);
-			}
-			for (int i=0; i<120; i++)
-			{
-				gl.glColor3d (0.5, 1.0, 0.5);
-				Painter.DrawSquare (100, 100, 0.0, 0.0, 1.0, 0.0, gl);
-			}*/
 			currentMap.DrawEverything(gl);
 		gl.glPopMatrix();
 		

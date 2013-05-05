@@ -42,8 +42,8 @@ public class VisualisationsController {
 			VisControlsContainer visControlsContainer) {
 		
 		// Map visualisations
-		visList.add(new HeatmapVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new ActivityVisualisation(dataController, glPanel, visControlsContainer));
+		visList.add(new HeatmapVisualisation(dataController, glPanel, visControlsContainer));
 		
 		visList.add(new DistributionVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new MulticubeVisualisation(dataController, glPanel, visControlsContainer));

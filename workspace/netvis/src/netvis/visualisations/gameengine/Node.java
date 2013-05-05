@@ -15,6 +15,14 @@ public abstract class Node {
 		painter.DrawNode(base, this, gl);
 	}
 	
+	Node parent = null;
+	public Node GetParent() {
+		return parent;
+	}
+	public void SetParent (Node par) {
+		parent = par;
+	}
+	
 	// Defaultly a node is a singular hexagon
 	public int getDimenstion () {return 1;}
 	public int getCapacity   () {return 1;}

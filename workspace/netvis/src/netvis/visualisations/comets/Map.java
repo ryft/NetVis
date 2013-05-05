@@ -80,7 +80,7 @@ public class Map {
 
 	public void DrawEverything(GL2 gl) {
 
-		Painter.DrawGrid(base, gl);
+		//Painter.DrawGrid (base, gl);
 		for (NodeWithPosition i : nodesByName.values()) {
 			int x = i.pos.x;
 			int y = i.pos.y;

@@ -9,8 +9,21 @@ public class Units {
 			outerring += 1;
 		
 		int shift = size - DimToCap(outerring - 1);
-		
+
 		return new Position (outerring, shift);
+	}
+	
+	public static Position ActuallRingAndShift (int dim, Position rs)
+	{
+		int ring  = rs.x;
+		int shift = rs.y;
+
+		ring  = (ring-1) * (2*dim - 1) + 1;
+		shift *= (2*dim - 1);
+
+		Position p = new Position (ring, shift);
+		
+		return p;
 	}
 	
 	public static int DimToCap (int dim)
@@ -21,31 +34,35 @@ public class Units {
 	
 	public static Position CoordinateByRingAndShift (int dim, int ring, int shift)
 	{
-		// Rings are indexed from 1
-		ring -= 1;
+
+		Position rs = ActuallRingAndShift (dim, new Position(ring, shift));
 		
-		// Adjust the jump size by the dimension
-		ring  *= (2*dim - 1);
-		shift *= (2*dim - 1);
+		ring  = rs.x;
+		shift = rs.y;
 		
 		Position p = new Position (0,0);
 		
 		// First go to the right ring
-		p.y += ring;
-		p.x -= ring/2; // Rounded down (look at the Fig 1)
+		p.y += (ring-1);
+		p.x -= (ring-1)/2; // Rounded down (look at the Fig 1)
 		
 		// Now move around the ring to find the right spot
-		int [] xstages = new int [] {+1, +1,  0, -1, -1, 0, +1};
-		int [] ystages = new int [] {0,  -1, -1,  0, +1, +1, 0};
+		int [] xstages = new int [] {+1, +1,  0, -1, -1, 0, +1, +1,  0};
+		int [] ystages = new int [] {0,  -1, -1,  0, +1, +1, 0, -1, -1};
 		
 		int stageid = 0;
 		int dx = xstages[0];
 		int dy = ystages[0];
 		
+		int delta = ((ring-1)/2);
+		
+		// This changes the adjacency style
+		shift += delta;
+		
 		// Look at the Fig 2
-		for (int i=-((ring-1)/2); i<shift-((ring-1)/2); i++)
+		for (int i=0; i < shift; i++)
 		{
-			if (i % ring == 0)
+			if ((i-delta) % (ring-1) == 0)
 			{
 				// Switch to the next stage
 				stageid += 1;
