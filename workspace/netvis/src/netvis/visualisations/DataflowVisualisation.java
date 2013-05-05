@@ -114,16 +114,17 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 			});
 		}
 		if (ii < -1) ii = -1;
-		for (int i = ii+1; i < listOfPackets.size(); i++) {
+		ii++;
+		for (int i = ii; i < listOfPackets.size(); i++) {
 			p = listOfPackets.get(i);
 			
-			double standout = (double)Math.max(0, i - listOfPackets.size() + 300) / 300; 
+			double standout = (p.time - listOfPackets.get(ii).time) /
+					(listOfPackets.get(listOfPackets.size() - 1).time - listOfPackets.get(ii).time);
+
 			double entropy = (standout*(Math.random() - 0.5)) / 300;
 			
 			ColourPalette.setColour(gl, ColourPalette.getColourShade( 
-					ColourPalette.getColourShade(
-					fColor, lColor, normPasses.get(0).normalise(p)
-					), Color.LIGHT_GRAY, standout));
+					fColor, lColor, normPasses.get(0).normalise(p)), standout);
 			gl.glBegin(GL2.GL_LINE_STRIP);
 			for (int j = 0; j < normPasses.size(); j++) {
 				double normVal = normPasses.get(j).normalise(p) + entropy;
@@ -158,12 +159,26 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 	    	gl.glBegin(GL2.GL_POLYGON);
 	    	float x = ((float) visHighlighted) / (normPasses.size() - 1);
 	    	
-	    	gl.glVertex2f(x+0.002f, 1f);
-			gl.glVertex2f(x+0.002f, 0f);
-			gl.glVertex2f(x-0.002f, 0f);
-			gl.glVertex2f(x-0.002f, 1f);
+	    	gl.glVertex2f(x+0.13f, 1f);
+			gl.glVertex2f(x+0.13f, 0f);
+			gl.glVertex2f(x-0.01f, 0f);
+			gl.glVertex2f(x-0.01f, 1f);
+			gl.glEnd();	
+			gl.glColor3d(1, 1, 1);
+			for (int i = 0; i < 10; i++){
+				gl.glBegin(GL2.GL_LINE_STRIP);
+				gl.glVertex2f(x-0.01f, (float)i/10);
+				gl.glVertex2f(x, (float)i/10);
+				gl.glEnd();
+				gl.glRasterPos2f(x+0.01f, (float)i/10); // set position
+				glut.glutBitmapString(
+						GLUT.BITMAP_HELVETICA_12, normPasses.get(visHighlighted).denormalise((double)i/10)
+						);
+
+			}
+				
 			
-	    	gl.glEnd();
+	    
 		}
 	}
 

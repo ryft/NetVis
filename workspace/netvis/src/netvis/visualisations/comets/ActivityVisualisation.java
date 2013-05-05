@@ -42,8 +42,8 @@ public class ActivityVisualisation extends Visualisation {
 
 	HashMap<String, Candidate> candidates;
 
-	public ActivityVisualisation(DataController dataController, OpenGLPanel joglPanel,
-			VisControlsContainer visControlsContainer) {
+	public ActivityVisualisation(DataController dataController,
+			OpenGLPanel joglPanel, VisControlsContainer visControlsContainer) {
 
 		super(dataController, joglPanel, visControlsContainer);
 
@@ -90,27 +90,22 @@ public class ActivityVisualisation extends Visualisation {
 		cleaner = new Timer(2000, clearing);
 		cleaner.start();
 
-
-
 		// Add test nodes
 		/*
-		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode ("testk" + i, "test" + i);
-		}
-		
-		for (int i = 0; i < 0; i++) {
-			currentMap.SuggestNode ("testa" + i, "ServerA");
-		}
-		*/
-		
+		 * for (int i = 0; i < 0; i++) { currentMap.SuggestNode ("testk" + i,
+		 * "test" + i); }
+		 * 
+		 * for (int i = 0; i < 0; i++) { currentMap.SuggestNode ("testa" + i,
+		 * "ServerA"); }
+		 */
+
 		/*
-		List<Packet> listOfPackets = new ArrayList<Packet> ();
-		for (int i = 0; i < 48; i++) {
-			currentMap.SuggestNode ("testb" + i, "ServerB", listOfPackets );
-		}
-		
-		currentMap.SuggestNode("testbTOOMUCH", "ServerB", listOfPackets);
-		*/
+		 * List<Packet> listOfPackets = new ArrayList<Packet> (); for (int i =
+		 * 0; i < 48; i++) { currentMap.SuggestNode ("testb" + i, "ServerB",
+		 * listOfPackets ); }
+		 * 
+		 * currentMap.SuggestNode("testbTOOMUCH", "ServerB", listOfPackets);
+		 */
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -130,7 +125,7 @@ public class ActivityVisualisation extends Visualisation {
 			long diff = now.getTime() - oldTime.getTime();
 			if (diff > 2000) {
 				double fpsnum = Math.round(10000.0 * frameNum / (diff)) / 10.0;
-				fps.setText("FPS: " + fpsnum);
+				fps.setText(fpsnum + " FPS");
 
 				oldTime = null;
 			}
@@ -180,9 +175,9 @@ public class ActivityVisualisation extends Visualisation {
 			//Painter.StressTestList (currentMap.base, gl);
 			map.DrawEverything(gl);
 		gl.glPopMatrix();
-		
+
 		// Probably unnecessary
-		//this.swapBuffers();
+		// this.swapBuffers();
 	}
 
 	@Override
@@ -195,8 +190,8 @@ public class ActivityVisualisation extends Visualisation {
 				// Create the candidate to be displayed
 				dri = new Candidate(0, i.length, i.sip, i.dip);
 				candidates.put(i.sip, dri);
-			}	
-			dri.RegisterPacket (i);
+			}
+			dri.RegisterPacket(i);
 		}
 
 		// Decide on which candidates should be displayed
@@ -231,7 +226,8 @@ public class ActivityVisualisation extends Visualisation {
 	}
 
 	@Override
-	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi, int he) {
+	public void reshape(GLAutoDrawable drawable, int arg1, int arg2, int wi,
+			int he) {
 		GL2 gl = drawable.getGL().getGL2();
 
 		if (wi != width || he != height) {
@@ -252,10 +248,12 @@ public class ActivityVisualisation extends Visualisation {
 
 	@Override
 	protected JPanel createControls() {
-		JPanel mypanel = new JPanel();
-		fps = new JLabel("FPS : 0");
 
-		mypanel.add(fps);
+		JPanel mypanel = new JPanel();
+		fps = new JLabel("0 FPS");
+
+		// May be useful in future so let's just keep this here
+		//mypanel.add(fps);
 		return mypanel;
 	}
 
@@ -278,9 +276,11 @@ public class ActivityVisualisation extends Visualisation {
 
 	@Override
 	public String getDescription() {
-		return getName() + "\n\n" + "A hexagonal grid displaying clients active in the network.\n" +
-				"They are being grouped around the machine they send packets to.\n" +
-				"Nodes 'heat up' when amount of data goes over specified threshold and 'heat down' in time.";
+		return getName()
+				+ "\n\n"
+				+ "A hexagonal grid displaying clients active in the network.\n"
+				+ "They are being grouped around the machine they send packets to.\n"
+				+ "Nodes 'heat up' when amount of data goes over specified threshold and 'heat down' in time.";
 	}
 
 }

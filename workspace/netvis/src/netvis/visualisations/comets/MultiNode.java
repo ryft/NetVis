@@ -9,7 +9,6 @@ import javax.media.opengl.GL2;
 import netvis.data.model.Packet;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.NodePainter;
-import netvis.visualisations.gameengine.Painter;
 import netvis.visualisations.gameengine.Position;
 import netvis.visualisations.gameengine.Units;
 
