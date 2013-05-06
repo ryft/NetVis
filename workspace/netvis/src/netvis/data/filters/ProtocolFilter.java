@@ -55,7 +55,6 @@ public class ProtocolFilter implements PacketFilter {
 
 		filterPanel = new JPanel();
 		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.PAGE_AXIS));
-		filterPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
 		final JButton rootButton = new JButton("Filter by protocol");
 		rootButton.addActionListener(new ActionListener() {
@@ -67,6 +66,7 @@ public class ProtocolFilter implements PacketFilter {
 		});
 
 		rootButton.setSize(100, 100);
+		rootButton.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 		filterPanel.add(rootButton);
 
 		// Initialise the hashmap

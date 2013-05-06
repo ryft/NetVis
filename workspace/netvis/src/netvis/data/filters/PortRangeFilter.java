@@ -36,14 +36,21 @@ public class PortRangeFilter implements PacketFilter {
 		source_upper_bound = DataUtilities.MAX_PORT; // Highest possible UDP & TCP port
 		dest_lower_bound = DataUtilities.MIN_PORT;
 		dest_upper_bound = DataUtilities.MAX_PORT;
+
 		slbField = new JTextField(String.valueOf(source_lower_bound));
+		slbField.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 		subField = new JTextField(String.valueOf(source_upper_bound));
+		subField.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 
 		dlbField = new JTextField(String.valueOf(dest_lower_bound));
+		dlbField.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 		dubField = new JTextField(String.valueOf(dest_upper_bound));
+		dubField.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 
 		JLabel stitleLabel = new JLabel("Source Port");
+		stitleLabel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 		JLabel dtitleLabel = new JLabel("Destination Port");
+		dtitleLabel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 
 		filterPanel = new JPanel();
 		Box box = Box.createHorizontalBox();
@@ -69,10 +76,10 @@ public class PortRangeFilter implements PacketFilter {
 				dubField.setText(Integer.toString(DataUtilities.MAX_PORT));
 			}
 		});
+		resetButton.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 		filterPanel.add(resetButton);
 
 		filterPanel.setLayout(new BoxLayout(filterPanel, BoxLayout.PAGE_AXIS));
-		filterPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 	}
 
 	@Override
