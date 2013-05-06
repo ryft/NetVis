@@ -10,6 +10,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -67,14 +68,16 @@ public class RightPanel extends JPanel implements DataControllerListener {
 				UndoController.INSTANCE.clearUndoStack();
 			}
 		});
-		visComboBox.setAlignmentX(LEFT_ALIGNMENT);
-		add(UndoController.INSTANCE.getPanel());
-		/** Visualisation choice */
-		add(visualisationsTitle);
-		add(new JSeparator(SwingConstants.HORIZONTAL));
-		add(visComboBox);
+		
+		/* Set up undo controller */
+		addThis(UndoController.INSTANCE.getPanel());
+		
+		/* Visualisation choice */
+		addThis(visualisationsTitle);
+		addThis(new JSeparator(SwingConstants.HORIZONTAL));
+		addThis(visComboBox);
 
-		/** Description button */
+		/* Description button */
 		JButton showDescription = new JButton("Show description");
 		showDescription.addActionListener(new ActionListener() {
 			@Override
@@ -83,22 +86,21 @@ public class RightPanel extends JPanel implements DataControllerListener {
 						.get(visComboBox.getSelectedIndex()).getDescription());
 			}
 		});
-		add(showDescription);
+		addThis(showDescription);
 
 		/** Visualisation controls */
-		add(visContainerTitle);
-		add(new JSeparator(SwingConstants.HORIZONTAL));
-		visControlContainer.setAlignmentX(LEFT_ALIGNMENT);
-		add(visControlContainer);
+		addThis(visContainerTitle);
+		addThis(new JSeparator(SwingConstants.HORIZONTAL));
+		addThis(visControlContainer);
 
 		/** Filter controls */
-		add(filtersTitle);
-		add(new JSeparator(SwingConstants.HORIZONTAL));
+		addThis(filtersTitle);
+		addThis(new JSeparator(SwingConstants.HORIZONTAL));
 
 		Iterator<PacketFilter> it = this.dataController.filterIterator();
 
 		while (it.hasNext()) {
-			this.add(it.next().getPanel());
+			addThis(it.next().getPanel());
 		}
 		
 
@@ -108,22 +110,27 @@ public class RightPanel extends JPanel implements DataControllerListener {
 		while (it.hasNext()) {
 			updateButton.addActionListener(it.next());
 		}
-		this.add(updateButton);
+		addThis(updateButton);
 		add(Box.createVerticalStrut(10));
 
 		/** Fixed filters from data controller */
-		add(dataController.fixedFiltersPanel());
+		addThis(dataController.fixedFiltersPanel());
 		
 		/** Data controls */
-		add(dataTitle);
-		add(new JSeparator(SwingConstants.HORIZONTAL));
+		addThis(dataTitle);
+		addThis(new JSeparator(SwingConstants.HORIZONTAL));
 		dataControls = new DataControlsContainer();
-		add(dataControls);
+		addThis(dataControls);
 		dataControls.setPanel(dataController.getDataFeeder().controlPanel());
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(Box.createVerticalGlue());
 
+	}
+	
+	protected void addThis(JComponent comp) {
+		comp.setAlignmentX(LEFT_ALIGNMENT);
+		add(comp);
 	}
 
 	/**
