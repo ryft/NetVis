@@ -73,6 +73,7 @@ public class ApplicationFrame extends JFrame {
 	protected final JPanel contentPane;
 	protected final OpenGLPanel glPanel;
 	protected final RightPanel rightPanel;
+	protected final JSplitPane bottomPanel;
 	protected final AnalysisPanel analysisPanel;
 	protected final ContextPanel contextPanel;
 	protected StatusBar statusBar;
@@ -135,7 +136,7 @@ public class ApplicationFrame extends JFrame {
 				visControlsContainer);
 
 		// Set up an bottom panel for analysis and context panels
-		JSplitPane bottomPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		bottomPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		contextPanel = new ContextPanel();
 		analysisPanel = new AnalysisPanel(100, contextPanel);
 		bottomPanel.setLeftComponent(analysisPanel);
@@ -280,6 +281,40 @@ public class ApplicationFrame extends JFrame {
 			}
 		});
 
+		// Toggle the right panel
+		JMenuItem toggleRightItem = new JMenuItem("Toggle Right Panel", KeyEvent.VK_RIGHT);
+		toggleRightItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK));
+		toggleRightItem.getAccessibleContext().setAccessibleDescription("Toggle right panel");
+
+		// Listen for toggle events
+		toggleRightItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (ApplicationFrame.this.rightPanel.isVisible())
+					ApplicationFrame.this.rightPanel.setVisible(false);
+				else
+					ApplicationFrame.this.rightPanel.setVisible(true);
+				ApplicationFrame.this.componentResized();
+			}
+		});
+
+		// Toggle the right panel
+		JMenuItem toggleBottomItem = new JMenuItem("Toggle Bottom Panel", KeyEvent.VK_DOWN);
+		toggleBottomItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, ActionEvent.CTRL_MASK));
+		toggleBottomItem.getAccessibleContext().setAccessibleDescription("Toggle bottom panel");
+
+		// Listen for toggle events
+		toggleBottomItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (ApplicationFrame.this.bottomPanel.isVisible())
+					ApplicationFrame.this.bottomPanel.setVisible(false);
+				else
+					ApplicationFrame.this.bottomPanel.setVisible(true);
+				ApplicationFrame.this.componentResized();
+			}
+		});
+
 		// Help menu
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic(KeyEvent.VK_H);
@@ -312,6 +347,8 @@ public class ApplicationFrame extends JFrame {
 
 		viewMenu.add(resetViewItem);
 		viewMenu.add(fullScreenItem);
+		viewMenu.add(toggleRightItem);
+		viewMenu.add(toggleBottomItem);
 		menuBar.add(viewMenu);
 
 		helpMenu.add(aboutItem);
