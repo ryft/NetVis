@@ -320,22 +320,30 @@ public class MapActivity extends Map {
 	@Override
 	public Node FindClickedNode (int x, int y)
 	{
-		// Optimised version
+		// Center of the clicked node
+		Position clickedcoord = Units.CoordinateByPosition (base, new Position(x, y));
+		System.out.println("Clicked near the node at position: (" + clickedcoord.x + ", " + clickedcoord.y + ")");
 		
-		// Center of the clicked meta-node
-		Position centercoo = Units.CoordinateByPosition (base, new Position(x, y));
-		System.out.println("Clicked near the node at metaposition: (" + centercoo.x + ", " + centercoo.y + ")");
-		
-		MultiNode node = nodes.get(centercoo);
+		Position highlevel = null;
+		MultiNode node = null;
+		int howfar = 0;
+		while (node == null && howfar < Units.DimToCap(dim))
+		{
+			Position deltum = Units.FindSpotAround(howfar);
+			Position delatcor = Units.CoordinateByRingAndShift(1, deltum.x, deltum.y);
+			
+			highlevel = new Position (clickedcoord.x + delatcor.x, clickedcoord.y + delatcor.y);
+			
+			node = nodes.get(highlevel);
+			howfar++;
+		}
 
 		if (node != null)
 		{
 			// Position of the center of the metanode in pixels
-			Position centerrealpos = Units.MetaPositionByCoordinate(dim, base, centercoo);
-			
-			Position delta = new Position (x - centerrealpos.x, y - centerrealpos.y);
+			Position deltaclicked = new Position (clickedcoord.x - highlevel.x, clickedcoord.y - highlevel.y);
 
-			return node.GetClickedNode (base, delta);
+			return node.GetClickedNode (base, deltaclicked);
 		}
 		
 		return null;

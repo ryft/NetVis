@@ -68,24 +68,30 @@ public class MultiNode extends Node {
 	}
 	
 	@Override
-	public Node GetClickedNode (int base, Position pixelposition)
+	public Node GetClickedNode (int base, Position coord)
 	{
-		// Center of the clicked meta-node
-		Position centercoo = Units.MetaCoordinateByPosition (subdim, base, pixelposition);
-		
-		Node chosen = subnodes.get(centercoo);
-		if (chosen != null)
+		Position highlevel = null;
+		Node node = null;
+		int howfar = 0;
+		while (node == null && howfar < Units.DimToCap(dim))
 		{
-			// Go deeper
+			Position deltum = Units.FindSpotAround(howfar);
+			Position delatcor = Units.CoordinateByRingAndShift(1, deltum.x, deltum.y);
 			
-			// Position of the center of the metanode in pixels
-			Position centerrealpos = Units.MetaPositionByCoordinate(dim, base, centercoo);
+			highlevel = new Position (coord.x + delatcor.x, coord.y + delatcor.y);
 			
-			Position delta = new Position (pixelposition.x - centerrealpos.x, pixelposition.y - centerrealpos.y);
-			
-			return chosen.GetClickedNode (base, delta);
+			node = subnodes.get(highlevel);
+			howfar++;
 		}
-					
+
+		if (node != null)
+		{
+			// Position of the center of the metanode in pixels
+			Position deltaclicked = new Position (coord.x - highlevel.x, coord.y - highlevel.y);
+
+			return node.GetClickedNode (base, deltaclicked);
+		}
+		
 		return null;
 	}
 	

@@ -34,7 +34,12 @@ public abstract class Node {
 	
 	public Node GetNode (String name) {return null;}
 	
-	public Node GetClickedNode (int base, Position pixelposition) {return this;}
+	public Node GetClickedNode (int base, Position deltacoord) {
+		if (deltacoord.x == 0 && deltacoord.y == 0)
+			return this;
+		else
+			return null;
+	}
 	
 	public boolean AddNode (String name, Node n) {return false;}
 
