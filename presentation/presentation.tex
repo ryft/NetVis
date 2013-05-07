@@ -1,0 +1,62 @@
+\documentclass{beamer}
+\usetheme{Singapore}
+\begin{document}
+
+    \title{NetVis}
+    \subtitle{Network Security Visualisation Tool}
+    \institute{
+        James Nicholls, Dominik Peters, Albert Slawinski,\\
+        Thomas Spoor, Sergiu Vicol}
+    \date{}
+
+    \author{\includegraphics[width=64px,height=64px]{img/netvis.png}}
+
+    \begin{frame}
+        \titlepage
+    \end{frame}
+
+    \begin{frame}{Project Goals}
+
+        We declared in our specification that we would implement:\\ \bigskip
+
+        An application to assist an \textbf{observer} in the detection and
+        analysis of potential network attacks by visualising network traffic in
+        an intuitive and meaningful way.\\ \bigskip
+
+        The aim was to improve situational awareness of a network in the hope
+        that the user can identify an attack faster than automated analytical
+        techniques (i.e. using an IDS).\\ \bigskip
+
+        To achieve this we needed to build a graphical network analysis program
+        which would receive packets from the IP layer and display the data in a 
+        human-friendly format.
+
+    \end{frame}
+
+    \begin{frame}{Design Choices}
+
+        The decisions we made in the early stages of the project;
+
+        \begin{itemize}
+            \item{Java / Swing / OpenGL graphics API}
+            \item{Main network map for familiarity}
+            \item{Variety of visual styles}
+            \item{Overview $\rightarrow$ zoom and filter $\rightarrow$ details
+            on demand} [Shneiderman, 1996]
+        \end{itemize} \bigskip \bigskip
+
+    \end{frame}
+
+    \begin{frame}{Teamwork}
+
+        Tools used to encourage Synergy\small{\texttrademark} between team members
+        \begin{itemize}
+            \item{Version control, code hosting: \textbf{GitHub}}
+            \item{Distribution of tasks: \textbf{Google Drive}, \textbf{GitHub}}
+            \item{Meeting planning: \textbf{Facebook}, \textbf{Doodle}}
+            \item{Shouting at people: \textbf{Facebook}, \textbf{GitHub}}
+        \end{itemize}
+
+    \end{frame} 
+
+\end{document}
