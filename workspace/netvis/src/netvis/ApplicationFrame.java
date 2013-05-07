@@ -283,34 +283,54 @@ public class ApplicationFrame extends JFrame {
 
 		// Toggle the right panel
 		JMenuItem toggleRightItem = new JMenuItem("Toggle Right Panel", KeyEvent.VK_RIGHT);
-		toggleRightItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, ActionEvent.CTRL_MASK));
+		toggleRightItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,
+				ActionEvent.CTRL_MASK));
 		toggleRightItem.getAccessibleContext().setAccessibleDescription("Toggle right panel");
 
 		// Listen for toggle events
 		toggleRightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (ApplicationFrame.this.rightPanel.isVisible())
+
+				Dimension d = ApplicationFrame.this.glPanel.getSize();
+				int deltaW = 0;
+
+				if (ApplicationFrame.this.rightPanel.isVisible()) {
 					ApplicationFrame.this.rightPanel.setVisible(false);
-				else
+					deltaW += ApplicationFrame.this.rightPanel.getWidth();
+				} else {
 					ApplicationFrame.this.rightPanel.setVisible(true);
+					deltaW -= ApplicationFrame.this.rightPanel.getWidth();
+				}
+
+				ApplicationFrame.this.glPanel.setSize(d.width + deltaW, d.height);
 				ApplicationFrame.this.componentResized();
 			}
 		});
 
 		// Toggle the right panel
 		JMenuItem toggleBottomItem = new JMenuItem("Toggle Bottom Panel", KeyEvent.VK_DOWN);
-		toggleBottomItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, ActionEvent.CTRL_MASK));
+		toggleBottomItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
+				ActionEvent.CTRL_MASK));
 		toggleBottomItem.getAccessibleContext().setAccessibleDescription("Toggle bottom panel");
 
 		// Listen for toggle events
 		toggleBottomItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (ApplicationFrame.this.bottomPanel.isVisible())
+
+				Dimension d = ApplicationFrame.this.glPanel.getSize();
+				int deltaH = 0;
+
+				if (ApplicationFrame.this.bottomPanel.isVisible()) {
 					ApplicationFrame.this.bottomPanel.setVisible(false);
-				else
+					deltaH += ApplicationFrame.this.bottomPanel.getHeight();
+				} else {
 					ApplicationFrame.this.bottomPanel.setVisible(true);
+					deltaH -= ApplicationFrame.this.bottomPanel.getHeight();
+				}
+
+				ApplicationFrame.this.glPanel.setSize(d.width, d.height + deltaH);
 				ApplicationFrame.this.componentResized();
 			}
 		});
@@ -329,13 +349,11 @@ public class ApplicationFrame extends JFrame {
 		aboutItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(ApplicationFrame.this,
-						"NetVis Version " + versionNumber + "\n" + "\n" + "Authors:" + "\n"
-								+ "Thomas Spoor" + "\n" + "James Nicholls" + "\n"
-								+ "Albert Sławiński" + "\n" + "Sergiu Vicol" + "\n"
-								+ "Dominik Peters" + "\n" + "\n"
-								+ "Copyright 2013 Clockwork Dragon", "About",
-						JOptionPane.INFORMATION_MESSAGE, new ImageIcon("img/icon.png"));
+				JOptionPane.showMessageDialog(ApplicationFrame.this, "NetVis Version "
+						+ versionNumber + "\n" + "\n" + "Authors:" + "\n" + "James Nicholls" + "\n"
+						+ "Dominik Peters" + "\n" + "Albert Slawinski" + "\n" + "Thomas Spoor"
+						+ "\n" + "Sergiu Vicol" + "\n\n" + "Copyright 2013 Clockwork Dragon",
+						"About", JOptionPane.INFORMATION_MESSAGE, new ImageIcon("img/icon.png"));
 			}
 		});
 
@@ -356,10 +374,12 @@ public class ApplicationFrame extends JFrame {
 
 		return menuBar;
 	}
-	
+
 	/**
 	 * Open a CSV packet trace file and play it.
-	 * @param file The reference to the file
+	 * 
+	 * @param file
+	 *            The reference to the file
 	 */
 	public void openCSV(File file) {
 		dataFeeder = new CSVDataFeeder(file, parent);
@@ -511,7 +531,7 @@ public class ApplicationFrame extends JFrame {
 		});
 
 	}
-	
+
 	protected void componentResized() {
 		glPanel.resizeVisualisation();
 	}
