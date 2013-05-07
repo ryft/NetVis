@@ -191,7 +191,7 @@ public class ApplicationFrame extends JFrame {
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
 
-		VisualisationsController.GetInstance().ActivateById(0);
+		VisualisationsController.GetInstance().ActivateById(4);
 
 		// Reset the initial message in the context panel
 		contextPanel.revert();
