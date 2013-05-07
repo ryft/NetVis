@@ -116,6 +116,11 @@ public class HeatNode extends Node {
 			// Every second decrease the warning of the node
 			if (warning > 0)
 				DecreaseWarning();
+			else if (warning == 0)
+			{
+				// Delete the node by calling the parent method
+				//this.GetParent().DetachNode (this);
+			}
 			
 			// Reset the counter
 			cumultime = 0;

@@ -8,7 +8,7 @@ import netvis.data.model.Packet;
 
 public abstract class Node {
 
-	private String name;
+	private String name = null;
 	public String GetName() {return name;}
 	public void   SetName(String n) {name = n;}
 	
@@ -20,7 +20,7 @@ public abstract class Node {
 		painter.DrawNode(base, this, gl);
 	}
 	
-	Node parent = null;
+	Node parent;
 	public Node GetParent() {
 		return parent;
 	}
@@ -33,6 +33,8 @@ public abstract class Node {
 	public int getCapacity   () {return 1;}
 	
 	public Node GetNode (String name) {return null;}
+	public void DetachNode (Node n) {};
+	
 	
 	public Node GetClickedNode (int base, Position deltacoord) {
 		if (deltacoord.x == 0 && deltacoord.y == 0)

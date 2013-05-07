@@ -103,7 +103,9 @@ public class MapPainter implements NodePainter {
 
 
 		gl.glColor3d (0.8, 0.8, 0.8);
-		Painter.DrawHexagon(GL2.GL_POLYGON, 0.0, 0.0, base, gl);
+		Painter.DrawHexagon(GL2.GL_POLYGON, 0, 0, base, gl);
+		//Painter.DrawImageHex(TexturePool.get("hexagon2"), GL2.GL_DECAL, 0.0, 0.0, 2.0 * base / 512.0, 0, 1.0, gl);
+		//Painter.DrawHexagon(GL2.GL_POLYGON, 0.0, 0.0, base, gl);
 		
 		gl.glLineWidth (2.0f);
 		gl.glColor3d (0.0, 0.0, 0.0);

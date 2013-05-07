@@ -133,7 +133,8 @@ public class MultiNode extends Node {
 			//Painter.DrawHexagon(GL2.GL_LINE_LOOP, 0.0, 0.0, (int) Math.round(base*Math.sqrt(3.0)*(dim-1)), gl);
 		gl.glPopMatrix();
 	}
-	 
+	
+	@Override
 	public void DetachNode (Node n) {
 		// Find the specified node in the lists
 		for (Entry<Position, Node> en : subnodes.entrySet())
@@ -163,14 +164,9 @@ public class MultiNode extends Node {
 		if (subdim == -1)
 		{
 			// If the node is empty - check whether we can subdivide the node
-			if (reqdim > FindNodeDim())
+			if (reqdim >= FindNodeDim())
 			{
-				// We can put this node straight away - but we won't fit anything else
-				subdim = reqdim;
-				subnodes.put(new Position(0,0), n);
-				return true;
-			} else if (reqdim == FindNodeDim())
-			{
+				// We can put this node straight away (but if strict inequality - we won't fit anything else)
 				subdim = reqdim;
 				return AllocateSubnode (name, n);
 			} else

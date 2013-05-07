@@ -139,6 +139,10 @@ public class MapActivity extends Map {
 			boolean placed = false;
 			for (MultiNode n : nodes.values())
 			{
+				// If the node is already named - it's a group, so don't try adding anything to it
+				if (n.GetName() != null)
+					continue;
+
 				if (n.AddNode(groupname, groupnode))
 				{
 					placed = true;
@@ -257,6 +261,7 @@ public class MapActivity extends Map {
 		int newdim = dim;
 		while (Units.DimToCap(newdim) < 7*Units.DimToCap(dim))
 			newdim += 1;
+
 		dim = newdim;
 		Painter.GenerateGrid ("grid", dim);
 		
