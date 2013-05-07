@@ -76,8 +76,6 @@ public class DataController implements ActionListener {
 		allDataChanged();
 	}
 	
-
-
 	public Iterator<PacketFilter> filterIterator() {
 		return filters.iterator();
 	}

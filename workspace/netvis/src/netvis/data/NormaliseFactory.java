@@ -19,11 +19,11 @@ public class NormaliseFactory {
 
 	private NormaliseFactory() {
 		normalisers = new ArrayList<Normaliser>();
+		normalisers.add(new SourceMACNorm());
+		normalisers.add(new SourceIPNorm());
 		normalisers.add(new SourcePortNorm());
 		normalisers.add(new DestinationPortNorm());
-		normalisers.add(new SourceIPNorm());
 		normalisers.add(new DestinationIPNorm());
-		normalisers.add(new SourceMACNorm());
 		normalisers.add(new DestinationMACNorm());	
 	}
 
@@ -110,7 +110,7 @@ public class NormaliseFactory {
 
 	private class SourceIPNorm extends Normaliser {
 		public double normaliseFunction(Packet p) {
-			return DataUtilities.normaliseV4Ip(p.sip);
+			return DataUtilities.normaliseIP(p.sip);
 		}
 
 		public String name() {
@@ -119,13 +119,13 @@ public class NormaliseFactory {
 
 		@Override
 		public String denormaliseFunction(double v) {
-			return DataUtilities.denormaliseV4Ip(v);
+			return DataUtilities.denormaliseIP(v);
 		}
 	}
 
 	private class DestinationIPNorm extends Normaliser {
 		public double normaliseFunction(Packet p) {
-			return DataUtilities.normaliseV4Ip(p.dip);
+			return DataUtilities.normaliseIP(p.dip);
 		}
 
 		public String name() {
@@ -134,7 +134,7 @@ public class NormaliseFactory {
 
 		@Override
 		public String denormaliseFunction(double v) {
-			return DataUtilities.denormaliseV4Ip(v);
+			return DataUtilities.denormaliseIP(v);
 		}
 	}
 	

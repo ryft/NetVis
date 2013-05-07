@@ -1,10 +1,11 @@
 package netvis.visualisations;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
@@ -12,6 +13,9 @@ import java.util.List;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -27,7 +31,9 @@ import netvis.data.model.Packet;
 import netvis.ui.OpenGLPanel;
 import netvis.ui.VisControlsContainer;
 import netvis.util.ColourPalette;
+import netvis.visualisations.gameengine.TextRendererPool;
 
+import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 /**
@@ -50,6 +56,7 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 	protected List<Normaliser> normPasses;
 	float[][] trafficMeasure;
 	private GLUT glut;
+	int colorPasser = 0;
 	private int visHighlighted;
 	private boolean displaySelectionBar;
 	private Color fColor, lColor;
@@ -58,13 +65,7 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 	public DataflowVisualisation(DataController dataController, OpenGLPanel joglPanel,
 			VisControlsContainer visControlsContainer) {
 		super(dataController, joglPanel, visControlsContainer);
-		normPasses = new ArrayList<Normaliser>();
-		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(4));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(2));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(0));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(1));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(3));
-		normPasses.add(NormaliseFactory.INSTANCE.getNormaliser(5));
+		normPasses = NormaliseFactory.INSTANCE.getNormalisers();
 		displaySelectionBar = false;
 		trafficMeasure = new float[normPasses.size()][100];
 		fColor = Color.green;
@@ -78,8 +79,13 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+		
+		gl.glColor4d(0.2, 0.2, 0.2, 0.5);
+		gl.glRasterPos2f(0.5f, 1.01f); // set position
+		glut.glutBitmapString(GLUT.BITMAP_TIMES_ROMAN_24, "Dataflow");
+
 		gl.glColor3d(0.2, 0.2, 0.2);
-		gl.glRasterPos3f(0, 1.01f, 0); // set position
+		gl.glRasterPos2f(0, 1.01f); // set position
 		glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, "Brightness: Time, Opacity: Volume");
 
 		for (int j = 1; j < normPasses.size(); j++) {
@@ -104,14 +110,9 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 		gl.glColor3d(0, 0, 0);
 		int ii = -1;
 		if (listOfPackets.size() > 0){
-			ii = Collections.binarySearch(listOfPackets, 
-				new Packet(0, listOfPackets.get(listOfPackets.size()-1).time - pastLimit, "", "", 0, "", "", 0, "", 0, ""), 
-				new Comparator<Packet>(){
-					@Override
-					public int compare(Packet p1, Packet p2) {
-						return (int) (10*(p1.time - p2.time));
-					}
-			});
+			double searchTime = listOfPackets.get(listOfPackets.size()-1).time - pastLimit;
+			ii = listOfPackets.size() -1;
+			while (ii > 0 && listOfPackets.get(ii).time > searchTime) ii--;
 		}
 		if (ii < -1) ii = -1;
 		ii++;
@@ -124,7 +125,7 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 			double entropy = (standout*(Math.random() - 0.5)) / 300;
 			
 			ColourPalette.setColour(gl, ColourPalette.getColourShade( 
-					fColor, lColor, normPasses.get(0).normalise(p)), standout);
+					fColor, lColor, normPasses.get(colorPasser).normalise(p)), standout);
 			gl.glBegin(GL2.GL_LINE_STRIP);
 			for (int j = 0; j < normPasses.size(); j++) {
 				double normVal = normPasses.get(j).normalise(p) + entropy;
@@ -231,7 +232,27 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 			}
 			
 		});
-		panel.add(timeFilter);
+		Box box = Box.createHorizontalBox();
+		box.add(timeFilter);
+		panel.add(box);
+		
+		String[] normNames = new String[NormaliseFactory.INSTANCE.getNormalisers().size()];
+		for (int i = 0; i < normNames.length; i++)
+			normNames[i] = NormaliseFactory.INSTANCE.getNormaliser(i).name();
+		final JComboBox<String> normaliserBox = new JComboBox<String>(normNames);
+		normaliserBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				colorPasser = normaliserBox.getSelectedIndex();
+			}
+		});
+		box = Box.createHorizontalBox();
+		box.add(new JLabel("Colour"));
+		box.add(normaliserBox);
+		panel.add(box);
+
+		
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 		return panel;
 	}
 
@@ -267,7 +288,6 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 	public void mouseClicked(MouseEvent e) {
 		double xClicked = (double)e.getX()/this.getSize().getWidth();
 		int visChosen = (int)(xClicked * normPasses.size());
-		visChosen = NormaliseFactory.INSTANCE.getNormalisers().indexOf(normPasses.get(visChosen));
 		VisualisationsController vc = VisualisationsController.GetInstance();
 		vc.ActivateById(2);
 		vc.getVList().get(2).setState(visChosen);

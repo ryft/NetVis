@@ -16,7 +16,7 @@ public class DataUtilities {
 	/**
 	 * Transforms an IPv4 into a double value in the range [0..1]
 	 */
-	public static double normaliseV4Ip(String ip) {
+	public static double normaliseIP(String ip) {
 		int i = 0;
 		int c = 0;
 		double f = 0;
@@ -36,7 +36,7 @@ public class DataUtilities {
 		return f;
 	}
 	
-	public static String denormaliseV4Ip(double nv){
+	public static String denormaliseIP(double nv){
 		nv = nv*256*256*256*256;
 		long nvi = (long)nv;
 		if (nvi == (long)65536*65536) nvi -= 1;
