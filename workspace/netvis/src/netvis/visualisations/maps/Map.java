@@ -3,7 +3,7 @@ package netvis.visualisations.maps;
 import netvis.visualisations.gameengine.Node;
 import netvis.visualisations.gameengine.ValueAnimator;
 
-public class Map {
+public abstract class Map {
 
 	ValueAnimator viewfieldanim;
 	public double GetViewfield () {return viewfieldanim.toDouble();}
@@ -35,9 +35,7 @@ public class Map {
 	}
 
 
-	public Node FindClickedNode(int x, int y) {
-		return null;
-	}
+	public abstract Node FindClickedNode(int x, int y);
 	
 
 	public double ZoomOn() {

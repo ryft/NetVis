@@ -103,7 +103,9 @@ public class MapPainter implements NodePainter {
 
 
 		gl.glColor3d (0.8, 0.8, 0.8);
-		Painter.DrawHexagon(GL2.GL_POLYGON, 0.0, 0.0, base, gl);
+		Painter.DrawHexagon(GL2.GL_POLYGON, 0, 0, base, gl);
+		//Painter.DrawImageHex(TexturePool.get("hexagon2"), GL2.GL_DECAL, 0.0, 0.0, 2.0 * base / 512.0, 0, 1.0, gl);
+		//Painter.DrawHexagon(GL2.GL_POLYGON, 0.0, 0.0, base, gl);
 		
 		gl.glLineWidth (2.0f);
 		gl.glColor3d (0.0, 0.0, 0.0);
@@ -169,11 +171,12 @@ public class MapPainter implements NodePainter {
 
 		// Now display the front texture
 		gl.glBindTexture(GL.GL_TEXTURE_2D, texfb[0]);
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
 		gl.glPushMatrix();
-		gl.glTranslated(0.0, 0.0, -500.0);
 		gl.glRotated(rotation, 1.0, 0.0, 0.0);
 
-		Painter.DrawSquare(2 * base, 2 * base, 0, 0, 1.0, 180.0, gl);
+		Painter.DrawHexagonTextured (GL2.GL_POLYGON, 0.0, 0.0, base, 0.0, gl);
+		//Painter.DrawSquare (2 * base, 2 * base, 0, 0, 1.0, 0.0, gl);
 
 		gl.glPopMatrix();
 	}

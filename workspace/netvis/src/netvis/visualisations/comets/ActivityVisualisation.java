@@ -142,7 +142,7 @@ public class ActivityVisualisation extends Visualisation {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 
-		gl.glOrtho( - this.width * viewfield / 2, mx + this.width
+		gl.glOrtho(mx - this.width * viewfield / 2, mx + this.width
 				* viewfield / 2, my - this.height * viewfield / 2,
 				my + this.height * viewfield / 2, -1000, 2000);
 
@@ -253,7 +253,7 @@ public class ActivityVisualisation extends Visualisation {
 		fps = new JLabel("0 FPS");
 
 		// May be useful in future so let's just keep this here
-		//mypanel.add(fps);
+		mypanel.add(fps);
 		return mypanel;
 	}
 

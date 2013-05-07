@@ -221,12 +221,17 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	@Override
 	public String getDescription() {
 		return getName()+"\n\n"+
-				"Shows the distribution of a certain packet\n" +
-				"attribute. It is a graded log chart.\n" +
-				"The dots represent a better indicative \n" +
-				"of the actual traffic on that range (the \n" +
-				"area of the dots is directly proportional \n" +
-				"to the number of packets on that interval.";
+				"Shows the distribution of a certain packet " +
+				"attribute on a graded log chart" +
+				"The x axis is split into 100 groups. " +
+				"The traffic for each group is summed to " +
+				"give the value shown.\n" +
+				"The dots are a more accurate indicator " +
+				"of the total traffic on that range - the " +
+				"area of the dots is directly proportional " +
+				"to the number of packets on that interval.\n" +
+				"Click or click and drag to limit data to a " +
+				"particular range.";
 	}
 	@Override
 	public void setState(int i){
