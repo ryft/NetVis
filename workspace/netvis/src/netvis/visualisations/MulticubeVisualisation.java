@@ -236,11 +236,10 @@ public class MulticubeVisualisation extends Visualisation {
 	@Override
 	public String getDescription() {
 		return getName() + "\n\n" + 
-				"Visualization based on the Spinning cube of\n" +
-				"potential doom. Every dimension can be customised\n" +
-				"depending on the available 'normalisers'. Packets also\n" +
-				"have a little randomness just to make it more evident when\n" +
-				"a line of packets is dense or not.";
+				"Visualization based on the Spinning cube of " +
+				"potential doom.\n" +
+				"Every dimension can be set to show any attribute.\n" +
+				"Packets also vibrate to make dense clusters more obvious.";
 	}
 
 }

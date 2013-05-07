@@ -253,14 +253,16 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 
 	@Override
 	public String getDescription() {
-		return getName() + "\n\n"
-				+ "Saturation indicates time (the gray lines are \n"
-				+ "past lines) the coloured lines are more recent.\n" +
-				" You can follow a packet by it's colour.\n" +
-				" The red bars show traffic volume.\n" +
-				" They shrink with each iteration by some percentage\n" +
-				" and grow linearly with each packet. They also have\n" +
-				" an upper limit.";
+		return getName() + "\n\n" +
+				"Saturation indicates time - grey lines are " +
+				"past lines, coloured lines are more recent.\n" +
+				"You can follow a packet by it's colour.\n" +
+				"The red bars show traffic volume. " +
+				"They shrink with each iteration by some percentage\n" +
+				"and grow linearly with each packet, up to a limit.\n" +
+				"Hover over an axis to show the scale.\n" +
+				"Click an axis to switch to the distribution visualisation " +
+				"for that attribute.";
 	}
 	
 	@Override

@@ -309,10 +309,10 @@ public class TrafficVolumeVisualisation extends Visualisation {
 	@Override
 	public String getDescription() {
 		return getName() + "\n\n" + "Each interval of received packets is presented as a column.\n"
-				+ "Individual protocols are displayed in a distinct colour to show\n"
+				+ "Individual protocols are displayed in a distinct colour to show "
 				+ "how much traffic arrives over one protocol compared to others.\n"
-				+ "Once the maximum x-axis resolution has been reached, old data\n"
-				+ "is discarded to allow new data to be shown. The y-axis scales up\n"
-				+ "automatically.";
+				+ "Once the maximum x-axis resolution has been reached, old data "
+				+ "is discarded to allow new data to be shown.\n"
+				+ "The y-axis scales up automatically.";
 	}
 }
