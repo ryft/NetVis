@@ -1,95 +1,92 @@
 package netvis.data.filters;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+
 import netvis.data.DataController;
-import netvis.data.model.Packet;
 import netvis.data.model.PacketFilter;
 
-/**
- * <pre>
- * IP address filter
- * Allows the user to specify a number of IP addresses to include/exclude
- * If any 'include' IPs are entered, only packets including at least one of these IPs will be used
- * If any 'exclude' IPs are entered, only packets including none of these IPs will be used
- */
-public class AddressFilter implements PacketFilter {
+public abstract class WhiteListFilter implements PacketFilter {
 	
 	final DataController dataController;
-	private ArrayList<String> whiteList;
-	private ArrayList<String> blackList;
-	private IPTableModel tableModel;
+	protected ArrayList<String> whiteList;
+	protected ArrayList<String> blackList;
+	private WLTableModel tableModel;
 	private JTable table;
 	private JScrollPane scrollPane;
+	private JDialog dialogBox;
+	private JButton button;
 	private JPanel filterPanel;
-	
-	public AddressFilter(DataController dataController) {
+
+	public WhiteListFilter(DataController dataController, String attribute) {
 		this.dataController = dataController;
 		blackList = new ArrayList<String>();
 		whiteList = new ArrayList<String>();
-		tableModel = new IPTableModel();
+		tableModel = new WLTableModel();
 		table = new JTable(tableModel);
 		scrollPane = new JScrollPane(table);
 		table.setFillsViewportHeight(true);
 		filterPanel = new JPanel();
-		filterPanel.setLayout(new BorderLayout());
-		filterPanel.add(scrollPane, BorderLayout.CENTER);
-		scrollPane.setMinimumSize(new Dimension(35, 100));
-		scrollPane.setMaximumSize(new Dimension(35, 100));
-	}
+		dialogBox = new JDialog();
+		dialogBox.setModal(true);
+		dialogBox.setTitle("Filter by " + attribute);
+		dialogBox.add(scrollPane);
+		dialogBox.setMinimumSize(new Dimension (300, 200));
+		button = new JButton("Filter by " + attribute);
+		button.addActionListener(new ActionListener() {
 
+			public void actionPerformed(ActionEvent arg0) {
+				dialogBox.setLocation(button.getLocationOnScreen());
+				dialogBox.setVisible(true);
+			}
+
+		});
+		filterPanel.add(button);
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		ArrayList<String> newWhiteList = new ArrayList<String>();
 		ArrayList<String> newBlackList = new ArrayList<String>();
 		for (int i = 0; i < tableModel.getRowCount(); i++) {
-			String includeIP = (String) table.getValueAt(i, 0);
-			String excludeIP = (String) table.getValueAt(i, 1);
-			if (includeIP != "") 
-				newWhiteList.add(includeIP);
-			if (excludeIP != "")
-				newBlackList.add(excludeIP);
+			String include = (String) table.getValueAt(i, 0);
+			String exclude = (String) table.getValueAt(i, 1);
+			if (include != "") 
+				newWhiteList.add(include);
+			if (exclude != "")
+				newBlackList.add(exclude);
 		}
 		whiteList = newWhiteList;
 		blackList = newBlackList;
 		dataController.filterUpdated();
 	}
-
-	@Override
-	public boolean filter(Packet packet) {
-		String dip = packet.dip;
-		String sip = packet.sip;
-		return ((whiteList.isEmpty() || whiteList.contains(dip) || whiteList.contains(sip)) &&
-				(!blackList.contains(dip) && !blackList.contains(sip)));
-	}
-
-	@Override
-	public String description() {
-		return "Filter by IP address";
-	}
-
+	
 	@Override
 	public JComponent getPanel() {
 		return filterPanel;
 	}
 	
+	
+	
 	@SuppressWarnings("serial")
-	private class IPTableModel extends AbstractTableModel {
+	private class WLTableModel extends AbstractTableModel {
 		
 		private int rowCount = 1;
 		private String[] columnNames = new String[]{"Include", "Exclude"};
 		private ArrayList<String> includeList = new ArrayList<String>();
 		private ArrayList<String> excludeList = new ArrayList<String>();
 		
-		public IPTableModel() {
+		public WLTableModel() {
 			super();
 			includeList.add("");
 			excludeList.add("");
@@ -172,5 +169,4 @@ public class AddressFilter implements PacketFilter {
 		}
 		
 	}
-
 }
