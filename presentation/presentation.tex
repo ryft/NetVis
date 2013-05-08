@@ -1,5 +1,6 @@
 \documentclass{beamer}
 \usetheme{Singapore}
+\beamertemplatenavigationsymbolsempty
 \begin{document}
 
     \title{NetVis}
@@ -17,19 +18,11 @@
 
     \begin{frame}{Project Goals}
 
-        We declared in our specification that we would implement:\\ \bigskip
+        Implement an application to assist an \textbf{observer} in the
+        detection of potential network attacks.\\ \bigskip
 
-        An application to assist an \textbf{observer} in the detection and
-        analysis of potential network attacks by visualising network traffic in
-        an intuitive and meaningful way.\\ \bigskip
-
-        The aim was to improve situational awareness of a network in the hope
-        that the user can identify an attack faster than automated analytical
-        techniques (i.e. using an IDS).\\ \bigskip
-
-        To achieve this we needed to build a graphical network analysis program
-        which would receive packets from the IP layer and display the data in a 
-        human-friendly format.
+        Improve situational awareness of a network faster than automated
+        analytical techniques (i.e. using an IDS).\
 
     \end{frame}
 
@@ -39,11 +32,23 @@
 
         \begin{itemize}
             \item{Java / Swing / OpenGL graphics API}
-            \item{Main network map for familiarity}
-            \item{Variety of visual styles}
+            \item{Network ``map'' for familiarity}
             \item{Overview $\rightarrow$ zoom and filter $\rightarrow$ details
             on demand} [Shneiderman, 1996]
-        \end{itemize} \bigskip \bigskip
+            \item{Variety of visual styles}
+        \end{itemize}
+
+    \end{frame}
+
+    \begin{frame}{An unhelpful visualisation}
+
+        \includegraphics[width=\textwidth,keepaspectratio]{img/ex0.png}
+
+    \end{frame}
+
+    \begin{frame}{A better visualisation}
+
+        \includegraphics[width=\textwidth,keepaspectratio]{img/ex1.png}
 
     \end{frame}
 

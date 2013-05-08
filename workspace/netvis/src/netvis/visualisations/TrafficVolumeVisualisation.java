@@ -147,10 +147,12 @@ public class TrafficVolumeVisualisation extends Visualisation {
 	}
 
 	// Positions for the key labels in the protocol colour key (x100).
-	protected Point[] keyPositions = { new Point(-93, -87), new Point(-93, -97),
-			new Point(-50, -77), new Point(-50, -87), new Point(-50, -97), new Point(-10, -77),
-			new Point(-10, -87), new Point(-10, -97), new Point(30, -77), new Point(30, -87),
-			new Point(30, -97), new Point(70, -77), new Point(70, -87), new Point(70, -97) };
+	protected Point[] keyPositions = {
+			new Point(-93, -85), new Point(-93, -93),
+			new Point(-50, -77), new Point(-50, -85), new Point(-50, -93),
+			new Point(-10, -77), new Point(-10, -85), new Point(-10, -93),
+			new Point(30, -77), new Point(30, -85),	new Point(30, -93),
+			new Point(70, -77), new Point(70, -85), new Point(70, -93) };
 
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
