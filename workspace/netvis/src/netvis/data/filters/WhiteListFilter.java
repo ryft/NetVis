@@ -1,10 +1,14 @@
 package netvis.data.filters;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -13,23 +17,31 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import netvis.ApplicationFrame;
 import netvis.data.DataController;
 import netvis.data.model.PacketFilter;
 
 public abstract class WhiteListFilter implements PacketFilter {
 	
 	final DataController dataController;
+	final ApplicationFrame frame;
 	protected ArrayList<String> whiteList;
 	protected ArrayList<String> blackList;
 	private WLTableModel tableModel;
 	private JTable table;
 	private JScrollPane scrollPane;
 	private JDialog dialogBox;
-	private JButton button;
+	private JButton openButton;
+	private JButton cancelButton;
+	private JButton okButton;
+	private JPanel tablePanel;
+	private JPanel buttonPanel;
 	private JPanel filterPanel;
-
-	public WhiteListFilter(DataController dataController, String attribute) {
+	private boolean wasFullScreen;
+	
+	public WhiteListFilter(DataController dataController, String attribute, ApplicationFrame frame) {
 		this.dataController = dataController;
+		this.frame = frame;
 		blackList = new ArrayList<String>();
 		whiteList = new ArrayList<String>();
 		tableModel = new WLTableModel();
@@ -37,21 +49,40 @@ public abstract class WhiteListFilter implements PacketFilter {
 		scrollPane = new JScrollPane(table);
 		table.setFillsViewportHeight(true);
 		filterPanel = new JPanel();
+		
 		dialogBox = new JDialog();
 		dialogBox.setModal(true);
 		dialogBox.setTitle("Filter by " + attribute);
-		dialogBox.add(scrollPane);
+		dialogBox.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		dialogBox.setMinimumSize(new Dimension (300, 200));
-		button = new JButton("Filter by " + attribute);
-		button.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0) {
-				dialogBox.setLocation(button.getLocationOnScreen());
-				dialogBox.setVisible(true);
-			}
-
-		});
-		filterPanel.add(button);
+		
+		openButton = new JButton("Filter by " + attribute);
+		openButton.addActionListener(new OpenButtonListener());
+		cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new CancelButtonListener());
+		okButton = new JButton("OK");
+		okButton.addActionListener(new OkButtonListener());
+		
+		tablePanel = new JPanel();
+		tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.PAGE_AXIS));
+		tablePanel.add(Box.createRigidArea(new Dimension(0,5)));
+		tablePanel.add(scrollPane);
+		tablePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(okButton);
+		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+		buttonPanel.add(cancelButton);
+		
+		dialogBox.setLayout(new BorderLayout());
+		dialogBox.add(tablePanel, BorderLayout.CENTER);
+		dialogBox.add(buttonPanel, BorderLayout.PAGE_END);
+		filterPanel.add(openButton);
+		
+		wasFullScreen = false;
 	}
 	
 	@Override
@@ -76,7 +107,44 @@ public abstract class WhiteListFilter implements PacketFilter {
 		return filterPanel;
 	}
 	
+	private class OpenButtonListener implements ActionListener {
+		
+		public void actionPerformed(ActionEvent e) {
+			if(frame.isFullScreen()) {
+				wasFullScreen = true;
+				frame.toggleFullScreen();
+			}
+			else
+				wasFullScreen = false;
+			tableModel.saveBackup();
+			dialogBox.setLocation(openButton.getLocationOnScreen());
+			dialogBox.setVisible(true);
+		}
+		
+	}
 	
+	private class OkButtonListener implements ActionListener {
+		
+		public void actionPerformed(ActionEvent e) {
+			dialogBox.setVisible(false);
+			if (wasFullScreen)
+				frame.toggleFullScreen();
+		}
+		
+	}
+	
+	private class CancelButtonListener implements ActionListener {
+		
+		public void actionPerformed(ActionEvent e) {
+			table.editingCanceled(null);
+			dialogBox.setVisible(false);
+			tableModel.restoreBackup();		
+			
+			if (wasFullScreen)
+				frame.toggleFullScreen();
+		}
+		
+	}
 	
 	@SuppressWarnings("serial")
 	private class WLTableModel extends AbstractTableModel {
@@ -85,11 +153,28 @@ public abstract class WhiteListFilter implements PacketFilter {
 		private String[] columnNames = new String[]{"Include", "Exclude"};
 		private ArrayList<String> includeList = new ArrayList<String>();
 		private ArrayList<String> excludeList = new ArrayList<String>();
+		private int rowCountBackup;
+		private ArrayList<String> includeListBackup;
+		private ArrayList<String> excludeListBackup;
 		
 		public WLTableModel() {
 			super();
 			includeList.add("");
 			excludeList.add("");
+		}
+		
+		@SuppressWarnings("unchecked")
+		public void saveBackup() {
+			rowCountBackup = Integer.valueOf(rowCount);
+			includeListBackup = (ArrayList<String>) includeList.clone();
+			excludeListBackup = (ArrayList<String>) excludeList.clone();
+		}
+		
+		public void restoreBackup() {
+			rowCount = rowCountBackup;
+			includeList = includeListBackup;
+			excludeList = excludeListBackup;
+			fireTableDataChanged();
 		}
 
 		@Override

@@ -1,5 +1,6 @@
 package netvis.data.filters;
 
+import netvis.ApplicationFrame;
 import netvis.data.DataController;
 import netvis.data.model.Packet;
 
@@ -12,8 +13,8 @@ import netvis.data.model.Packet;
  */
 public class IPFilter extends WhiteListFilter {
 	
-	public IPFilter(DataController dataController) {
-		super(dataController, "IP Address");
+	public IPFilter(DataController dataController, ApplicationFrame frame) {
+		super(dataController, "IP Address", frame);
 	}
 	
 	@Override

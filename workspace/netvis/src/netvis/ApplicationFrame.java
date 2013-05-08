@@ -112,8 +112,8 @@ public class ApplicationFrame extends JFrame {
 		dataController = new DataController(dataFeeder, 1000);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
-		dataController.addFilter(new IPFilter(dataController));
-		dataController.addFilter(new MACFilter(dataController));
+		dataController.addFilter(new IPFilter(dataController, this));
+		dataController.addFilter(new MACFilter(dataController, this));
 
 		contentPane = new JPanel(new GridBagLayout());
 
@@ -387,8 +387,12 @@ public class ApplicationFrame extends JFrame {
 		dataFeeder = new CSVDataFeeder(file, parent);
 		dataController.setDataFeeder(dataFeeder);
 	}
+	
+	public boolean isFullScreen() {
+		return FULL_SCREEN;
+	}
 
-	protected void toggleFullScreen() {
+	public void toggleFullScreen() {
 
 		// Get references to required system resources
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();

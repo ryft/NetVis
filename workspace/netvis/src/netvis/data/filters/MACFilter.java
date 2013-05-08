@@ -1,5 +1,6 @@
 package netvis.data.filters;
 
+import netvis.ApplicationFrame;
 import netvis.data.DataController;
 import netvis.data.model.Packet;
 
@@ -12,8 +13,8 @@ import netvis.data.model.Packet;
  */
 public class MACFilter extends WhiteListFilter {
 	
-	public MACFilter(DataController dataController) {
-		super(dataController, "MAC Address");
+	public MACFilter(DataController dataController, ApplicationFrame frame) {
+		super(dataController, "MAC Address", frame);
 	}
 	
 	@Override
