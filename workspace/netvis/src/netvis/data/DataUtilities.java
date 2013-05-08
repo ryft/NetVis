@@ -10,7 +10,7 @@ import java.util.Random;
 public class DataUtilities {
 	public static final int MIN_PORT = 0;
 	public static final int MAX_PORT = 65535;
-	private static HashMap<String, Double> macMap = new HashMap<String, Double>();
+	static HashMap<String, Double> macMap = new HashMap<String, Double>();
 	private static Random doubleGen = new Random();
 
 	/**

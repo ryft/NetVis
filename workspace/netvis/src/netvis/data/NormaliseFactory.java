@@ -140,7 +140,17 @@ public class NormaliseFactory {
 	
 	private class SourceMACNorm extends Normaliser {
 		public double normaliseFunction(Packet p) {
-			return DataUtilities.normaliseMAC(p.smac);
+			if (DataUtilities.macMap.containsKey(p.smac))
+				return DataUtilities.macMap.get(p.smac);
+			else {
+				double value = DataUtilities.normaliseIP(p.sip);
+				value += (Math.random()/100); 
+				if (value < 0) value = -value;
+				if (value > 1) value = 2 - value;
+				DataUtilities.macMap.put(p.smac, value);
+				return value;
+			}
+
 		}
 
 		public String name() {
