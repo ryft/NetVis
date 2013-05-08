@@ -147,12 +147,10 @@ public class TrafficVolumeVisualisation extends Visualisation {
 	}
 
 	// Positions for the key labels in the protocol colour key (x100).
-	protected Point[] keyPositions = {
-			new Point(-93, -85), new Point(-93, -93),
-			new Point(-50, -77), new Point(-50, -85), new Point(-50, -93),
-			new Point(-10, -77), new Point(-10, -85), new Point(-10, -93),
-			new Point(30, -77), new Point(30, -85),	new Point(30, -93),
-			new Point(70, -77), new Point(70, -85), new Point(70, -93) };
+	protected Point[] keyPositions = { new Point(-93, -85), new Point(-93, -93),
+			new Point(-50, -77), new Point(-50, -85), new Point(-50, -93), new Point(-10, -77),
+			new Point(-10, -85), new Point(-10, -93), new Point(30, -77), new Point(30, -85),
+			new Point(30, -93), new Point(70, -77), new Point(70, -85), new Point(70, -93) };
 
 	public void display(GLAutoDrawable drawable) {
 		GL2 gl = drawable.getGL().getGL2();
@@ -310,11 +308,8 @@ public class TrafficVolumeVisualisation extends Visualisation {
 
 	@Override
 	public String getDescription() {
-		return getName() + "\n\n" + "Each interval of received packets is presented as a column.\n"
-				+ "Individual protocols are displayed in a distinct colour to show "
-				+ "how much traffic arrives over one protocol compared to others.\n"
-				+ "Once the maximum x-axis resolution has been reached, old data "
-				+ "is discarded to allow new data to be shown.\n"
-				+ "The y-axis scales up automatically.";
+		return getName()
+				+ "\n\n"
+				+ "Each interval of received packets is presented as a column. Individual protocols are displayed in a distinct colour to show how much traffic arrives over one protocol compared to others. Once the maximum x-axis resolution has been reached, old data is discarded to allow new data to be shown. The y-axis scales up automatically.";
 	}
 }

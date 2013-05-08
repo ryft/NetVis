@@ -59,7 +59,7 @@ import netvis.visualisations.VisualisationsController;
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
 
-	protected final String versionNumber = "1.0.3";
+	protected final String versionNumber = "1.0.4";
 
 	// Flags governing the behaviour of the application window
 	/**
@@ -193,7 +193,10 @@ public class ApplicationFrame extends JFrame {
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
 
-		VisualisationsController.GetInstance().ActivateById(4);
+		// Please don't change this to anything other than 0 as the drop-down
+		// list doesn't update correctly. To change the default visualisation,
+		// reorder them in VisualisationController.
+		VisualisationsController.GetInstance().ActivateById(0);
 
 		// Reset the initial message in the context panel
 		contextPanel.revert();
@@ -387,7 +390,7 @@ public class ApplicationFrame extends JFrame {
 		dataFeeder = new CSVDataFeeder(file, parent);
 		dataController.setDataFeeder(dataFeeder);
 	}
-	
+
 	public boolean isFullScreen() {
 		return FULL_SCREEN;
 	}
@@ -520,6 +523,13 @@ public class ApplicationFrame extends JFrame {
 				try {
 					// Make GUI OS native:
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					// for (LookAndFeelInfo info :
+					// UIManager.getInstalledLookAndFeels()) {
+					// if ("Nimbus".equals(info.getName())) {
+					// UIManager.setLookAndFeel(info.getClassName());
+					// break;
+					// }
+					// }
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}

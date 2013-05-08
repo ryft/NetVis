@@ -106,6 +106,8 @@ public class ContextPanel extends JScrollPane {
 	 */
 	public void update(String text) {
 		JTextArea descriptionBox = new JTextArea(text);
+		descriptionBox.setLineWrap(true);
+		descriptionBox.setWrapStyleWord(true);
 
 		Font f = TextRendererPool.getFont("default");
 		descriptionBox.setFont(f);

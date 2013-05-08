@@ -58,6 +58,7 @@ public abstract class WhiteListFilter implements PacketFilter {
 		
 		openButton = new JButton("Filter by " + attribute);
 		openButton.addActionListener(new OpenButtonListener());
+		openButton.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new CancelButtonListener());
 		okButton = new JButton("OK");

@@ -40,6 +40,9 @@ public class VisualisationsController {
 
 	public void InitializeAll(DataController dataController, OpenGLPanel glPanel,
 			VisControlsContainer visControlsContainer) {
+		
+		// Default visualisation: attribute distribution
+		visList.add(new DistributionVisualisation(dataController, glPanel, visControlsContainer));
 
 		// Traffic volume visualisation
 		visList.add(new TrafficVolumeVisualisation(dataController, glPanel, visControlsContainer));
@@ -48,10 +51,9 @@ public class VisualisationsController {
 		visList.add(new ActivityVisualisation(dataController, glPanel, visControlsContainer));
 		visList.add(new HeatmapVisualisation(dataController, glPanel, visControlsContainer));
 
-		// Data flow and distribution visualisations
+		// Data flow visualisation
 		visList.add(new DataflowVisualisation(dataController, glPanel, visControlsContainer));
-		visList.add(new DistributionVisualisation(dataController, glPanel, visControlsContainer));
-		
+
 		// Spinning cube of doom visualisation
 		visList.add(new MulticubeVisualisation(dataController, glPanel, visControlsContainer));
 
@@ -68,7 +70,7 @@ public class VisualisationsController {
 		oldVisId = selectedIndex;
 
 		Visualisation newVis = visList.get(selectedIndex);
-		//descriptionContainer.update(newVis.getDescription());
+		// descriptionContainer.update(newVis.getDescription());
 		newVis.activate();
 		newVis.requestFocusInWindow();
 		return newVis;
@@ -77,5 +79,5 @@ public class VisualisationsController {
 	public void ActivateByReference(Visualisation visualisation) {
 		ActivateById(visList.indexOf(visualisation));
 	};
-	
+
 };

@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -62,20 +63,22 @@ public class DataController implements ActionListener {
 
 	public void addFilter(PacketFilter packetFilter) {
 		filters.add(packetFilter);
-		if (packetFilter instanceof FixedFilter){
-			filterPanel.add(packetFilter.getPanel());
+		if (packetFilter instanceof FixedFilter) {
+			JComponent comp = packetFilter.getPanel();
+			comp.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+			filterPanel.add(comp);
 		}
 		allDataChanged();
 	}
 
 	public void removeFilter(PacketFilter packetFilter) {
 		filters.remove(packetFilter);
-		if (packetFilter instanceof FixedFilter){
+		if (packetFilter instanceof FixedFilter) {
 			filterPanel.remove(packetFilter.getPanel());
 		}
 		allDataChanged();
 	}
-	
+
 	public Iterator<PacketFilter> filterIterator() {
 		return filters.iterator();
 	}
@@ -163,7 +166,7 @@ public class DataController implements ActionListener {
 		this.allPackets.clear();
 		allDataChanged();
 	}
-	
+
 	public DataFeeder getDataFeeder() {
 		return dataFeeder;
 	}
