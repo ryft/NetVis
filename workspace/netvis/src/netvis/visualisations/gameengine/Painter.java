@@ -139,6 +139,7 @@ public class Painter {
 	
 	public static void DrawImageHex (Texture tex, int mode, double cx, double cy, double scale, double rot, double opacity, GL2 gl) {
 		int w = tex.getW();
+		@SuppressWarnings("unused")
 		int h = tex.getH();
 
 		// Bind to the texture

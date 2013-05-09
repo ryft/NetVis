@@ -37,7 +37,6 @@ import netvis.visualisations.gameengine.TexturePool;
 import netvis.visualisations.gameengine.ValueAnimator;
 import netvis.visualisations.gameengine.VertexBufferPool;
 import netvis.visualisations.maps.MapHeat;
-import netvis.visualisations.maps.MapHeat.NodeWithPosition;
 
 public class HeatmapVisualisation extends Visualisation {
 

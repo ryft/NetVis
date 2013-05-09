@@ -66,7 +66,7 @@ public class ApplicationFrame extends JFrame {
 	 * Debug Mode disables the global exception handler and initialises a CSV
 	 * data feeder on construction.
 	 */
-	protected final boolean DEBUG_MODE = true;
+	protected final boolean DEBUG_MODE = false;
 	protected boolean FULL_SCREEN = false;
 
 	// Declare panels for use in the GUI
