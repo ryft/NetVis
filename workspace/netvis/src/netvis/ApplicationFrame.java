@@ -59,14 +59,14 @@ import netvis.visualisations.VisualisationsController;
 @SuppressWarnings("serial")
 public class ApplicationFrame extends JFrame {
 
-	protected final String versionNumber = "1.0.3";
+	protected final String versionNumber = "1.0.4";
 
 	// Flags governing the behaviour of the application window
 	/**
 	 * Debug Mode disables the global exception handler and initialises a CSV
 	 * data feeder on construction.
 	 */
-	protected final boolean DEBUG_MODE = true;
+	protected final boolean DEBUG_MODE = false;
 	protected boolean FULL_SCREEN = false;
 
 	// Declare panels for use in the GUI
@@ -112,8 +112,8 @@ public class ApplicationFrame extends JFrame {
 		dataController = new DataController(dataFeeder, 1000);
 		dataController.addFilter(new ProtocolFilter(dataController));
 		dataController.addFilter(new PortRangeFilter(dataController));
-		dataController.addFilter(new IPFilter(dataController));
-		dataController.addFilter(new MACFilter(dataController));
+		dataController.addFilter(new IPFilter(dataController, this));
+		dataController.addFilter(new MACFilter(dataController, this));
 
 		contentPane = new JPanel(new GridBagLayout());
 
@@ -193,7 +193,10 @@ public class ApplicationFrame extends JFrame {
 		visControlsContainer.setFocusable(true);
 		visControlsContainer.requestFocusInWindow();
 
-		VisualisationsController.GetInstance().ActivateById(4);
+		// Please don't change this to anything other than 0 as the drop-down
+		// list doesn't update correctly. To change the default visualisation,
+		// reorder them in VisualisationController.
+		VisualisationsController.GetInstance().ActivateById(0);
 
 		// Reset the initial message in the context panel
 		contextPanel.revert();
@@ -388,7 +391,11 @@ public class ApplicationFrame extends JFrame {
 		dataController.setDataFeeder(dataFeeder);
 	}
 
-	protected void toggleFullScreen() {
+	public boolean isFullScreen() {
+		return FULL_SCREEN;
+	}
+
+	public void toggleFullScreen() {
 
 		// Get references to required system resources
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -516,6 +523,13 @@ public class ApplicationFrame extends JFrame {
 				try {
 					// Make GUI OS native:
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					// for (LookAndFeelInfo info :
+					// UIManager.getInstalledLookAndFeels()) {
+					// if ("Nimbus".equals(info.getName())) {
+					// UIManager.setLookAndFeel(info.getClassName());
+					// break;
+					// }
+					// }
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project netvis with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/home/james/git/group-practical/release/netvis-104-latest.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="netvis.ApplicationFrame"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ jogl2.jar gluegen2-rt.jar junit.jar org.hamcrest.core_1.1.0.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="/home/james/git/group-practical/workspace/netvis/bin"/>
+            <zipfileset dir="/usr/share/java" includes="jogl2.jar"/>
+            <zipfileset dir="/usr/share/java" includes="gluegen2-rt.jar"/>
+            <zipfileset dir="/usr/share/eclipse/dropins/jdt/plugins/org.junit_4.8.2.dist" includes="junit.jar"/>
+            <zipfileset dir="/usr/share/eclipse/dropins/jdt/plugins" includes="org.hamcrest.core_1.1.0.jar"/>
+        </jar>
+    </target>
+</project>

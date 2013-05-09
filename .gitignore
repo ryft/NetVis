@@ -5,10 +5,9 @@
 /build/
 /bin/
 target/
- 
+
 # OS Files
 .DS_Store
- 
 *.class
  
 # Package Files
@@ -56,3 +55,8 @@ src/main/resources/rebel.xml
 # LaTeX
 *.log
 *.aux
+*.nav
+*.out
+*.snm
+*.toc
+

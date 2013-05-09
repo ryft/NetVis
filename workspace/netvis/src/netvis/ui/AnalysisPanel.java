@@ -167,7 +167,7 @@ public class AnalysisPanel extends JTabbedPane implements DataControllerListener
 		// Set up panel to display when loading data
 		infoTab = new JPanel();
 		infoTab.add(new JLabel("Nothing to report."));
-		this.addTab("Information", infoTab);
+		this.addTab("Notifications", infoTab);
 
 		// PANEL 1: Add controls to the aggregation data tab
 		panel1.add(new JLabel("Total packets/traffic transmitted: "));

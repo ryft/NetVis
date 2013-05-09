@@ -1,12 +1,14 @@
 \documentclass{beamer}
 \usetheme{Singapore}
+\beamertemplatenavigationsymbolsempty
 \begin{document}
 
     \title{NetVis}
     \subtitle{Network Security Visualisation Tool}
     \institute{
-        James Nicholls, Dominik Peters, Albert Slawinski,\\
-        Thomas Spoor, Sergiu Vicol}
+        \textbf{Sponsor:} Jassim Happa, University of Oxford\\ \bigskip
+        \textbf{Developers:} James Nicholls, Dominik Peters,\\
+        Albert Slawinski, Thomas Spoor, Sergiu Vicol}
     \date{}
 
     \author{\includegraphics[width=64px,height=64px]{img/netvis.png}}
@@ -17,19 +19,11 @@
 
     \begin{frame}{Project Goals}
 
-        We declared in our specification that we would implement:\\ \bigskip
+        Implement an application to assist an \textbf{observer} in the
+        detection of potential network attacks.\\ \bigskip
 
-        An application to assist an \textbf{observer} in the detection and
-        analysis of potential network attacks by visualising network traffic in
-        an intuitive and meaningful way.\\ \bigskip
-
-        The aim was to improve situational awareness of a network in the hope
-        that the user can identify an attack faster than automated analytical
-        techniques (i.e. using an IDS).\\ \bigskip
-
-        To achieve this we needed to build a graphical network analysis program
-        which would receive packets from the IP layer and display the data in a 
-        human-friendly format.
+        Improve situational awareness of a network faster than automated
+        analytical techniques (i.e. using an IDS).\
 
     \end{frame}
 
@@ -39,17 +33,29 @@
 
         \begin{itemize}
             \item{Java / Swing / OpenGL graphics API}
-            \item{Main network map for familiarity}
-            \item{Variety of visual styles}
+            \item{Network ``map'' for familiarity}
             \item{Overview $\rightarrow$ zoom and filter $\rightarrow$ details
             on demand} [Shneiderman, 1996]
-        \end{itemize} \bigskip \bigskip
+            \item{Variety of visual styles}
+        \end{itemize}
+
+    \end{frame}
+
+    \begin{frame}{An unhelpful visualisation}
+
+        \includegraphics[width=\textwidth,keepaspectratio]{img/ex0.png}
+
+    \end{frame}
+
+    \begin{frame}{A better visualisation}
+
+        \includegraphics[width=\textwidth,keepaspectratio]{img/ex1.png}
 
     \end{frame}
 
     \begin{frame}{Teamwork}
 
-        Tools used to encourage Synergy\small{\texttrademark} between team members
+        Tools used to promote Synergy\small{\texttrademark} between team members
         \begin{itemize}
             \item{Version control, code hosting: \textbf{GitHub}}
             \item{Distribution of tasks: \textbf{Google Drive}, \textbf{GitHub}}
@@ -58,5 +64,41 @@
         \end{itemize}
 
     \end{frame} 
+
+    \begin{frame}{Attributes Visualisation}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/Attributes.png}
+    \end{frame}
+
+    \begin{frame}{Dataflow Visualisation}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/Dataflow.png}
+    \end{frame}
+
+    \begin{frame}{Port Scan Attack}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/PortScanDataFlow.png}
+    \end{frame}
+
+    \begin{frame}{Spinning Cube Visualisation}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/Cube.png}
+    \end{frame}
+
+    \begin{frame}{Port Scan Attack}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/PortScanCube.png}
+    \end{frame}
+
+    \begin{frame}{Traffic Volume Visualisation}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/TrafficVolume.png}
+    \end{frame}
+
+    \begin{frame}{SSH Brute Force Attack}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/SSHTrafficVolume.png}
+    \end{frame}
+
+    \begin{frame}{Heat Map Visualisation}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/HeatMap.png}
+    \end{frame}
+
+    \begin{frame}{Activity Groups Visualisation}
+	\includegraphics[width=\textwidth,keepaspectratio]{img/Groups.png}
+    \end{frame}
 
 \end{document}
