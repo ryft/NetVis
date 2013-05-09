@@ -22,6 +22,7 @@ public class NormaliseFactory {
 		normalisers.add(new SourceMACNorm());
 		normalisers.add(new SourceIPNorm());
 		normalisers.add(new SourcePortNorm());
+		normalisers.add(new ProtocolNorm());
 		normalisers.add(new DestinationPortNorm());
 		normalisers.add(new DestinationIPNorm());
 		normalisers.add(new DestinationMACNorm());	
@@ -162,7 +163,25 @@ public class NormaliseFactory {
 			return String.valueOf(v);
 		}
 	}
-	
+	private class ProtocolNorm extends Normaliser {
+
+		@Override
+		protected double normaliseFunction(Packet p) {
+			return DataUtilities.normaliseProtocol(p.protocol);
+		}
+
+		@Override
+		protected String denormaliseFunction(double v) {
+			return String.valueOf(v);
+		}
+
+		@Override
+		public String name() {
+			// TODO Auto-generated method stub
+			return "Protocol";
+		}
+		
+	}
 	private class DestinationMACNorm extends Normaliser {
 		public double normaliseFunction(Packet p) {
 			return DataUtilities.normaliseMAC(p.dmac);

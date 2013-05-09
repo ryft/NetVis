@@ -11,6 +11,7 @@ public class DataUtilities {
 	public static final int MIN_PORT = 0;
 	public static final int MAX_PORT = 65535;
 	static HashMap<String, Double> macMap = new HashMap<String, Double>();
+	static HashMap<String, Double> protocolMap = new HashMap<String, Double>();
 	private static Random doubleGen = new Random();
 
 	/**
@@ -64,6 +65,18 @@ public class DataUtilities {
 			while (macMap.containsValue(value))
 				value = doubleGen.nextDouble();
 			macMap.put(address, value);
+			return value;
+		}
+	}
+	
+	public static double normaliseProtocol(String protocol){
+		if (protocolMap.containsKey(protocol))
+			return protocolMap.get(protocol);
+		else {
+			double value = 0.5;
+			while (protocolMap.containsValue(value))
+				value = doubleGen.nextDouble();
+			protocolMap.put(protocol, value);
 			return value;
 		}
 	}

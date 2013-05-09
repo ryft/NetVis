@@ -6,11 +6,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Hashtable;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import netvis.data.DataController;
 import netvis.data.NormaliseFactory;
@@ -32,6 +39,7 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	private int[] packetCountAnimated;
 	private boolean displaySelectionBar = false, mouseClicked = false;
 	private int intervalHighlighted = 0;
+	private int pastLimit = 30;
 	private int startIntervalHighlight, endIntervalHighlight = 0;
 	Color graphColour;
 	JComboBox<String> normaliserBox;
@@ -48,6 +56,33 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 	
 	protected JPanel createControls() {
 		JPanel panel = new JPanel();
+		int PAST_MIN = 1, PAST_MAX = 20, PAST_INIT = 1;
+		final JSlider timeFilter = new JSlider(JSlider.HORIZONTAL,
+                PAST_MIN, PAST_MAX, PAST_INIT);
+		timeFilter.setMajorTickSpacing(3);
+		timeFilter.setMinorTickSpacing(1);
+		timeFilter.setPaintTicks(true);
+		timeFilter.setPaintLabels(true);
+		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+		labelTable.put( new Integer( 2 ), new JLabel("1 Min") );
+		labelTable.put( new Integer( 6 ), new JLabel("3 Min") );
+		labelTable.put( new Integer( PAST_MAX ), new JLabel("All") );
+		timeFilter.setLabelTable( labelTable );
+
+		timeFilter.addChangeListener(new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				pastLimit = timeFilter.getValue()*30;
+				if (timeFilter.getValue() == 20)
+					pastLimit = 1000;
+			}
+			
+		});
+		Box box = Box.createHorizontalBox();
+		box.add(timeFilter);
+		panel.add(box);
+		
+
 		String[] normNames = new String[NormaliseFactory.INSTANCE.getNormalisers().size()];
 		for (int i = 0; i < normNames.length; i++)
 			normNames[i] = NormaliseFactory.INSTANCE.getNormaliser(i).name();
@@ -57,8 +92,12 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
 				normaliser = NormaliseFactory.INSTANCE.getNormaliser(normaliserBox.getSelectedIndex());
 			}
 		});
-		panel.add(normaliserBox);
-		
+		box = Box.createHorizontalBox();
+		box.add(normaliserBox);
+		panel.add(box);
+
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 		return panel;
 	}
 
@@ -99,15 +138,21 @@ public class DistributionVisualisation extends Visualisation implements MouseLis
             glut.glutBitmapString(GLUT.BITMAP_HELVETICA_12, String.valueOf((int)Math.exp((height+0.8)*logFactor)));
 
 	    }
-	    
+	    int ii = -1;
+		if (listOfPackets.size() > 0){
+			double searchTime = listOfPackets.get(listOfPackets.size()-1).time - pastLimit;
+			ii = listOfPackets.size() -1;
+			while (ii > 0 && listOfPackets.get(ii).time > searchTime) ii--;
+		}
+		if (ii < -1) ii = -1;
+		ii++;
+		
 	    for (int i = 0; i < resolution; i++)
 	    	packetCount[i] = 0;
-	    for (int i = 0; i < listOfPackets.size(); i++){
+	    for (int i = ii; i < listOfPackets.size(); i++){
 	    	int pc = (int)(normaliser.normalise(listOfPackets.get(i))*(double)resolution);
 	    	if (pc >= 0 && pc < resolution)
 	    		packetCount[pc]++;
-	    	else
-	    		System.out.println(normaliser.normalise(listOfPackets.get(i)));
 	    }
 	    for (int i = 0; i < resolution; i++){
 	    	packetCountAnimated[i] = packetCount[i] - (packetCount[i] - packetCountAnimated[i])*2/3;
