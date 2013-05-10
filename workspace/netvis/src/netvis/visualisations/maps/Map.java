@@ -41,9 +41,9 @@ public abstract class Map {
 	public double ZoomOn() {
 		double screenratio = (1.0 * width) / height;
 		if (screenratio < Math.sqrt(3.0)) {
-			return (base * Math.sqrt(3.0)) / width;
+			return (2*base * Math.sqrt(3.0)) / width;
 		}
-		return (1.0 * base) / height;
+		return (2.0 * base) / height;
 	}
 
 }

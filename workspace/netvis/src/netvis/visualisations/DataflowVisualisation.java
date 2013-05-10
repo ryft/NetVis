@@ -286,8 +286,8 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 		double xClicked = (double)e.getX()/this.getSize().getWidth();
 		int visChosen = (int)(xClicked * normPasses.size());
 		VisualisationsController vc = VisualisationsController.GetInstance();
-		vc.ActivateById(2);
-		vc.getVList().get(2).setState(visChosen);
+		vc.ActivateById(0);
+		vc.getVList().get(0).setState(visChosen);
 		UndoController.INSTANCE.addUndoMove(new UndoAction(){
 			private Visualisation backVis;
 			@Override

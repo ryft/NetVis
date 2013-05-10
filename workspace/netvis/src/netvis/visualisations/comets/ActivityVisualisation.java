@@ -253,7 +253,7 @@ public class ActivityVisualisation extends Visualisation {
 		fps = new JLabel("0 FPS");
 
 		// May be useful in future so let's just keep this here
-		mypanel.add(fps);
+//		mypanel.add(fps);
 		return mypanel;
 	}
 
