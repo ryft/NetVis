@@ -68,8 +68,7 @@ public class ContextPanel extends JScrollPane {
 	public void update(String title, List<Integer> dataPoints) {
 		Box graphWrapper = Box.createVerticalBox();
 		graphWrapper.add(new JLabel(title));
-		// Set the graph a small preferred size so it expands to fit the panel
-		graphWrapper.add(new SimpleLineGraph(dataPoints, 10, 10));
+		graphWrapper.add(new SimpleLineGraph(dataPoints));
 		setComponent(graphWrapper);
 	}
 

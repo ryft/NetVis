@@ -30,20 +30,22 @@ public class SimpleLineGraph extends JPanel {
 	private static final int GRAPH_POINT_WIDTH = 8;
 	private static final int Y_HATCH_CNT = 10;
 
-	private final int containerWidth;
-	private final int containerHeight;
-
 	/**
 	 * The y-coordinates of the points to be drawn; the x coordinates are evenly
 	 * spaced
 	 */
 	private List<Integer> scores;
 
-	public SimpleLineGraph(List<Integer> scores, int containerWidth, int containerHeight) {
-		this.containerHeight = containerHeight;
-		this.containerWidth = containerWidth;
+	/**
+	 * Create a simple line graph with a list of integer data points. It is
+	 * assumed that for the x-axis, data points are uniformly distributed.
+	 * 
+	 * @param scores
+	 *            the data points to plot on the y-axis
+	 */
+	public SimpleLineGraph(List<Integer> scores) {
 		this.scores = scores;
-		MAX_SCORE = Collections.max(scores);
+		MAX_SCORE = (int) (Collections.max(scores) * 1.1);
 	}
 
 	@Override
@@ -111,7 +113,8 @@ public class SimpleLineGraph extends JPanel {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(containerWidth, containerHeight);
+		// Set the graph a small preferred size so it expands to fit the panel
+		return new Dimension(10, 10);
 	}
 
 }
