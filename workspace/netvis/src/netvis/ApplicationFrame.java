@@ -103,7 +103,7 @@ public class ApplicationFrame extends JFrame {
 			}
 		});
 
-		if (true)
+		if (DEBUG_MODE == true)
 			dataFeeder = new CSVDataFeeder(new File("../../csv/captures/combined.csv"),
 					ApplicationFrame.this);
 		else
