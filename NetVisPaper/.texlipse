@@ -1,0 +1,13 @@
+#TeXlipse project settings
+#Fri Mar 13 03:14:18 GMT 2009
+builderNum=2
+outputDir=
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=EGauthorGuidelines-TPCG13-sub.tex
+outputFile=EGauthorGuidelines-TPCG13-sub.pdf
+langSpell=en
+markDer=true
+srcDir=
