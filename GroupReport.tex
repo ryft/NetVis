@@ -15,38 +15,42 @@
 
     \section*{Introduction}
 	Our application consists of a series of six visualisations of network traffic, each of which offers a different representation of the data. These are designed to enable a user to detect a variety of potential cyber-attacks. 
-			We have also constructed `filters' which allow the user to limit the visualisations to show only a selection of the data according to their individual needs. 
+			We have also constructed filters which allow the user to limit the visualisations to show only a selection of the data according to their individual needs. 
 			
-			All of our visualisations are drawn in real-time, i.e., they are updated as new data is available. While the application now focuses on analysing pre-collected data, it is easily extendable to support visualising network traffic as it happens due to the modular nature of the Object-Oriented programming style we adopted.
+			All of our visualisations are drawn in real-time, i.e. they are updated as new data is available. While the application now focuses on analysing pre-collected data, it is easily extendable to support visualising network traffic as it happens due to the modular nature of the Object Oriented programming style we adopted.
 
     \section*{Implementation}
 			Here are brief descriptions of our visualisations:
 			
-			\begin{itemize}
+			\begin{enumerate}
             
             \item \textbf{Heat Map} A hexagonal grid displaying clients active in the network. Colour indicates how much data is being transferred. Nodes ``heat up'' when amount of data goes over a specified threshold and ``heat down'' in time.
 
-	\item \textbf{Grouped Map} Similar to the Heat Map, but each server is represented by a blue hexagon and surrounded by all its clients.
+	        \item \textbf{Grouped Map} Similar to the Heat Map, but each server is represented by a blue hexagon and surrounded by all its clients.
 
             \item \textbf{Attribute Distribution} This is a graded log graph showing how much traffic was recorded on a range of values of any desired packet attribute.
 
             \item \textbf{Cube} Visualisation based on the Spinning Cube of Potential Doom. Every dimension can be customised depending on the available `normalisers' of the data. Packets also have a little randomness just to make it more evident when a line of packets is dense or not.
 
+\clearpage
+
             \item \textbf{Data Flow} This visualisation draws lines between source nodes and destination nodes to show which connections are used most. Saturation indicates time (gray lines are past lines); coloured lines are more recent. It is possible to follow a packet by its colour. Red bars show traffic volume. They shrink at each iteration by some percentage, but grow linearly with new packets. They also have an upper limit.
 
             \item \textbf{Traffic Volume} A stacked bar chart which displays the volume of data arriving in each interval, with segments proportional to the totals for each protocol. This allows users to see at a glance if a particular protocol is being exploited.
             
-            \end{itemize}
+            \end{enumerate}
 			
 			If the user wants to analyse only a selection of the data, it is possible to filter the input data by over 400 protocols (such as TCP, HTTP, etc), by port, and by IP address and MAC address using whitelists and blacklists. The main advantage of the filter system is that it works application-wide and applies to all visualisations.
 
-			We used 'normalisers' for different attributes of a packet (e.g. source ip, destination port).  These took data from a packet and returned a number between 0 and 1.  This functionality was used in many of the visualisations, such as Data Flow and the Spinning Cube.
+			We used normalisers for different attributes of a packet (e.g. source ip, destination port).  These took data from a packet and returned a number between 0 and 1.  This functionality was used in many of the visualisations, such as Data Flow and the Spinning Cube.
 
 			In part due to this, the application is very extensible.  A new visualisation could be written to use any of the common utilities, such as the normalisers or colour palette, and then only one line of code need be changed to include this in the application.  Similarly, if a normaliser for a new attribute were written it would take one line of code to include it.   This normaliser would then be automatically included in the visualisations it would be useful in.  It would even be possible to add a new Data Feeder that took packets from another source, again with minimal difficulty.
 			
 			The application in its current state uses packet captures in CSV format\footnote{see appendix for a specification of the file input format}. The data includes IP address, MAC address, and port for both source and destination,  information on the protocol used, and the size of the packet data. The packets listed in the CSV file are then `simulated' to arrive in real-time. The user can choose to slow down or speed up the simulation, to pause it, or to skip to the end of the data capture.
 			
 			An Analysis Panel is included to provide real-time aggregate data on the processed data packets. It makes use of a tabbed pane and a context panel for details on demand, to make the best use of the available space. The Analysis Panel makes use of a job queue and runs calculations in a separate thread, detached from the calculations for the visualisations, to keep the GUI responsive when a lot of data is being processed.
+
+\clearpage
 
 	\section*{Problems We Encountered}
         During Hilary term, we met several times as a group to discuss the assignment, and possible approaches to implementation. We produced an initial specification outlining what the final product was supposed to achieve. We then converted this design brief into a list of common interfaces we needed to design, and of required features to implement. We then each selected tasks to work on, proceeding to split them into smaller tasks as it became necessary. Later, we migrated to GitHub, and used the service's issue management.
@@ -56,6 +60,8 @@
 		After this, we focused on producing a number of visualisations to illustrate the data. During the entire development phase, the use of GitHub facilitated collaborative and concurrent development to a great extent.
 		
 		Before the development phase, we were unsure about how to allocate work to people in the group. We didn't see a very natural splitting. While we did assign responsibilities for data collection, data processing, and visualisations to different people, we kept the working area of each person flexible so as to allow their input on all parts of the application. This proved to be a valuable decision. In particular, since there was a kind of linear structure to the tasks (data has to be collected before it can be processed, and it has to be processed before it can be visuablised), this informal approach to splitting tasks meant that development proceeded faster than it might have done otherwise.
+
+\clearpage
 
     \section*{Reflections} 
 
@@ -121,43 +127,38 @@
 	description of each.
 	
 	\subsubsection*{eduroam.csv}
-	Source: J. Nicholls
-	
-	Original filename: \verb!eduroam.pcap!
-	
-	Size: 85664 packets - 16.4 MB \dbl
-	All traffic seen by an Ubuntu laptop with minimal running
+	Source: J. Nicholls\\
+	Original filename: \verb!eduroam.pcap!\\
+	Size: 85664 packets - 16.4 MB
+
+    All traffic seen by an Ubuntu laptop with minimal running
 	services, connected to the Eduroam network on the wlan0
 	interface. Approximately 85000 packets over 35 minutes.
 	
 	\subsubsection*{jre-overflow.csv}
-	Source: \url{https://www.evilfingers.com/}
-	
-	Original filename:
-	
-	\verb!        Sun_jre1.6.0_X_isInstalled.dnsResolve_Function_Overflow_PoC.pcap!
-	
-	Size: 65561 packets - 14.7 MB \dbl
+	Source: \url{https://www.evilfingers.com/}\\
+	Original filename:\\
+	\verb!        Sun_jre1.6.0_X_isInstalled.dnsResolve_Function_Overflow_PoC.pcap!\\
+	Size: 65561 packets - 14.7 MB
+
 	Proof-of-concept packet capture of a denial of service
 	attack on JRE 1.6.0 by exploiting the DNS resolution
 	function. A local server is flooded with 65000 packets in
 	11 minutes.
 	
 	\subsubsection*{port-scan.csv}
-	Source: J. Happa
-	
-	Original filename: \verb!portscan.pcap!
-	
-	Size: 1818 packets - 371 kB \dbl
+	Source: J. Happa\\
+	Original filename: \verb!portscan.pcap!\\
+	Size: 1818 packets - 371 kB
+
 	A port scan of a Windows Vista PC, originating from an
 	Ubuntu PC, concluding that only port 80 (http) is open.
 	
 	\subsubsection*{remote-execution.csv}
-	Source: \url{http://www.honeynet.org/}
-	
-	Original filename: \verb!attack-trace.pcap_.gz!
-	
-	Size: 348 packets - 53.6 kB\dbl
+	Source: \url{http://www.honeynet.org/}\\
+	Original filename: \verb!attack-trace.pcap_.gz!\\
+	Size: 348 packets - 53.6 kB
+
 	Packet trace of a malware attack which distributes a
 	payload exploiting the Windows Local Security Authority
 	(LSA) Remote Procedure Call (RPC) service of the victim
@@ -167,53 +168,47 @@
 	infected executable, \verb!ssms.exe!.
 	
 	\subsubsection*{skype.csv}
-	Source: J. Nicholls
-	
-	Original filename: \verb|skype.pcap|
-	
-	Size: 418 packets - 73 kB\dbl
+	Source: J. Nicholls\\
+	Original filename: \verb|skype.pcap|\\
+	Size: 418 packets - 73 kB
+
 	Packets transferred during the authentication and
 	initialisation of a Skype session.\\ Recorded on an Ubuntu
 	PC with minimal services running.
 	
 	\subsubsection*{ssh-attack.csv}
-	Source: \url{http://www.honeynet.org/}
-	
-	Original filename: \verb|hp_challenge.pcap|
-	
-	Size: 5447 packets - 951.2 kB\dbl
+	Source: \url{http://www.honeynet.org/}\\
+	Original filename: \verb|hp_challenge.pcap|\\
+	Size: 5447 packets - 951.2 kB
+
 	Packet trace of an intruder gaining access to a server
 	using a brute-force attack via SSH, before planting malware
 	to download and execute software on the compromised host.
 	
 	\subsubsection*{telnet-freebsd-exploit.csv}
-	Source: \url{http://www.honeynet.org/}
-	
-	Original filename: \verb|fc.pcap|
-	
-	Size: 238 packets - 35.2 kB\dbl
+	Source: \url{http://www.honeynet.org/}\\
+	Original filename: \verb|fc.pcap|\\
+	Size: 238 packets - 35.2 kB
+
 	Demonstration of a buffer overflow exploit (CVE-2011-4862)
 	that allows arbitrary code execution on a vulnerable
 	FreeBSD server via telnet.
 	
 	\subsubsection*{ubuntu-update.csv}
-	Source: J. Happa
-	
-	Original filename: \verb|ubuntu-update.pcap|
-	
-	Size: 497 packets - 84.6 kB\dbl
+	Source: J. Happa\\	
+	Original filename: \verb|ubuntu-update.pcap|\\
+	Size: 497 packets - 84.6 kB
+
 	Packet trace of an Ubuntu PC communicating with a Canonical
 	server to check for software updates. No new updates were
 	found or downloaded.
 	
 	\subsubsection*{nitroba.csv}
-	Source: \url{http://digitalcorpora.org/corpora/scenarios/}
-	
-	\verb!        nitroba-university-harassment-scenario!
-	
-	Original filename: \verb|nitroba.pcap|
-	
-	Size: 95175 packets - 17.2 MB\dbl
+	Source: \url{http://digitalcorpora.org/corpora/scenarios/}\\
+	\verb!        nitroba-university-harassment-scenario!\\
+	Original filename: \verb|nitroba.pcap|\\
+	Size: 95175 packets - 17.2 MB
+
 	Digital forensics excercise scenario involving a large
 	packet capture from a shared wireless router, in a case of
 	teacher harassment. See the above URL for details of the
