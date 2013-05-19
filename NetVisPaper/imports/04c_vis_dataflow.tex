@@ -1,1 +1,6 @@
-Port scan attack example?
+Based on the Network Security Visualisation paper by Keith Fligg and Genevieve Max shows the ‘flow’ of each packet in a parallel coordinate plot. 
+It provides a good view of the whole traffic in the network and the distribution in the attributes of packets. 
+Lines are coloured based on their value in some coordinate and fade out based on how old the packet they’re representing is. 
+Newer packets also have a random offset making it easier to spot if a colorful line represents one or more packets. 
+Adding randomness into the values of the attributes makes it easier to distinguish between concentrated groups of packets with the same characteristics and single packets.
+Example: If lots of requests to a server come from a single MAC address through the same ports and using the same protocol then they would all seem like one request. Adding randomness makes the pack of requests more visible without significant impact on the accuracy of what the analyst is viewing.

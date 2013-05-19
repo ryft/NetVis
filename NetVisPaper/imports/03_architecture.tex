@@ -1,3 +1,11 @@
 {\color{red} Describe the architecture, how traffic is read and processed, the format of the CSV, why was it designed the way it is? Add diagram}
 {\color{red} How real-time is it? What filtering do you support + protocols?}
 {\color{red} How modular is the code base, can one simply script in another vis?}
+
+Normalisers:
+A normaliser is a class responsible with taking a packet and returning a “normalised” value of a certain attribute of that packet and the other way around. The Source IP normaliser provides a method that takes a packet and returns a value between 0 and 1 corresponding to it’s Source IP (0.0.0.0 returns 0, 255.255.255.255 returns 1). It is also capable of taking a value from 0 to 1 and returning a human readable IP address. 
+Each normalising class is able to create a temporary filter in the application that will filter it’s corresponding attribute on a certain range. 
+Since the normalising class is in control of its filter it can create a zooming effect based on the value of the filter. 
+(If there is a filter on the Source Port normaliser from 0,5 to 1 then port 30000 will be normalised to ~0 instead of ~0,5.)
+// You can extend this + make it pretty
+
