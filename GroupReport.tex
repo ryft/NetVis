@@ -6,7 +6,7 @@
 \newcommand{\dbl}{\\[\baselineskip]}
 
 \author{Clockwork Dragon Group - Group 4}
-\title{Group Report: Computer Security Visualisation}
+\title{Group Report: Network Security Visualisation}
 \date{\today}
 
 \begin{document}
@@ -32,11 +32,7 @@
 
             \item \textbf{Cube} Visualisation based on the Spinning Cube of Potential Doom. Every dimension can be customised depending on the available `normalisers' of the data. Packets also have a little randomness just to make it more evident when a line of packets is dense or not.
 
-            \item \textbf{Data Flow} This visualisation draws lines between source nodes and destination nodes to show which connections are used most. Saturation indicates time (gray lines are past lines); coloured lines are more recent. It is possible to follow a packet by its colour. Red bars show traffic volume. They shrink at each iteration by some percentage, but grow linearly with new packets.
-            
-            The red bars show traffic. They shrink with each iteration by some
-            percentage and grow linearly with each packet on that interval. They also
-            have an upper limit.
+            \item \textbf{Data Flow} This visualisation draws lines between source nodes and destination nodes to show which connections are used most. Saturation indicates time (gray lines are past lines); coloured lines are more recent. It is possible to follow a packet by its colour. Red bars show traffic volume. They shrink at each iteration by some percentage, but grow linearly with new packets. They also have an upper limit.
 
             \item \textbf{Traffic Volume} A stacked bar chart which displays the volume of data arriving in each interval, with segments proportional to the totals for each protocol. This allows users to see at a glance if a particular protocol is being exploited.
             
@@ -46,7 +42,7 @@
 
 			We used 'normalisers' for different attributes of a packet (e.g. source ip, destination port).  These took data from a packet and returned a number between 0 and 1.  This functionality was used in many of the visualisations, such as Data Flow and the Spinning Cube.
 
-			In part due to this, the application is very extensible.  A new visualisation could be written to use any of the common utilities, such as the normalisers or colour palette, and then only one line of code need be changed to include this in the application.  Similarly, if a normaliser for a new attribute were written it would take one line of code to include it.   This normaliser would then be automatically included in the visualisations it would be useful in.  It would even be possible to add a new Data Feeder that took packets from another source, again with the minimum of difficulty.
+			In part due to this, the application is very extensible.  A new visualisation could be written to use any of the common utilities, such as the normalisers or colour palette, and then only one line of code need be changed to include this in the application.  Similarly, if a normaliser for a new attribute were written it would take one line of code to include it.   This normaliser would then be automatically included in the visualisations it would be useful in.  It would even be possible to add a new Data Feeder that took packets from another source, again with minimal difficulty.
 			
 			The application in its current state uses packet captures in CSV format\footnote{see appendix for a specification of the file input format}. The data includes IP address, MAC address, and port for both source and destination,  information on the protocol used, and the size of the packet data. The packets listed in the CSV file are then `simulated' to arrive in real-time. The user can choose to slow down or speed up the simulation, to pause it, or to skip to the end of the data capture.
 			
@@ -61,15 +57,16 @@
 		
 		Before the development phase, we were unsure about how to allocate work to people in the group. We didn't see a very natural splitting. While we did assign responsibilities for data collection, data processing, and visualisations to different people, we kept the working area of each person flexible so as to allow their input on all parts of the application. This proved to be a valuable decision. In particular, since there was a kind of linear structure to the tasks (data has to be collected before it can be processed, and it has to be processed before it can be visuablised), this informal approach to splitting tasks meant that development proceeded faster than it might have done otherwise.
 
-    \section*{Reflections}
+    \section*{Reflections} 
 
 		Reflecting back on the things we learned from this project, there is a list of technical tools each of us needed to become familar with: Git and GitHub, JOGL, and an understanding of the workings of computer networks. We encountered both the difficulties and the opportunities that collaborative software development brings with it, and understood the importance of a clear modularisation of code, provision of easy-to-understand interfaces, and good documentation, so that other people can quickly familiarise themselves with and work on other's code. 
 		
 		In retrospect, we had a somewhat slow start to our project. This was because many of us were unfamiliar with JOGL and networks in general which meant that it took a while of familiarisation with the basic concepts to be able to think up ideas for the program and be creative in our visualisations. During this time, we were helped by the variety of resources that our sponsor made available to us.
 		
         Looking at the application in the state it is now in, we can see a number of ways it could be extended. Live processing of data would obviously increase real-world usability. There are also ways in which the filter system could be made more powerful. Finally, by using more statistical (pre-)processing of the input data it could be possible to render more insightful visualisations.
-	
+        
         However, we feel we have met all the design goals set out in our initial specification document, and the application is implemented to a high standard.
+        
 	
 	\newpage
 	\section*{Appendix: Packet Capture Specification}
@@ -223,14 +220,3 @@
 	exercise.
 	
 \end{document}
-
-...	...	 @@ -22,7 +22,7 @@
-22	22	        
-23	23	        \begin{itemize}
-24	24	              
-25	 	 -            \item \textbf{Heat Map}
- 	25	 +            \item \textbf{Heat Map} A hexagonal grid displaying clients active in the network. Color indicated how much data is being transferred. Nodes "heat up" when amount of data goes over specified threshold and "heat down" in time.
-26	26	  
-27	27	              \item \textbf{Ports}
-28	28	  
-0 notes on commit b607f80 
