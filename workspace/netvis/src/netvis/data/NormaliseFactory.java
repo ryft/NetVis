@@ -22,10 +22,11 @@ public class NormaliseFactory {
 		normalisers.add(new SourceMACNorm());
 		normalisers.add(new SourceIPNorm());
 		normalisers.add(new SourcePortNorm());
-		normalisers.add(new ProtocolNorm());
 		normalisers.add(new DestinationPortNorm());
 		normalisers.add(new DestinationIPNorm());
 		normalisers.add(new DestinationMACNorm());	
+		normalisers.add(new ProtocolNorm());
+
 	}
 
 	public List<Normaliser> getNormalisers() {

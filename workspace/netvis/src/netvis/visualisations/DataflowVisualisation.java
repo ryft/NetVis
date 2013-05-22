@@ -93,7 +93,7 @@ public class DataflowVisualisation extends Visualisation implements MouseListene
 		for (int i = 0; i < normPasses.size(); i++) {
 			gl.glColor3d(0.2, 0.2, 0.2);
 			if (i == normPasses.size() - 1)
-				conditional = -0.1f;
+				conditional = -0.05f;
 			else 
 				conditional = 0f;
 			gl.glRasterPos3f(((float) i * 1.2f) / normPasses.size() + conditional, -0.04f, 0); // set

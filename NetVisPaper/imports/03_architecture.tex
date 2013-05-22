@@ -3,9 +3,16 @@
 {\color{red} How modular is the code base, can one simply script in another vis?}
 
 Normalisers:
-A normaliser is a class responsible with taking a packet and returning a “normalised” value of a certain attribute of that packet and the other way around. The Source IP normaliser provides a method that takes a packet and returns a value between 0 and 1 corresponding to it’s Source IP (0.0.0.0 returns 0, 255.255.255.255 returns 1). It is also capable of taking a value from 0 to 1 and returning a human readable IP address. 
-Each normalising class is able to create a temporary filter in the application that will filter it’s corresponding attribute on a certain range. 
-Since the normalising class is in control of its filter it can create a zooming effect based on the value of the filter. 
-(If there is a filter on the Source Port normaliser from 0,5 to 1 then port 30000 will be normalised to ~0 instead of ~0,5.)
-// You can extend this + make it pretty
+A normaliser is a class responsible with taking a packet and returning a “normalised” value of a certain attribute of that packet and the other way around. 
+Each normalising class is able to create a temporary filter in the application that will filter its corresponding attribute on a certain range. 
+Since the normalising class is in control of its filter it creates a zooming effect based on the range of the filter: the lower bound is normalised to 0, the upper bound to 1. 
+
+Flow of Data through the application:
+The data feeder creates Packet objects based on the traffic in analyses and feeds it to the Data Controller. 
+We implemented a CSV data feeder that reads CSV files (/* maybe here a little more about the structure of the CSV's? */) created with Wireshark but the simple interface of the data feeder makes it easy to extend the application for reading live data.
+
+The Data Controller uses the listener pattern and feeds new packets as they arrive to its listeners (visualizations, analysis panel).
+If there are any active filters then the data controller will apply those filters to the data and supply only what is relevant.
+
+When a filter is applied or changed a reset signal is sent from the data controller informing the visualizations that all the data has changed. Along with this signal a list of all the past packets (with filters applied) is provided.
 
