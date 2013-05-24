@@ -78,8 +78,8 @@ public class MapHeat extends Map {
 		
 		painter = new MapPainter();
 		
-		gridsize = 40;
-		Painter.GenerateGrid("secondgrid", 40);
+		gridsize = 160;
+		Painter.GenerateGrid("secondgrid", gridsize);
 	}
 
 	public void DrawEverything(GL2 gl) {

@@ -1,7 +1,6 @@
-\textbf{Add information on CSV, Data, non-existence of analysis of packet content, and add info on data flow through the application.}
-
 Normalisers:
-A normaliser is a class responsible with taking a packet and returning a “normalised” value of a certain attribute of that packet and the other way around. 
+
+A normaliser is a class responsible with taking a packet and returning a ``normalised'' value of a certain attribute of that packet and the other way around. 
 Each normalising class is able to create a temporary filter in the application that will filter its corresponding attribute on a certain range. 
 Since the normalising class is in control of its filter it creates a zooming effect based on the range of the filter: the lower bound is normalised to 0, the upper bound to 1. 
 
@@ -13,6 +12,8 @@ The Data Controller uses the listener pattern and feeds new packets as they arri
 If there are any active filters then the data controller will apply those filters to the data and supply only what is relevant.
 
 When a filter is applied or changed a reset signal is sent from the data controller informing the visualizations that all the data has changed. Along with this signal a list of all the past packets (with filters applied) is provided.
+
+\includegraphics[width=\linewidth]{materials/architecture.jpg}
 
 Filtering:
 \textbf{High-level: What do filters do?}

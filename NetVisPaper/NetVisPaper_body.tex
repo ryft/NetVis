@@ -1,0 +1,107 @@
+% ---------------------------------------------------------------------
+% EG author guidelines plus sample file for EG publication using LaTeX2e input
+% D.Fellner, v1.17, Sep 23, 2010
+
+
+\title[NetVis Network Traffic Visualization]%
+      {NetVis: A network traffic visualization tool}
+
+% for anonymous conference submission please enter your SUBMISSION ID
+% instead of the author's name (and leave the affiliation blank) !!
+\author[Nicholls et. al.]
+       {James Nicholls, Dominik Peters,
+       	Albert Slawinski, Thomas Spoor, Sergiu Vicol, Jassim Happa
+%        S. Spencer$^2$\thanks{Chairman Siggraph Publications Board}
+        \\
+% For Computer Graphics Forum: Please use the abbreviation of your first name.
+         Department of Computer Science, University of Oxford
+%        $^2$ Another Department to illustrate the use in papers from authors
+%             with different affiliations
+       }
+
+% ------------------------------------------------------------------------
+
+% if the Editors-in-Chief have given you the data, you may uncomment
+% the following five lines and insert it here
+%
+% \volume{27}   % the volume in which the issue will be published;
+% \issue{1}     % the issue number of the publication
+% \pStartPage{1}      % set starting page
+
+
+%-------------------------------------------------------------------------
+\begin{document}
+
+% \teaser{
+%  \includegraphics[width=\linewidth]{eg_new}
+%  \centering
+%   \caption{New EG Logo}
+% \label{fig:teaser}
+% }
+
+\maketitle
+
+\begin{abstract}
+   \input{imports/00_abstract.tex}
+
+\begin{classification} % according to http://www.acm.org/class/1998/
+\CCScat{Computer Graphics}{I.3.3}{Picture/Image Generation}{Line and curve generation}
+\end{classification}
+
+\end{abstract}
+
+\section{Introduction}
+\input{imports/01_introduction.tex}
+
+\section{Related Work}
+\input{imports/02_related_work.tex}
+
+\section{NetVis Architecture}
+\input{imports/03_architecture.tex}
+
+\section{NetVis Visualizations}
+\input{imports/04a_vis_gui.tex}
+
+\subsection{Attribute Distribution}
+\input{imports/04b_vis_attribute_distribution.tex}
+
+\subsection{Data Flow}
+\input{imports/04c_vis_dataflow.tex}
+
+\subsection{Spinning Cube}
+\input{imports/04d_vis_cube.tex}
+
+\subsection{Traffic Volume}
+\input{imports/04e_vis_traffic_volume.tex}
+
+\subsection{Heat Map}
+\input{imports/04f_vis_heat_map.tex}
+
+\subsection{Activity Groups}
+\input{imports/04g_vis_activity_groups.tex}
+
+\section{Discussion}
+\input{imports/05a_discussion.tex}
+
+\subsection{User Workflow}
+\input{imports/05b_disc_user_workflow.tex}
+
+\subsection{Advantages}
+\input{imports/05c_disc_advantages.tex}
+
+\subsection{Limitations}
+\input{imports/05c_disc_limitations.tex}
+
+\subsection{Future Work}
+\input{imports/05d_disc_future_work.tex}
+
+\section{Conclusion}
+\input{imports/06_conclusion.tex}
+
+%-------------------------------------------------------------------------
+
+\bibliographystyle{eg-alpha}
+
+\bibliography{netvisbib}
+
+\end{document}
