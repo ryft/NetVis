@@ -20,11 +20,11 @@
   year={1985},
   publisher={Springer}
 }
-@book{shneiderman1998designing,
-  title={Designing the user interface},
+@book{shneiderman1996designing,
+  title={The eyes have it: A task by data type taxonomy for information visualizations},
   author={Shneiderman, Ben},
-  year={1998},
-  publisher={Pearson Education India}
+  year={1996},
+  publisher={IEEE Symposium}
 }
 @misc{stevens1946theory,
   title={On the theory of scales of measurement},

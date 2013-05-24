@@ -29,10 +29,10 @@
 \newblock Flowscan: A network traffic flow reporting and visualization tool.
 \newblock In \emph{USENIX LISA} (2000), pp.~305--317.
 
-\bibitem[Shn98]{shneiderman1998designing}
+\bibitem[Shn96]{shneiderman1996designing}
 \textsc{Shneiderman B.}:
-\newblock \emph{Designing the user interface}.
-\newblock Pearson Education India, 1998.
+\newblock \emph{The eyes have it: A task by data type taxonomy for information visualizations}.
+\newblock IEEE Symposium, 1996.
 
 \bibitem[War12]{ware2012information}
 \textsc{Ware C.}:
