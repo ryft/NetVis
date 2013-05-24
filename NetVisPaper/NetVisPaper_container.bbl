@@ -1,3 +1,4 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
 \begin{thebibliography}{\uppercase{War12}}
 
 \bibitem[FM]{fliggnetwork}
@@ -29,9 +30,14 @@
 \newblock Flowscan: A network traffic flow reporting and visualization tool.
 \newblock In \emph{USENIX LISA} (2000), pp.~305--317.
 
+\bibitem[S{\etalchar{*}}46]{stevens1946theory}
+\textsc{Stevens S.~S., et~al.}:
+\newblock On the theory of scales of measurement, 1946.
+
 \bibitem[Shn96]{shneiderman1996designing}
 \textsc{Shneiderman B.}:
-\newblock \emph{The eyes have it: A task by data type taxonomy for information visualizations}.
+\newblock \emph{The eyes have it: A task by data type taxonomy for information
+  visualizations}.
 \newblock IEEE Symposium, 1996.
 
 \bibitem[War12]{ware2012information}
