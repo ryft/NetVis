@@ -3,44 +3,51 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: NetVisPaper_container.aux
 The style file: eg-alpha.bst
 Database file #1: netvisbib.bib
-You've used 2 entries,
+I was expecting a `,' or a `}'---line 75 of file netvisbib.bib
+ :   
+ :   year={2012}
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+Warning--empty journal in fliggnetwork
+You've used 8 entries,
             2855 wiz_defined-function locations,
-            633 strings with 4894 characters,
-and the built_in function-call counts, 638 in all, are:
-= -- 59
-> -- 16
-< -- 2
-+ -- 5
-- -- 4
-* -- 47
-:= -- 108
-add.period$ -- 4
-call.type$ -- 2
-change.case$ -- 9
-chr.to.int$ -- 2
-cite$ -- 2
-duplicate$ -- 30
-empty$ -- 55
-format.name$ -- 8
-if$ -- 126
+            665 strings with 5474 characters,
+and the built_in function-call counts, 2563 in all, are:
+= -- 249
+> -- 74
+< -- 7
++ -- 22
+- -- 20
+* -- 174
+:= -- 409
+add.period$ -- 15
+call.type$ -- 8
+change.case$ -- 38
+chr.to.int$ -- 8
+cite$ -- 9
+duplicate$ -- 130
+empty$ -- 215
+format.name$ -- 35
+if$ -- 524
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 3
-newline$ -- 13
-num.names$ -- 6
-pop$ -- 12
+missing$ -- 10
+newline$ -- 42
+num.names$ -- 24
+pop$ -- 54
 preamble$ -- 1
-purify$ -- 12
+purify$ -- 49
 quote$ -- 0
-skip$ -- 21
+skip$ -- 93
 stack$ -- 0
-substring$ -- 34
-swap$ -- 4
-text.length$ -- 2
-text.prefix$ -- 2
+substring$ -- 128
+swap$ -- 23
+text.length$ -- 7
+text.prefix$ -- 7
 top$ -- 0
-type$ -- 13
-warning$ -- 0
-while$ -- 6
-width$ -- 3
-write$ -- 26
+type$ -- 57
+warning$ -- 1
+while$ -- 24
+width$ -- 9
+write$ -- 96
+(There was 1 error message)

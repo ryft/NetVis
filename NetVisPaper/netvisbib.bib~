@@ -1,59 +1,61 @@
-@article{Buhmann:1998:DCQ,
-	AUTHOR = {J. M. Buhmann and D. W. Fellner and M. Held and J.
-		Ketterer and J. Puzicha},
-	TITLE = {Dithered Color Quantization},
-	JOURNAL = cgforum,
-	EDITOR = {N. Ferreira and M. G{\"{o}}bel},
-	VOLUME = {17},	NUMBER = {3},
-	MONTH = Sep,	YEAR = {1998},	PAGES = {C219-C231},
-	NOTE = {(Proc. Eurographics'98)
-	       \httpAddr{//diglib.eg.org/EG/CGF/volume17/issue3/ColQuant98}} }
-
-@ARTICLE{Fellner-Helmberg93,
-	AUTHOR = {Fellner, Dieter W. and Helmberg, Christoph},
-	TITLE = {Robust Rendering of General Ellipses and Elliptical Arcs},
-	JOURNAL = tog,
-	VOLUME = {12},	NUMBER = {3},
-	MONTH = Jul,	YEAR = {1993},	PAGES = {251-276}}
-
-@BOOK (FolDamFeiHug.etal93,
-	AUTHOR = {Foley, James D. and van Dam, Andries and
-		Feiner, Stephen K. and Hughes, John F. and Phillips, R.},
-	TITLE = {Introduction to Computer Graphics},
-	PUBLISHER = {Addison-Wesley},
-	YEAR = {1993} )
-
-@ARTICLE{Kobbelt97-USHDR,
-	author = {L. Kobbelt and M. Stamminger and H.-P. Seidel},
-	title = {Using Subdivision on Hierarchical Data to Reconstruct Radiosity
-		Distribution},
-	JOURNAL = cgforum,
-	volume = 16,	number = 3,	pages = {C347-C355},
-	year = 1997,
-	note = {(Proc. Eurographics'97)
-	       \httpAddr{//diglib.eg.org/EG/CGF/volume16/issue3/CGF172.html}} }
-
-@INPROCEEDINGS{Lafortune97-NARF,
-	author = {Eric P. Lafortune and Sing-Choong Foo and Kenneth E. Torrance and
-		Donald P. Greenberg},
-	title = {Non-Linear Approximation of Reflectance Functions},
-	booktitle = {Proc. SIGGRAPH '97},
-	volume = 31,	pages = {117-126},
-	year = 1997 }
-
-@ARTICLE (Lous90,
-	AUTHOR = {Y. Le Lous},
-	TITLE = {Report on the {F}irst {E}urographics {W}orkshop on {V}isualization in
-		{S}cientific {C}omputing},
-	JOURNAL = cgforum,
-	VOLUME = {9},	NUMBER = {4},
-	MONTH = dec,	YEAR = {1990},	PAGES = {371-372} )
-
-@ARTICLE (Seidel93,
-	AUTHOR = {Seidel, Hans-Peter},
-	TITLE = {Polar Forms for Geometrically Continuous Spline Curves of
-		Arbitrary Degree},
-	JOURNAL = tog,
-	VOLUME = {12},	NUMBER = {1},
-	MONTH = Jan,	YEAR = {1993},	PAGES = {1-34})
-
+@techreport{mackinlay1987automatic,
+  title={Automatic design of graphical presentations},
+  author={Mackinlay, Jock D},
+  year={1987},
+  institution={Stanford Univ., CA (USA)}
+}
+@book{ware2012information,
+  title={Information visualization: perception for design},
+  author={Ware, Colin},
+  year={2012},
+  publisher={Morgan Kaufmann Pub}
+}
+@article{inselberg1985plane,
+  title={The plane with parallel coordinates},
+  author={Inselberg, Alfred},
+  journal={The Visual Computer},
+  volume={1},
+  number={2},
+  pages={69--91},
+  year={1985},
+  publisher={Springer}
+}
+@book{shneiderman1998designing,
+  title={Designing the user interface},
+  author={Shneiderman, Ben},
+  year={1998},
+  publisher={Pearson Education India}
+}
+@misc{stevens1946theory,
+  title={On the theory of scales of measurement},
+  author={Stevens, Stanley Smith and others},
+  year={1946},
+  publisher={Bobbs-Merrill, College Division}
+}   
+@article{fliggnetwork,
+  title={Network Security Visualization},
+  author={Fligg, Keith and Max, Genevieve}
+  year={2012}
+}
+@inproceedings{plonka2000flowscan,
+  title={Flowscan: A network traffic flow reporting and visualization tool},
+  author={Plonka, Dave},
+  booktitle={USENIX LISA},
+  pages={305--317},
+  year={2000}
+}
+@article{lau2004spinning,
+  title={The spinning cube of potential doom},
+  author={Lau, Stephen},
+  journal={Communications of the ACM},
+  volume={47},
+  number={6},
+  pages={25--26},
+  year={2004}
+}
+@book{marty2009applied,
+  title={Applied security visualization},
+  author={Marty, Raffael},
+  year={2009},
+  publisher={Addison-Wesley}
+}
