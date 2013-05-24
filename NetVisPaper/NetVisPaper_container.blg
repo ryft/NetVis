@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2011)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: NetVisPaper_container.aux
+The style file: eg-alpha.bst
+Database file #1: netvisbib.bib
+You've used 2 entries,
+            2855 wiz_defined-function locations,
+            633 strings with 4894 characters,
+and the built_in function-call counts, 638 in all, are:
+= -- 59
+> -- 16
+< -- 2
++ -- 5
+- -- 4
+* -- 47
+:= -- 108
+add.period$ -- 4
+call.type$ -- 2
+change.case$ -- 9
+chr.to.int$ -- 2
+cite$ -- 2
+duplicate$ -- 30
+empty$ -- 55
+format.name$ -- 8
+if$ -- 126
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 3
+newline$ -- 13
+num.names$ -- 6
+pop$ -- 12
+preamble$ -- 1
+purify$ -- 12
+quote$ -- 0
+skip$ -- 21
+stack$ -- 0
+substring$ -- 34
+swap$ -- 4
+text.length$ -- 2
+text.prefix$ -- 2
+top$ -- 0
+type$ -- 13
+warning$ -- 0
+while$ -- 6
+width$ -- 3
+write$ -- 26

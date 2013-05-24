@@ -1,5 +1,5 @@
-The Spinning Cube is an implementation of an existing visualization tool known as the spinning cube of potential doom\footnote{See \url{www.kismetwireless.net/doomcube/}}.
-It displays packets as dots inside a spinning cube. Their 3D position and color is based on 3 packet attributes. (eg. x-axis $\Rightarrow$ Source Port / y-axis $\Rightarrow$ Destination Port / z-axis $\Rightarrow$ Source IP). 
-However it improves upon the Spinning Cube of Potential Doom by making the three axis customisable and adding randomness to the position of the points in the cube. 
-The latter uses the same principle of randomness as in the Data Flow visualization: a group of points in undistinguishable from a single point if they have the same position so it is easier to spot the density of a spot in the cube by adding a random offset to the points.
-\textbf{[make nicer]}
+The Spinning Cube is a three-dimensional scatter plot. It displays packets as dots inside a rotating cube. The position of the dot is determined by its packet's attributes. This could be the combination of source port, destination port, and source IP. 
+
+The visualization is an implementation of an existing visualization tool known as the spinning cube of potential doom (\url{www.kismetwireless.net/doomcube/}), but offers additional control for the user. In particular, the axes can be chosen to represent arbitrary packet attributes.
+
+To ensure good distinguishability of individual packets, we use the same principle of randomness as in the Data Flow visualization. Every point is animated and pertubed. In this way, multiple packets with the same attributes do not occupy the same pixel in the cube. It is thus easier to spot the packet density of an area in the cube.
