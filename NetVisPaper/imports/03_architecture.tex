@@ -1,8 +1,8 @@
-NetViz is a Java application which uses OpenGL to draw visualizations and Swing for providing a graphical user interface to display further information and allow the user to customise the visualizations.
+NetVis is a Java application which uses OpenGL to draw visualizations and Swing for providing a graphical user interface to display further information and allow the user to customise the visualizations.
 
 In designing the application, we have focused on maintaining extensibility and keeping a modular programming style. It is simple to add support for additional input data formats, or to develop a new visualization that utilises the same data processing engine.
 
-Packet data is given to the application as a CSV packet capture file as it can be obtained, for instance, by exporting from Wireshark. NetViz will process each packet and analyse its fields Source IP, MAC Address, Port, Destination IP, MAC Address, Port, Protocol, and size of its data. Note that in this stage the application does not process the content of packets, and instead looks at the structure of the packets.
+Packet data is given to the application as a CSV packet capture file as it can be obtained, for instance, by exporting from Wireshark. NetVis will process each packet and analyse its fields Source IP, MAC Address, Port, Destination IP, MAC Address, Port, Protocol, and size of its data. Note that in this stage the application does not process the content of packets, and instead looks at the structure of the packets.
 
 A convenient feature of the data input system is a time control system. The CSV file is processed as if its packets were coming in in real time. The user can choose to speed up or slow down the speed with which packets are fed into the application, can pause processing, or skip towards the end of the data record. This is very helpful in analysing the data since critical time intervals can be analysed in more detail.
 
