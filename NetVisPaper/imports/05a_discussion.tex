@@ -5,3 +5,35 @@ Each visualization fulfills a specific purpose.  The Heat Map visualization prov
 The visualizations developed here differ in their approach to handling the inherent multi-dimensionality of traffic data. An effective visualization framework needs to make clear how traffic changes as time progresses, and needs to show interesting developments in diverse attributes such as port use, source and destination machines, protocol use or traffic volume. Showing all this information simultaneously risks obstructing the simplicity needed for ready understanding. NetVis uses both multi-dimensional systems (such as parallel coordinates) to give an overview and lower-dimensional visualizations to provide more detail. This encourages an understanding of network activity that is both broad and detailed.
 
 %To arrive at a complete understanding of the network, a single visualization will not typically be sufficient. An analyst will need to see different approaches to interpret the data, and will need to customize the visualizations and the data displayed in them. This is where the design principles of interactivity and interconnectedness of NetVis provide powerful assistance, and ensure that the visualizations in combination achieve both effectiveness and expressiveness \cite{mackinlay1987automatic}. 
+
+
+
+Results: (couldn't find a section)
+
+pic: portscan detected
+
+Caption: The analyst can clearly see that a port scan has occured.
+
+pic: portscan identify
+
+Caption: By visualising the distribution of source IP's he can distinguish a spike in the network traffic for a small IP range.
+
+pic: portscan explore
+
+Caption: Applying a range filter isolates the port scan which he can explore further in all the visualizations.
+
+
+SSH Attack:
+
+pic: ssh_suspicious:
+
+Caption: The analyst observes some irregular activity in the traffic volume visualization.
+
+pic: ssh_explore
+
+Caption: After exploring with a couple of filters he finds out that a single IP is responsible for all the irregularities. A quick look at the analysis panel provides information about the attacker and the victim. By isolating the packets from the suspicious IP he can determine the type of attack.
+
+Results conclusion:
+An analyst can train for detecting attacks by using packet captures. After learning the shape of different attacks in each visualization it becomes extremely easy for him to detect an ongoing attack. By using a different filter combinations he can isolate the attack an learn more about it.
+
+
