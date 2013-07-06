@@ -7,12 +7,10 @@
 
 % for anonymous conference submission please enter your SUBMISSION ID
 % instead of the author's name (and leave the affiliation blank) !!
-\author[SUBMISSION ID: paper1020]
-       {SUBMISSION ID: paper1020
-%        S. Spencer$^2$\thanks{Chairman Siggraph Publications Board}
-        %\\ AFFILIATION
-% For Computer Graphics Forum: Please use the abbreviation of your first name.
-         %Department of Computer Science, University of Oxford
+\author[Nicholls et al.]
+       {J. Nicholls, D. Peters, A. Slawinski, T. Spoor, S. Vicol, J. Happa, M. Goldsmith and S. Creese
+        \\
+         Department of Computer Science, University of Oxford
        }
 
 % ------------------------------------------------------------------------
@@ -61,8 +59,8 @@ be added straightforwardly.
 \CCScat{Computer Graphics}{I.3.8}{Applications}
 \CCScat{Management of Computing and Information Systems}{K.6.5}{Security and Protection}
 \end{classification}
-Keywords: Computer Security Visualization, Network Traffic, Scientific Visualization, Information
-Visualization
+% Keywords: Computer Security Visualization, Network Traffic, Scientific Visualization, Information
+% Visualization
 \end{abstract}
 
 \section{Introduction} \label{sec:intro}
@@ -79,7 +77,7 @@ while making clear what general patterns are arising, facilitating detection of 
 
 In this paper, we present a framework implemented as a software application. Specifically, we are
 interested in harnessing the ability of the human analyst to \textit{detect} unusual and possibly
-malicious activity, and in supporting that analyst through the use of visualisations. In particular,
+malicious activity, and in supporting that analyst through the use of visualisations; in particular,
 through the use of multiple visualisations from a single platform. We envisage an environment where
 the analyst can easily switch between visualizations, exploring the dataset until a particular
 visualisation resonates as \textit{showing} something of interest. Current approaches to supporting
@@ -91,7 +89,7 @@ visualizations which will work for all analysts in all operating conditions. For
 developed a framework which can easily support new visualizations as well as the tailoring of
 existing ones.
 
-We enable interactive analysis, allowing a deeper and more straightforward understanding of the data
+We enable interactive analysis, we allow a deeper and more straightforward understanding of the data
 by enabling an analyst to explore their raw datasets in a way that they deem appropriate given any
 current situation. Time series data, in the form of packet captures, are processed in real-time and
 simultaneously rendered in multiple connected visualizations. The user can switch between the
@@ -104,13 +102,7 @@ of their limitations have been addressed in our implementations. The three remai
 are novel to this paper. These are referred to as: \textit{Attribute Distribution, Heat Map} and
 \textit{Activity Groups}.
 
-The framework aims to provide an environment in which situational awareness can more effectively be
-obtained. It is therefore flexible to the demands of the specific situation. New visualizations will
-in a natural way complement the existing ones: The underlying data processing engine provides a
-standard data basis which is shared by all displays. The tools emphasize exceptions, show
-comparisons, and answer a wide variety of questions in a concise fashion. We want the user to
-generate good hypotheses in response to the visualized information. To achieve this, we have
-implemented a filtering system which can be adjusted in response to changing situations. 
+New visualizations can complement the existing ones: The underlying data processing engine provides a standard data basis which is shared by all displays. The tools emphasize exceptions, show comparisons, and answer a wide variety of questions in a concise fashion. We want the user to generate good hypotheses in response to the visualized information. To achieve this, we have implemented a filtering system which can be adjusted in response to changing situations. 
 
 Though NetVis's main purpose is to monitor current activity in the network, the same
 architecture could be used to forensically analyse recorded data. This allows us to exploit the
@@ -125,39 +117,16 @@ usefulness of our framework. A reflection on the utility of our methods and futu
 can be found in Section \ref{sec:discussion} and the conclusion is presented in Section \ref{sec:conc}.
 
 \section{Related Work} \label{sec:relatedwork}
-%\input{imports/02_related_work.tex}
-To this day, most visualization approaches provide a segmented view of a dataset. These 
-provide different perspectives on the same data. Some of these may favour graph-based 
-representations, port-scanning activity characteristics, network traffic patterns, payload 
-characteristics or event-log forensics. Conti \cite{Conti} and Marty \cite{marty2009applied} 
-provide a detailed discussion on this topic.
+Visualization approaches provide different perspectives view of a dataset based on criterias of interest. Some of the techniques favour graph-based representations, port-scanning activity characteristics, network traffic patterns, payload characteristics or event-log forensics. More specifically, these could include use of parallel coordinate plots \cite{picviz}, treemaps \cite{johnson1991tree}, geolocation \cite{prole2008wireless} and visual firewall \cite{lee2005visual}. 
 
-Examples of available tools include the open source Rumint \cite{rumint} and Wireshark
-\cite{wireshark} for traffic forensics. Many tools for analysing network usage patterns
-exist \cite{RADAR, plonka2000flowscan, lau2004spinning, best2010, liao2010}. Best et al.
-\cite{best2010} demonstrated the usefulness of tools such as Traffic Circle, CLIQUE and MeDiCi to
-improve situational awareness by visualising and exploring raw dataset content. The potential wider
-impact of attacks on network assets was visualised with Navigator using graphs and tree maps by Chu
-et al. \cite{chu2010}. 
-% Intrusion-detection event-correlations have also been visualized in an
-% interface resembling a graph comprised of nodes detailing computer information by Rasmussen et al.
-% \cite{rasmussen2010} and a time step visualization by Yelizarov et al. \cite{yelizarov2009}.
+Rumint \cite{rumint} and Wireshark \cite{wireshark} are examples that can be used for traffic forensics. For analysing network traffic patterns a variety of strategies have been proposed including traffic volume \cite{plonka2000flowscan} and raw data relationships \cite{lau2004spinning}. Best et al. \cite{best2010} also demonstrated the usefulness of tools such as Traffic Circle, CLIQUE and MeDiCi to improve situational awareness by exploring raw dataset through visualization.
 
-% Other visualizations attempt to map network activity to real world properties in a way that is
-% more tangible such as geographic location or business impact of attacks. The commercial Arcsight
-% tool \cite{arcsight} for instance provides mapping between event alerts, source IPs and business
-% roles. Another example is Tenable \cite{Tenable} that visualises topology based on vulnerability
-% scans. It encodes information about vulnerabilities, missing patches, open ports, firewalls,
-% intrusion detection system alerts and netflow.
+Conti \cite{Conti} and Marty \cite{marty2009applied} provide a detailed discussion on this topic, while Zhang et al. \cite{zhang2012survey} presented a survey overviewing the techniques. Other tools and visualization techniques can be found in the SecViz.org \cite{SECVIZ} gallery. 
 
-A plethora of other existing tools and visualizations can be located at the SecViz.org gallery.
-While many tools exist to address situational awareness, few works have discussed how multiple
-visualization techniques can compliment each other and work together to deliver an improved
-situational awareness from network activity data. This is the main problem NetVis addresses by
-combining a number of visualizations together. 
+\subsection{Motivation}
+While many tools exist to improve aspects of network traffic data understanding, few works have discussed how multiple visualization techniques can work together to deliver an improved understanding of network activities. NetVis addresses this problem by showing how multiple heterogeneous of visualizations approaches can work together. Three are improvements on known visualization techniques (Parallell Coordinate Plots, FlowScan and Spinning Cube), while the latter three are new visualizations for network traffic.
 
 \section{NetVis Architecture}\label{sec:overview}
-%\input{imports/03_architecture.tex}
 NetVis is a Java application which uses OpenGL (JOGL) to draw visualizations and Swing to provide a
 Graphical User Interface (GUI). In designing the application, maintaining extensibility and keeping
 a modular programming style was a large focus. It is now straightforward to add support for
@@ -166,9 +135,8 @@ processing engine.
 
 Packet data is transferred to the application as a CSV packet capture file. NetVis uses a file
 format that can be directly obtained from the packet analyser Wireshark \cite{wireshark}. NetVis
-will process each packet and analyse its fields which includes: timestamp, information about the
-packet's source (IP, hardware (MAC) address, port), information about the packet's destination,
-communication protocol, and the packet length in bytes. The current version of NetVis does not
+will process each packet and analyse its fields which includes: \textit{timestamp, information about the packet's source (IP, hardware (MAC) address, port), information about the packet's destination,
+communication protocol, and the packet length in bytes}. The current version of NetVis does not
 process the content of packets. 
 
 % All capture files are provided to the application as CSV files with the following headers;
@@ -245,11 +213,6 @@ overview of the system's architecture can be found in Figure \ref{fig:architectu
 % switch the application to use this class.
 
 \section{NetVis Visualizations} \label{sec:visuals}
-%\input{imports/04a_vis_gui.tex}
-% What does the GUI want to achieve? High-level point?
-% I don't understand what high-level points need to be made, it's clear what
-% the GUI wants to achieve.
-
 \subsection{Graphical User Interface}
 The displayed (current) visualization occupies most of the user interface and can be maximised to
 fill all screen space. A displayed visualization may use both multi-dimensional systems (such as
@@ -308,12 +271,7 @@ screenshot of the Attribute Distribution visualization can be seen in Figure \re
 A second layer of the visualization is presented simultaneously: circles under the line graph
 indicate the actual distribution (without a logarithm applied) through their area. Furthermore, all
 lines and circles are colour-coded to give extra signals of the volume of traffic. Red elements are
-under heavier load.
-
-This visualization makes active use of the normalisers described above. It also allows the user to
-click-and-drag along interesting data to zoom into this area. Internally this means that a filter is
-applied and all visualizations show only the selected packets so that they can be analysed in more
-detail.
+under heavier load. The visualization makes active use of the aforementioned normalisers. It also allows users to click-and-drag along interesting data to zoom into. Internally this means that a filter is applied and all visualizations show only the selected packets for closer examination.
 
 \subsection{Visualization: Data Flow}
 %\input{imports/04c_vis_dataflow.tex}
@@ -424,11 +382,7 @@ for a screenshot.
 
 This visualization helps a user find machines that are most active in the network.
 It gives a quick overview of the number of the clients and how many of them are currently active.
-Additionally every node presents some information, such as the machine's most commonly used protocol.
-This lets users do some basic data selection choices easily. For example: if some other visualization
-is being obscured by too much data from one specific machine, or too much data of some protocol,
-the user can look at the heatmap and find out what filters to apply to make the overview of the
-situation more clear.
+Additionally every node presents some information, such as the machine's most commonly used protocol. This lets users do some basic data selection choices easily. For example: if some other visualization is being obscured by too much data from one specific machine, or too much data of some protocol, the user can look at the heatmap and find out what filters to apply to make the overview of the situation more clear.
 
 \subsection{Visualization: Activity Groups}
 %\input{imports/04g_vis_activity_groups.tex}
@@ -455,7 +409,6 @@ It also allows the user to quickly guess what type of service the device is prov
 specifies the most commonly used protocol, thus revealing the possible role of the machine in the
 network. Once the typical pattern of connections is identified, it can be filtered out to show
 possible anomalies.
-
 
 \section{User Workflow} \label{sec:workflow}
 %\input{imports/05b_disc_user_workflow.tex}
@@ -496,7 +449,7 @@ By using a different filter combinations they are able to isolate the attack an 
 Below follows two examples of the workflow in use.
 
 \subsubsection{Example Scenario: Portscan}
-\begin{figure*}[htb]
+\begin{figure*}[htbp!]
 	\centering
 	\subfigure[A tall spike in the attribute distribution.]{
 	\includegraphics[width=.3\linewidth]{materials/portscan_identify}
@@ -565,7 +518,6 @@ such as port use, source and destination machines, protocol use or traffic volum
 information simultaneously risks obstructing the simplicity needed for ready understanding. 
 
 \subsection{Advantages}
-%\input{imports/05c_disc_advantages.tex}
 Existing network visualization solutions are typically single-purpose programs which present given
 data in one specific way (see for instance the catalogue in \cite{marty2009applied}). The analyst is
 expected to choose in advance which kind of visualization will provide the most insight, and is then
@@ -589,15 +541,7 @@ the general patterns of network usage and can see how suspicious patterns show u
 visualization.
 
 \subsection{Limitations}
-%\input{imports/05c_disc_limitations.tex}
-The visualizations in our framework currently only support the analysis of time series data of
-packet captures at the network layer. However, a multi-layer approach combined with with security
-event information from intrusion detection systems, routers and firewalls will likely help inform
-the analyst more accurately about the state of the network. The application in its current state
-does not analyse the content of packets.
-
-NetVis assumes computer security expert users/analysts. If a user is unfamiliar with common network
-protocols it may be difficult for them to understand the meaning of emerging patterns. 
+Our visualizations currently only support the analysis of time series data of packet captures at the network layer. However, a multi-layer approach combined with with security event information from intrusion detection systems, routers and firewalls will likely help inform the analyst more accurately about the state of the network. The application in its current state does not analyse the content of packets. NetVis assumes domain expert users. If a user is unfamiliar with common network protocols it may be difficult for them to understand the meaning of emerging patterns. 
 %Developing support for learning or showing how the protocols relate to real world consequences may help them.
 
 \subsection{Future Work}
@@ -606,10 +550,7 @@ We have a number of avenues for future work. We will continue to explore the uti
 effectiveness of the framework through the growth of visualizations tools it supports and
 experiments with expert users. We will extend the data types we support (to allow for the
 consideration of data from other layers and security appliances) and explore the relative benefits
-and limitations, seeking to identify any plateau effects. We will also explore a more powerful data
-preprocessing system. We will experiment with the application of statistical inference to the data
-with historical observations incorporated. Finally, it would be valuable to assess our workflow
-paradigm by testing it using data from environments outside laboratory settings.
+and limitations, seeking to identify any plateau effects (i.e. to keep vigilance levels high). We will also explore a more powerful data preprocessing system. Further, we will experiment with the application of statistical inference to the data with historical observations incorporated. Finally, it would be valuable to assess our workflow paradigm by testing it using data from outside laboratory settings and obtain comments from analysts in real environments.
 
 \section{Conclusion} \label{sec:conc}
 %\input{imports/06_conclusion.tex}

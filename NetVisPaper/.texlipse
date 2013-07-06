@@ -1,13 +1,14 @@
 #TeXlipse project settings
-#Fri Mar 13 03:14:18 GMT 2009
+#Sat Jul 06 15:38:39 BST 2013
+markTmpDer=true
 builderNum=2
 outputDir=
 makeIndSty=
 bibrefDir=
 outputFormat=pdf
 tempDir=tmp
-mainTexFile=NetVisPaper_container.tex
-outputFile=NetVisPaper_container.pdf
+mainTexFile=EGauthorGuidelines-TPCG13-fin.tex
+outputFile=EGauthorGuidelines-TPCG13-fin.pdf
 langSpell=en
 markDer=true
 srcDir=

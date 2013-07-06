@@ -1,20 +1,22 @@
 %%%%%%%%%%%%%%%%%%%%%% start of egpubl.cls %%%%%%%%%%%%%%%%%%%%%%
-\def\fileversion{3.52}
-\def\filedate{2010/09/29}
-\def\docdate {2010/09/29}
+\def\fileversion{3.54}
+\def\filedate{2012/03/07}
+\def\docdate {2012/03/07}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{egpubl}[\filedate \space
                        Document Style for EG Publications v\fileversion ]
 %
 % EG Publications document style
 % (based on EG Annual Event document style, which in turn was based on CFG Journal)
-% Copyright (c) 1997-2010 D.Fellner
+% Copyright (c) 1997-2012 D.Fellner
 %
 % based on the original LaTeX ARTICLE DOCUMENT STYLE
 %    for LaTeX version 2.09 by Leslie Lamport
 % ...modifications by Sue Brooks, BUSS Ltd
 % ... and Graham White 8.ix.92
 % ...redesign for LaTeX2e and adaption to Conf. Proc. by D.Fellner
+% 07-03-12 SB  3.54 corrected definition of \endfigure and \endtable
+% 04-05-11 SB  3.53 changing of copyright line on the behalf of Wiley
 % 29-09-10 SB  3.52 introduced \Poster
 % 23-09-10 SB  3.51 add possibility to include a teaser image into the first page
 % 27-11-08 SB  3.50 using smaller fontsize for bibliography
@@ -248,7 +250,8 @@
 \def\ext@table{lot}
 \def\fnum@table{Table \thetable}
 \def\table{\@float{table}}
-\let\endtable\end@float
+% *** \let\endtable\end@float
+\def\endtable{\end@float}
 \@namedef{table*}{\@dblfloat{table}}
 \@namedef{endtable*}{\end@dblfloat}
 
@@ -261,7 +264,8 @@
 \def\ext@figure{lof}
 \def\fnum@figure{Figure \thefigure}
 \def\figure{\@float{figure}}
-\let\endfigure\end@float
+% *** \let\endfigure\end@float
+\def\endfigure{\end@float}
 \@namedef{figure*}{\@dblfloat{figure}}
 \@namedef{endfigure*}{\end@dblfloat}
 
@@ -869,7 +873,7 @@ Categories and Subject Descriptors {\small (according to ACM CCS)}: }
 %
 \newcommand\p@copyrightTextLong[1]{%
 \copyright\ #1\ The Author(s)\\
-Journal compilation \copyright\ #1\ The Eurographics Association and
+Computer Graphics Forum \copyright\ #1\ The Eurographics Association and
 Blackwell Publishing Ltd. Published by Blackwell Publishing,
 9600 Garsington Road, Oxford OX4 2DQ, UK and 350 Main Street,
 Malden, MA 02148, USA.%
@@ -877,14 +881,17 @@ Malden, MA 02148, USA.%
 \newcommand\p@copyrightTextShort[1]{%
 \copyright\ #1\ The Author(s)
 
-Journal compilation \copyright\ #1\ The Eurographics Association and Blackwell Publishing Ltd.
+\copyright\ #1\ The Eurographics Association and Blackwell Publishing Ltd.
 }%
 
 \newcommand\p@copyrightTextShortEven[1]{%
 \begin{flushright}
 \copyright\ #1\ The Author(s)
+
+\copyright\ #1\ The Eurographics Association and Blackwell Publishing Ltd.
 \end{flushright}
-Journal compilation \copyright\ #1\ The Eurographics Association and Blackwell Publishing Ltd.
+
+
 
 }%
 
